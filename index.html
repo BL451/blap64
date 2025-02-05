@@ -1,14 +1,11 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <script src="./node_modules/p5/lib/p5.min.js"></script>
-        <script src="./node_modules/p5/lib/addons/p5.sound.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="./css/style.css" />
-        <script src="./script/sketch.js"></script>
-    </head>
-    <body>
-        <p id="placeholder">blap64<br />under construction <3</p>
-        <div id="home_bg"></div>
-    </body>
-</html>
+<head>
+    <script src="./node_modules/p5/lib/p5.min.js"></script>
+    <script src="./node_modules/p5/lib/addons/p5.sound.min.js"></script>
+</head>
+<nav>
+    <button route="/">Home</button>
+    <button route="/about">About</button>
+</nav>
+<div id="app"></div>
+<script type="module" src="./src/app.js"></script>
+<script type="module" src="./src/views/elements/p5-element.js"></script>
