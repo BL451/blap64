@@ -4,7 +4,7 @@ export default class Router {
     constructor(routes = [], render_node) {
         this.routes = routes;
         this.render_node = render_node;
-        this.path = "/";
+        this.path = "";
         this.is_navigating = false;
         this.navigate(location.pathname + location.hash);
     }
