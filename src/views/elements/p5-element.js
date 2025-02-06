@@ -9,7 +9,6 @@ export class p5Element extends LitElement {
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background-color: rgb(0, 0, 0);
             width: 100%;
             height: 100%;
         }

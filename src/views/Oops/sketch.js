@@ -7,7 +7,6 @@ export const sketch = function (p) {
         p.pixelDensity(1);
         const s = getViewportSize();
         p.createCanvas(s.width, s.height, p.WEBGL);
-        p.background(100);
         // Options for creating our framebuffer, width and height relative to the size of our canvas determine the pixelation appearance
         const options = {
             width: 128,
@@ -27,13 +26,12 @@ export const sketch = function (p) {
     };
 
     p.draw = function draw() {
-        p.background(0);
+        p.clear();
         fbo.begin(); // Begin drawing stuff in the framebuffer
         p.noFill();
         p.stroke(200, 20, 20);
         p.strokeWeight(p.abs(p.sin(p.frameCount / 42)));
         p.clear();
-        p.background(0);
         p.rotateX(p.frameCount / 50);
         p.rotateY(p.frameCount / 200);
         p.circle(0, 0, 64);

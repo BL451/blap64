@@ -1,11 +1,36 @@
-<head>
-    <script src="./node_modules/p5/lib/p5.min.js"></script>
-    <script src="./node_modules/p5/lib/addons/p5.sound.min.js"></script>
-</head>
-<nav>
-    <button route="/">Home</button>
-    <button route="/about">About</button>
-</nav>
-<div id="app"></div>
-<script type="module" src="./src/app.js"></script>
-<script type="module" src="./src/views/elements/p5-element.js"></script>
+<!doctype html>
+<html lang="en">
+    <head>
+        <link
+            rel="manifest"
+            crossorigin="use-credentials"
+            href="./manifest.json"
+        />
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="./src/assets/favicon/apple-touch-icon.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="./src/assets/favicon/favicon-32x32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="./src/assets/favicon/favicon-16x16.png"
+        />
+        <script src="./node_modules/p5/lib/p5.min.js"></script>
+        <script src="./node_modules/p5/lib/addons/p5.sound.min.js"></script>
+    </head>
+    <nav>
+        <button route="/" class="pointer route">Home</button>
+        <button route="/about" class="pointer route">About</button>
+    </nav>
+    <div id="app" class="app"></div>
+    <script type="module" src="./src/app.js"></script>
+    <script type="module" src="./src/views/elements/p5-element.js"></script>
+</html>

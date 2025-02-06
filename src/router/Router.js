@@ -4,6 +4,8 @@ export default class Router {
     constructor(routes = [], render_node) {
         this.routes = routes;
         this.render_node = render_node;
+        this.path = "/";
+        this.is_navigating = false;
         this.navigate(location.pathname + location.hash);
     }
 
@@ -35,27 +37,44 @@ export default class Router {
     }
 
     navigate(path) {
+        if (path == this.path || this.is_navigating) {
+            return;
+        }
+        this.path = path;
         // Look for a matching route, display 404 page otherwise
         const route = this.routes.filter((route) => this.match(route, path))[0];
-        // Maybe not the smartest way to do this, but reset all routes to default colour
+        // Reset CSS classes on all routes in the view
         document
             .querySelectorAll("[route]")
-            .forEach((route) => (route.style.color = "#424242"));
+            .forEach((route) => (route.className = "pointer route"));
         if (!route) {
-            const route_404 = this.routes.filter((route) =>
-                this.match(route, "/oops"),
-            )[0];
-            window.location.href = "#" + route_404.path;
-            render(route_404.renderView(), this.render_node);
+            // This triggers the hashchange event, causing navigate() to be called again and matching the route with our 404 page
+            window.location.href = "#/oops";
         } else {
-            // Hashbanging navigation
-            window.location.href = path.search("/#") === -1 ? "#" + path : path;
-            // Lit template rendering of HTML for the view
-            render(route.renderView(), this.render_node);
+            this.is_navigating = true;
+            // Fade out the main view
+            document.getElementById("app").style.opacity = 0;
             let route_element = document.querySelector(
                 `[route=${CSS.escape(route.path)}]`,
             );
-            if (route_element !== null) route_element.style.color = "#ffbb00";
+            // Update the CSS class on the active route
+            if (route_element !== null) {
+                route_element.className = "pointer route-active";
+            }
+            // Render new page and fade in the main view after 200ms
+            setTimeout(
+                function () {
+                    // Hashbanging navigation
+                    window.location.href =
+                        path.search("/#") === -1 ? "#" + path : path;
+                    // Lit template rendering of HTML for the view
+                    render(route.renderView(), this.render_node);
+                    // Sick fade bro
+                    document.getElementById("app").style.opacity = 1;
+                    this.is_navigating = false;
+                }.bind(this),
+                200,
+            );
         }
     }
 
