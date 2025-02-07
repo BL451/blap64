@@ -27,8 +27,8 @@ export const sketch = function (p) {
     };
 
     p.draw = function draw() {
-        smoothX = smoothX + 0.05 * (p.mouseX - smoothX);
-        smoothY = smoothY + 0.05 * (p.mouseY - smoothY);
+        smoothX = smoothX + 0.02 * (p.mouseX - smoothX);
+        smoothY = smoothY + 0.02 * (p.mouseY - smoothY);
         p.clear();
         fbo.begin(); // Begin drawing stuff in the framebuffer
         p.noFill();
@@ -36,8 +36,8 @@ export const sketch = function (p) {
         p.strokeWeight(p.abs(p.sin(p.frameCount / 42)));
         p.clear();
         p.push();
-        p.rotateX((p.TWO_PI * smoothY) / p.width); //p.frameCount / 50);
-        p.rotateY((p.TWO_PI * -smoothX) / p.height); //p.frameCount / 200);
+        p.rotateX((1.5 * p.PI * smoothY) / p.height);
+        p.rotateY((1.5 * p.PI * -smoothX) / p.width);
         const s = 12;
         p.translate(-3 * s, -3 * s, 0);
         for (let i = 0; i < 7; i++) {
