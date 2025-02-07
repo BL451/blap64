@@ -5,7 +5,7 @@ import homeView from "./views/Home/home.js";
 import aboutView from "./views/About/about.js";
 import oopsView from "./views/Oops/oops.js";
 
-import "./css/style.css";
+//import "./css/style.css";
 
 const routes = [
     new Route("home", "/", homeView),

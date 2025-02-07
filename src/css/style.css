@@ -41,6 +41,14 @@ a {
     position: fixed;
 }
 
+a:link {
+    color: #0827f5;
+}
+
+a:visited {
+    color: #f5be07;
+}
+
 nav {
     width: 100%;
     display: flex;
@@ -52,12 +60,11 @@ nav {
 
 button {
     margin: 0;
-    padding: 1vmin;
+    padding: 2vmin;
     font-family: "HomeVideo";
     background: none;
     border: none;
-    color: #fafafa;
-    font-size: 2vmin;
+    font-size: 4vmin;
     text-align: center;
 }
 
