@@ -46,7 +46,8 @@ export default class Router {
         // Reset CSS classes on all routes in the view
         document
             .querySelectorAll("[route]")
-            .forEach((route) => (route.className = "pointer route"));
+            .forEach((route) => route.classList.remove("route-active"));
+        //.forEach((route) => (route.className = "pointer route"));
         if (!route) {
             // This triggers the hashchange event, causing navigate() to be called again and matching the route with our 404 page
             window.location.href = "#/oops";
@@ -59,7 +60,7 @@ export default class Router {
             );
             // Update the CSS class on the active route
             if (route_element !== null) {
-                route_element.className = "pointer route-active";
+                route_element.classList.add("route-active");
             }
             // Render new page and fade in the main view after 200ms
             setTimeout(

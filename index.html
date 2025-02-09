@@ -23,11 +23,14 @@
         <script src="./node_modules/p5/lib/addons/p5.sound.min.js"></script>
         <link rel="stylesheet" type="text/css" href="./src/css/style.css" />
     </head>
-    <nav>
+    <nav id="mainNav">
         <button route="/" class="pointer route">Home</button>
+        <button route="/codeart" class="pointer route">CodeArt</button>
         <button route="/about" class="pointer route">About</button>
     </nav>
-    <div id="app" class="app"></div>
-    <script type="module" src="./src/app.js"></script>
-    <script type="module" src="./src/views/elements/p5-element.js"></script>
+    <body>
+        <div id="app" class="app"></div>
+        <script type="module" src="./src/app.js"></script>
+        <script type="module" src="./src/views/elements/p5-element.js"></script>
+    </body>
 </html>

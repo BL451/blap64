@@ -2,7 +2,7 @@ import { html } from "lit-html";
 
 export default (props) => html`
     <div class="vertical-center">
-        <p>
+        <p class="main-paragraph">
             This is a website built by a human using HTML, CSS, JavaScript, and
             p5.js<br /><br />
             I belive it's highly valuable to understand how to do things from

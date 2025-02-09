@@ -1,3 +1,4 @@
+/* I am the least experienced with organizing CSS styles so this file is currently a mess :) */
 @font-face {
     font-family: "HomeVideo";
     src: url("../assets/fonts/HomeVideo-BLG6G.ttf");
@@ -16,18 +17,6 @@ body {
     background-color: #0e0e0e;
     width: 100%;
     height: 100%;
-}
-
-p {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    width: 100vw;
-    font-family: "HomeVideoBold";
-    color: #fafafa;
-    font-size: 5vmin;
-    text-align: center;
-    position: relative;
 }
 
 a {
@@ -58,6 +47,10 @@ nav {
     z-index: 9999;
 }
 
+.nav-mobile {
+    bottom: 5vmin;
+}
+
 button {
     margin: 0;
     padding: 2vmin;
@@ -72,14 +65,11 @@ button {
     margin: 0;
     position: absolute;
     top: 50%;
-    -ms-transform: translateY(-50%);
     transform: translateY(-50%);
 }
 
 .app {
-    background-color: none;
     opacity: 0;
-    -webkit-transition: opacity 0.2s cubic-bezier(0, 0.55, 0.45, 1);
     transition: opacity 0.2s cubic-bezier(0, 0.55, 0.45, 1);
 }
 
@@ -89,12 +79,13 @@ button {
 
 .route {
     color: #404040;
-    -webkit-transition:
-        color 0.3s,
-        text-shadow 0.8s;
     transition:
         color 0.3s,
         text-shadow 0.8s;
+}
+
+.route-mobile {
+    font-size: 8vmin;
 }
 
 .route:hover {
@@ -104,9 +95,6 @@ button {
 
 .route-active {
     color: #faa000;
-    -webkit-transition:
-        color 0.3s,
-        text-shadow 0.8s;
     transition:
         color 0.3s,
         text-shadow 0.8s;
@@ -115,4 +103,29 @@ button {
 .route-active:hover {
     color: #faa000;
     text-shadow: 0 0 16px #faa000;
+}
+
+.unselectable {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.main-paragraph {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    width: 100vw;
+    font-family: "HomeVideoBold";
+    color: #fafafa;
+    font-size: 5vmin;
+    text-align: center;
+    position: relative;
+}
+
+.main-paragraph-mobile {
+    font-size: 7vmin;
 }

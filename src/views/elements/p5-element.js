@@ -1,6 +1,7 @@
 import { LitElement, html, css } from "lit";
 import { homeSketch } from "../Home/sketch.js";
 import { oopsSketch } from "../Oops/sketch.js";
+import { codeartSketch } from "../CodeArt/sketch.js";
 
 export class p5Element extends LitElement {
     static styles = css`
@@ -29,6 +30,8 @@ export class p5Element extends LitElement {
         let div = document.createElement("div");
         if (this.sketch === "home") {
             homeSketch(div);
+        } else if (this.sketch === "codeart") {
+            codeartSketch(div);
         } else {
             oopsSketch(div);
         }
