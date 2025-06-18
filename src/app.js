@@ -1,4 +1,4 @@
-import router from "./router/index.js";
+import createRouter from "./router/index.js";
 import Route from "./router/Route.js";
 import { mobileCheck } from "./utils.js";
 
@@ -14,7 +14,16 @@ const routes = [
     new Route("oops", "/oops", oopsView),
 ];
 
-router(routes);
+// Create router instance and make it globally available
+const router = createRouter(routes);
+window.appRouter = router;
+
+// Listen for custom navigation events from p5 sketches
+document.addEventListener('navigate-to', (event) => {
+    if (router && event.detail && event.detail.path) {
+        router.navigate(event.detail.path);
+    }
+});
 
 if (mobileCheck()) {
     document.getElementById("mainNav").className = "nav-mobile";

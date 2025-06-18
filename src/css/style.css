@@ -9,12 +9,27 @@
     src: url("../assets/fonts/HomeVideoBold-R90Dv.ttf");
 }
 
+@font-face {
+    font-family: "BPdotsSquareVF";
+    src: url("../assets/fonts/BPdotsSquareVF.ttf") format('truetype');
+}
+
+@font-face {
+    font-family: "FunnelDisplay";
+    src: url("../assets/fonts/FunnelDisplay.woff2");
+}
+
+@font-face {
+    font-family: "ZxGamut";
+    src: url("../assets/fonts/ZxGamut-Variable.woff2");
+}
+
 html,
 body {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background-color: #0e0e0e;
+    background-color: #171717;
     width: 100%;
     height: 100%;
 }
@@ -45,6 +60,7 @@ nav {
     justify-content: center;
     position: fixed;
     z-index: 9999;
+    background: none;
 }
 
 .nav-mobile {
@@ -62,10 +78,19 @@ button {
 }
 
 .vertical-center {
-    margin: 0;
+    padding: auto;
+    margin: auto;
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
+}
+
+.horizontal-center {
+    padding: auto;
+    margin: auto;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .app {
@@ -79,9 +104,11 @@ button {
 
 .route {
     color: #404040;
+    background: none;
     transition:
         color 0.3s,
-        text-shadow 0.8s;
+        text-shadow 0.8s,
+        box-shadow 0.8s;
 }
 
 .route-mobile {
@@ -97,7 +124,8 @@ button {
     color: #faa000;
     transition:
         color 0.3s,
-        text-shadow 0.8s;
+        text-shadow 0.8s,
+        box-shadow 0.8s;
 }
 
 .route-active:hover {
@@ -115,17 +143,33 @@ button {
 }
 
 .main-paragraph {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    width: 100vw;
-    font-family: "HomeVideoBold";
+    margin: 1% 10% 0 10%;
+    padding: auto;
+    width: 80%;
+    font-family: "ZxGamut";
     color: #fafafa;
-    font-size: 5vmin;
-    text-align: center;
+    font-size: 3vmin;
+    font-weight: 400;
+    text-align: left;
     position: relative;
+}
+
+.text-center {
+    text-align: center;
 }
 
 .main-paragraph-mobile {
     font-size: 7vmin;
+}
+
+h1 {
+    margin: 0 10% 0 10%;
+    padding: auto;
+    width: 80%;
+    font-family: "BPDotsSquareVF";
+    color: #fafafa;
+    font-size: 5vmin;
+    font-weight: 800;
+    text-align: left;
+    position: relative;
 }

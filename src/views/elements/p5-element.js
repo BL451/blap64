@@ -18,36 +18,109 @@ export class p5Element extends LitElement {
     static properties = {
         id: { type: String },
         sketch: { type: String },
+        skipAnimations: { type: Boolean },
     };
 
     constructor() {
         super();
         this.id = "bg";
         this.sketch = "";
+        this.skipAnimations = false;
+        this.p5Instance = null;
+        this.containerDiv = null;
+        this.isInitialized = false;
     }
 
-    script() {
-        let div = document.createElement("div");
-        if (this.sketch === "home") {
-            homeSketch(div);
-        } else if (this.sketch === "codeart") {
-            codeartSketch(div);
-        } else {
-            oopsSketch(div);
-        }
+    connectedCallback() {
+        super.connectedCallback();
+        // Initialize the sketch when the element is added to the DOM
+        this.updateComplete.then(() => {
+            if (!this.isInitialized) {
+                this.initializeSketch();
+            }
+        });
+    }
 
-        /* // This works for embedding a sketch from OpenProcessing
-        let script = document.createElement("iframe");
-        script.src =
-            "https://openprocessing.org/sketch/2242565/embed/?plusEmbedHash=321f7b6f&userID=424615&plusEmbedFullscreen=true&show=sketch";
-        script.width = "400";
-        script.height = "400";
-        */
-        return div;
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        // Clean up the p5 instance when the element is removed from the DOM
+        this.cleanupSketch();
+    }
+
+    updated(changedProperties) {
+        super.updated(changedProperties);
+        // Only reinitialize if already initialized and properties actually changed
+        if (this.isInitialized && (changedProperties.has('sketch') || changedProperties.has('skipAnimations'))) {
+            this.cleanupSketch();
+            this.initializeSketch();
+        } else if (!this.isInitialized) {
+            // Initialize for the first time
+            this.initializeSketch();
+        }
+    }
+
+    cleanupSketch() {
+        try {
+            if (this.p5Instance) {
+                console.log(`p5-element: Cleaning up p5 instance for ${this.sketch}`);
+                // Remove the p5 instance properly
+                this.p5Instance.remove();
+                this.p5Instance = null;
+            }
+            if (this.containerDiv) {
+                // Clear the container div
+                this.containerDiv.innerHTML = '';
+            }
+            this.isInitialized = false;
+        } catch (error) {
+            console.error('p5-element: Error during cleanup:', error);
+            // Force cleanup even if there's an error
+            this.p5Instance = null;
+            if (this.containerDiv) {
+                this.containerDiv.innerHTML = '';
+            }
+            this.isInitialized = false;
+        }
+    }
+
+    initializeSketch() {
+        try {
+            if (!this.containerDiv) {
+                this.containerDiv = this.shadowRoot.querySelector('#sketch-container');
+            }
+            
+            if (!this.containerDiv) {
+                console.warn('p5-element: Container not ready yet, retrying...');
+                setTimeout(() => this.initializeSketch(), 100);
+                return;
+            }
+
+            // Clear any existing content
+            this.containerDiv.innerHTML = '';
+
+            console.log(`p5-element: Initializing sketch: ${this.sketch}, skipAnimations: ${this.skipAnimations}`);
+
+            // Create the appropriate sketch based on the sketch property
+            if (this.sketch === "home") {
+                this.p5Instance = homeSketch(this.containerDiv, { skipAnimations: this.skipAnimations });
+            } else if (this.sketch === "codeart") {
+                this.p5Instance = codeartSketch(this.containerDiv);
+            } else {
+                this.p5Instance = oopsSketch(this.containerDiv);
+            }
+
+            if (this.p5Instance) {
+                console.log(`p5-element: Successfully created p5 instance for ${this.sketch}`);
+                this.isInitialized = true;
+            }
+        } catch (error) {
+            console.error('p5-element: Error initializing sketch:', error);
+            this.isInitialized = false;
+        }
     }
 
     render() {
-        return html` ${this.script()} `;
+        return html`<div id="sketch-container"></div>`;
     }
 }
 

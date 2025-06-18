@@ -19,7 +19,18 @@ export default (routes) => {
         );
     });
 
-    window.addEventListener("hashchange", (e) =>
-        router.navigate(e.target.location.hash.substr(1)),
-    );
+    window.addEventListener("hashchange", (e) => {
+        // Detect if this is a back/forward navigation by checking if user initiated it
+        const isBackForward = !router.is_navigating;
+        const path = e.target.location.hash.substr(1);
+        
+        if (isBackForward) {
+            router.navigate(path, { skipAnimations: true });
+        } else {
+            router.navigate(path);
+        }
+    });
+
+    // Return the router instance for programmatic access
+    return router;
 };

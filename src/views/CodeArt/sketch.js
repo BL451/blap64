@@ -65,5 +65,5 @@ export const sketch = function (p) {
 };
 
 export const codeartSketch = (node) => {
-    new p5(sketch, node);
+    return new p5(sketch, node);
 };

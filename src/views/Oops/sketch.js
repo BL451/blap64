@@ -62,5 +62,5 @@ export const sketch = function (p) {
 };
 
 export const oopsSketch = (node) => {
-    new p5(sketch, node);
+    return new p5(sketch, node);
 };

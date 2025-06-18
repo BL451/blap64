@@ -36,50 +36,67 @@ export default class Router {
         return route_match;
     }
 
-    navigate(path) {
+    navigate(path, options = {}) {
         if (path == this.path || this.is_navigating) {
             return;
         }
+        
+        // Check for skipAnimations URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('skipAnimations') === 'true' && !options.hasOwnProperty('skipAnimations')) {
+            options.skipAnimations = true;
+        }
+        
         this.path = path;
         // Look for a matching route, display 404 page otherwise
         const route = this.routes.filter((route) => this.match(route, path))[0];
         // Reset CSS classes on all routes in the view
-        document
-            .querySelectorAll("[route]")
-            .forEach((route) => route.classList.remove("route-active"));
-        //.forEach((route) => (route.className = "pointer route"));
-        if (!route) {
-            // This triggers the hashchange event, causing navigate() to be called again and matching the route with our 404 page
-            window.location.href = "#/oops";
-        } else {
-            this.is_navigating = true;
-            // Fade out the main view
-            document.getElementById("app").style.opacity = 0;
-            let route_element = document.querySelector(
-                `[route=${CSS.escape(route.path)}]`,
-            );
-            // Update the CSS class on the active route
-            if (route_element !== null) {
-                route_element.classList.add("route-active");
-            }
-            // Render new page and fade in the main view after 200ms
-            setTimeout(
-                function () {
-                    // Hashbanging navigation
-                    window.location.href =
-                        path.search("/#") === -1 ? "#" + path : path;
-                    // Lit template rendering of HTML for the view
-                    render(route.renderView(), this.render_node);
-                    // Sick fade bro
-                    document.getElementById("app").style.opacity = 1;
-                    this.is_navigating = false;
-                }.bind(this),
-                200,
-            );
+    document
+        .querySelectorAll("[route]")
+        .forEach((route) => route.classList.remove("route-active"));
+    //.forEach((route) => (route.className = "pointer route"));
+    if (!route) {
+        // This triggers the hashchange event, causing navigate() to be called again and matching the route with our 404 page
+        window.location.href = "#/oops";
+    } else {
+        this.is_navigating = true;
+        // Fade out the main view
+        document.getElementById("app").style.opacity = 0;
+        let route_element = document.querySelector(
+            `[route=${CSS.escape(route.path)}]`,
+        );
+        // Update the CSS class on the active route
+        if (route_element !== null) {
+            route_element.classList.add("route-active");
         }
+        // Render new page and fade in the main view after 200ms
+        setTimeout(
+            function () {
+                // Hashbanging navigation
+                window.location.href =
+                    path.search("/#") === -1 ? "#" + path : path;
+                // Add navigation options to route props
+                const routeProps = route.props || {};
+                if (options.skipAnimations) {
+                    routeProps.skipAnimations = true;
+                }
+                route.setProps(routeProps);
+                // Lit template rendering of HTML for the view
+                render(route.renderView(), this.render_node);
+                // Sick fade bro
+                document.getElementById("app").style.opacity = 1;
+                this.is_navigating = false;
+            }.bind(this),
+            200,
+        );
+    }
     }
 
     addRoutes(routes) {
         this.routes = [...this.routes, ...routes];
+    }
+
+    navigateBack(path) {
+        this.navigate(path, { skipAnimations: true });
     }
 }
