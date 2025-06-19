@@ -10,16 +10,17 @@ export const sketch = function (p, options = {}) {
 	let smoothX, smoothY;
 	let short;
     let intro_texts = [];
-	let texts = [];
     let animation_states = [];
     let animation_manager;
     let font_sizes;
+    let mobile = false;
     let skipAnimations = options.skipAnimations || false;
 
 	p.setup = async function() {
         p.noCanvas();
 	    const s = getViewportSize();
 		p.createCanvas(s.width, s.height);
+		mobile = widthCheck(p.width);
 		p.background(23);
 		p.noFill();
 		p.stroke(230);
@@ -28,24 +29,26 @@ export const sketch = function (p, options = {}) {
 		await loadGoogleFontSet('../../assets/fonts/BPdotsSquareVF.ttf');
 		p.textAlign(p.CENTER, p.CENTER);
 		short = p.min(p.width, p.height);
-		ui.push(new UICornerBoxButton(0.25*p.width, 0.7*p.height, 0.2*p.width, 0.2*p.width, 0.01*p.width, 0.01*p.width));
-		ui.push(new UIArcButton(0.5*p.width, 0.7*p.height, 0.2*p.width, 0.2*p.width, 0.01*p.width, 0.01*p.width));
-		ui.push(new UITriangleButton(0.75*p.width, 0.7*p.height, 0.25*p.width, 0.25*p.width, 0.01*p.width, 0.01*p.width, 0.5*p.PI));
+		const s_font = Math.max(0.025*p.width, 32);
+		ui.push(new UICornerBoxButton(0.25*p.width, 0.7*p.height, 0.3*short, 0.3*short, 0.01*p.width, 0.01*p.width, "INTERACTIVE\nMEDIA", s_font));
+		ui.push(new UIArcButton(0.5*p.width, 0.7*p.height, 0.3*short, 0.3*short, 0.01*p.width, 0.01*p.width, "PHOTO", s_font));
+		ui.push(new UITriangleButton(0.75*p.width, 0.35*p.height, 0.2*short, 0.2*short, 0.01*p.width, 0.01*p.width, -0.5*p.PI, "ABOUT", s_font));
+		ui.push(new UIHexButton(0.75*p.width, 0.7*p.height, 0.3*short, 0.3*short, 0.01*p.width, 0.01*p.width, "DOWNLOAD", s_font));
+
+		// Apply quadratic curve layout to UI elements
+		layoutUI();
 		smoothX = p.width/2;
 		smoothY = p.height/2;
 		p.textFont('BPdotsSquareVF', {
             fontVariationSettings: `wght 900`
         });
         font_sizes = getFontSizes(p.width, p.height);
-        let padding = [0.05, 0.15];
-        if (widthCheck(p.width)){
+        let padding = [0.04, 0.15];
+        if (mobile){
             padding = [0.025, 0.05];
         }
-        const s_font = 0.022*p.width
-		texts.push(new TextWriter(0.25*p.width, 0.7*p.height, undefined, undefined, "INTERACTIVE\nMEDIA", s_font));
-		texts.push(new TextWriter(0.5*p.width, 0.7*p.height, undefined, undefined, "PHOTO", s_font));
-		texts.push(new TextWriter(0.75*p.width, 0.7*p.height, undefined, undefined, "ABOUT", s_font));
-        intro_texts.push(new TextWriter(padding[0] * p.width, padding[0] * p.width, 0.8*p.width, p.height / 2, "HELLO, FRIEND.", font_sizes.large));
+
+        intro_texts.push(new TextWriter(padding[0] * p.width, padding[0] * p.width, p.width, p.height / 2, "HELLO, FRIEND.", font_sizes.large));
         intro_texts.push(new TextWriter(padding[1] * p.width, 0.18 * p.height, p.width / 2, p.height / 2, "I play many roles:", font_sizes.small));
         intro_texts.push(new TextWriter(padding[1] * p.width, 0.22 * p.height, p.width, p.height / 2, "CREATIVE TECHNOLOGIST\nEDUCATOR\nARTIST", font_sizes.medium));
 
@@ -163,17 +166,20 @@ export const sketch = function (p, options = {}) {
  			ui_element.render();
   		});
         p.noStroke();
-        texts.forEach((text_writer, i) => {
-            const d = text_writer.dist(smoothX, smoothY);
+        ui.forEach((ui_element) => {
+            let d = 0;
+            if (!mobile){
+                d = ui_element.textWriter.dist(smoothX, smoothY);
+            }
             p.textFont('BPdotsSquareVF', {
                 fontVariationSettings: `wght ${p.map(d/p.width, 1, 0, 100, 900, true)}`
             });
-            if (ui[i].contains(p.mouseX, p.mouseY)){
+            if (ui_element.contains(p.mouseX, p.mouseY)){
 				p.fill(230, 20, 20, ui_opacity);
  			} else {
                 p.fill(230, ui_opacity);
  			}
-            text_writer.renderSequentialRandom(p.map(d, 100, 0.5*p.width, 1, 0, true));
+            ui_element.textWriter.renderSequentialRandom(p.map(d, 100, 0.5*p.width, 1, 0, true));
         });
         p.noFill();
         p.stroke(230);
@@ -205,7 +211,9 @@ export const sketch = function (p, options = {}) {
 							console.log('Photo section coming soon!');
 							break;
 						case 2: // Third button - ABOUT
-							window.appRouter.navigate('/about');
+    						setTimeout(() => {
+    							window.appRouter.navigate('/about');
+    						}, 500);
 							break;
 					}
 				}
@@ -221,29 +229,27 @@ export const sketch = function (p, options = {}) {
         const s = getViewportSize();
         p.resizeCanvas(s.width, s.height);
         short = p.min(s.width, s.height);
+        mobile = widthCheck(p.width);
 
         // Update font sizes based on new dimensions
         font_sizes = getFontSizes(p.width, p.height);
 
         // Update padding based on new width
         let padding = [0.05, 0.15];
-        if (widthCheck(p.width)){
+        if (mobile){
             padding = [0.025, 0.05];
         }
-
         // Clear and recreate UI elements with new proportional positions
         // UI elements: corner box, arc, and triangle buttons at 25%, 50%, 75% width
         ui.length = 0;
-        ui.push(new UICornerBoxButton(0.25*p.width, 0.7*p.height, 0.2*p.width, 0.2*p.width, 0.01*p.width, 0.01*p.width));
-        ui.push(new UIArcButton(0.5*p.width, 0.7*p.height, 0.2*p.width, 0.2*p.width, 0.01*p.width, 0.01*p.width));
-        ui.push(new UITriangleButton(0.75*p.width, 0.7*p.height, 0.25*p.width, 0.25*p.width, 0.01*p.width, 0.01*p.width, 0.5*p.PI));
+        const s_font = 0.025*p.width;
+        ui.push(new UICornerBoxButton(0.25*p.width, 0.7*p.height, 0.3*short, 0.3*short, 0.01*p.width, 0.01*p.width, "INTERACTIVE\nMEDIA", s_font));
+		ui.push(new UIArcButton(0.5*p.width, 0.7*p.height, 0.3*short, 0.3*short, 0.01*p.width, 0.01*p.width, "PHOTO", s_font));
+		ui.push(new UITriangleButton(0.75*p.width, 0.35*p.height, 0.2*short, 0.2*short, 0.01*p.width, 0.01*p.width, -0.5*p.PI, "ABOUT", s_font));
+		ui.push(new UIHexButton(0.75*p.width, 0.7*p.height, 0.3*short, 0.3*short, 0.01*p.width, 0.01*p.width, "DOWNLOAD", s_font));
 
-        // Update text elements positions and sizes (correspond to UI buttons)
-        texts.length = 0;
-        const s_font = 0.022*p.width
-		texts.push(new TextWriter(0.25*p.width, 0.7*p.height, undefined, undefined, "INTERACTIVE\nMEDIA", s_font));
-		texts.push(new TextWriter(0.5*p.width, 0.7*p.height, undefined, undefined, "PHOTO", s_font));
-		texts.push(new TextWriter(0.75*p.width, 0.7*p.height, undefined, undefined, "ABOUT", s_font));
+        // Apply quadratic curve layout to UI elements
+        layoutUI();
 
 
         // Update intro text elements positions and sizes
@@ -291,8 +297,75 @@ export const sketch = function (p, options = {}) {
         return { width: vw, height: vh };
     }
 
-    function setUIOpacity(v){
+    function setUIOpacity(v) {
         ui_opacity = 255*v;
+    }
+
+    // Layout UI elements along a quadratic curve going up towards the right
+    function layoutUI() {
+        if (ui.length === 0) return;
+
+        if (mobile) {
+            // Mobile layout: arrange in 2x2 grid in lower third of screen
+            const gridCenterX = 0.5 * p.width;
+            const gridCenterY = 0.7 * p.height; // Lower third of screen
+            const gridSpacing = 0.4 * p.width; // Spacing between grid positions
+
+            // Grid positions: 2x2 layout
+            const gridPositions = [
+                { x: gridCenterX - gridSpacing/2, y: gridCenterY - gridSpacing/2 }, // Top-left
+                { x: gridCenterX + gridSpacing/2, y: gridCenterY - gridSpacing/2 }, // Top-right
+                { x: gridCenterX - gridSpacing/2, y: gridCenterY + gridSpacing/2 }, // Bottom-left
+                { x: gridCenterX + gridSpacing/2, y: gridCenterY + gridSpacing/2 }  // Bottom-right
+            ];
+
+            // Position UI elements in grid
+            for (let i = 0; i < ui.length; i++) {
+                const pos = gridPositions[i % gridPositions.length]; // Handle more than 4 elements
+
+                // Update UI element position
+                ui[i].p.x = pos.x;
+                ui[i].p.y = pos.y;
+
+                // Update corresponding TextWriter position
+                ui[i].textWriter.p.x = pos.x;
+                ui[i].textWriter.p.y = pos.y;
+            }
+        } else {
+            // Desktop layout: quadratic curve
+            // Define curve parameters - curve goes from bottom-left to top-right
+            const startX = 0.15 * p.width;  // Start X position (15% from left)
+            const startY = 0.75 * p.height; // Start Y position (75% from top, near bottom)
+            const endX = 0.85 * p.width;    // End X position (85% from left)
+            const endY = 0.2 * p.height;    // End Y position (20% from top, near top)
+
+            // Quadratic curve control point to create convex upward arc
+            const controlX = 0.6 * p.width;  // Control point X
+            const controlY = 0.65 * p.height; // Control point Y (creates convex curve)
+
+            // Calculate positions for each UI element along the curve
+            for (let i = 0; i < ui.length; i++) {
+                // Parameter t goes from 0 to 1 along the curve
+                const t = ui.length > 1 ? i / (ui.length - 1) : 0;
+
+                // Quadratic Bezier curve formula: P(t) = (1-t)²P₀ + 2(1-t)tP₁ + t²P₂
+                const oneMinusT = 1 - t;
+                const x = oneMinusT * oneMinusT * startX +
+                         2 * oneMinusT * t * controlX +
+                         t * t * endX;
+                const y = oneMinusT * oneMinusT * startY +
+                         2 * oneMinusT * t * controlY +
+                         t * t * endY;
+
+                // Update UI element position
+                ui[i].p.x = x;
+                ui[i].p.y = y;
+
+                // Update corresponding TextWriter position
+                ui[i].textWriter.p.x = x;
+                ui[i].textWriter.p.y = y;
+            }
+        }
     }
 
 	class AnimationManager{
@@ -334,9 +407,10 @@ export const sketch = function (p, options = {}) {
 	}
 
 	class UICornerBoxButton extends UIObj{
-		constructor(x, y, w, h, sx, sy){
+		constructor(x, y, w, h, sx, sy, text, textSize){
 			super(x, y, w, h);
 			this.cs = p.createVector(sx, sy);
+			this.textWriter = new TextWriter(x, y, undefined, undefined, text, textSize);
 		}
 
 		contains(x, y){
@@ -355,8 +429,8 @@ export const sketch = function (p, options = {}) {
 		}
 
 		render(){
-			let sx = p.constrain(this.s.x*(this.cs.x-0.5), -0.2*this.s.x, this.s.x);
-			let sy = p.constrain(this.s.y*(this.cs.y-0.5), -0.2*this.s.y, this.s.y);
+			let sx = p.constrain(this.s.x*(this.cs.x-0.5), -0.1*this.s.x, this.s.x);
+			let sy = p.constrain(this.s.y*(this.cs.y-0.5), -0.1*this.s.y, this.s.y);
 			this.corners(this.p.x, this.p.y, this.s.x, this.s.y, sx, sy);
 		}
 
@@ -378,9 +452,10 @@ export const sketch = function (p, options = {}) {
 	}
 
 	class UIArcButton extends UIObj{
-		constructor(x, y, w, h, sx, sy){
+		constructor(x, y, w, h, sx, sy, text, textSize){
 			super(x, y, w, h);
 			this.cs = p.createVector(sx, sy);
+			this.textWriter = new TextWriter(x, y, undefined, undefined, text, textSize);
 		}
 
 		contains(x, y){
@@ -404,14 +479,13 @@ export const sketch = function (p, options = {}) {
 	}
 
 	class UITriangleButton extends UIObj{
-		constructor(x, y, w, h, sx, sy, o){
+		constructor(x, y, w, h, sx, sy, z, text, textSize){
 			super(x, y, w, h);
-			this.cs = p.createVector(sx, sy, o);
-			this.s.x *= 0.5;
-			this.s.y *= 0.5;
+			this.cs = p.createVector(sx, sy, z);
 			this.top = p.createVector(this.p.x + this.s.x*p.cos(this.cs.z), this.p.y + this.s.y*p.sin(this.cs.z));
 			this.left = p.createVector(this.p.x + this.s.x*p.cos(this.cs.z+2*p.PI/3), this.p.y + this.s.y*p.sin(this.cs.z+2*p.PI/3));
 			this.right = p.createVector(this.p.x + this.s.x*p.cos(this.cs.z+4*p.PI/3), this.p.y + this.s.y*p.sin(this.cs.z+4*p.PI/3));
+			this.textWriter = new TextWriter(x, y, undefined, undefined, text, textSize);
 		}
 
 		render(){
@@ -447,6 +521,70 @@ export const sketch = function (p, options = {}) {
 
 		sign(px, py, ax, ay, bx, by) {
 			return (px - bx) * (ay - by) - (ax - bx) * (py - by);
+		}
+	}
+
+	class UIHexButton extends UIObj{
+		constructor(x, y, w, h, sx, sy, text, textSize){
+			super(x, y, w, h);
+			this.cs = p.createVector(sx, sy);
+			this.vertices = this.calculateHexVertices();
+			this.textWriter = new TextWriter(x, y, undefined, undefined, text, textSize);
+		}
+
+		calculateHexVertices(){
+			const vertices = [];
+			for(let i = 0; i < 6; i++){
+				const angle = (i * p.PI) / 3;
+				const x = this.p.x + this.radius * p.cos(angle);
+				const y = this.p.y + this.radius * p.sin(angle);
+				vertices.push({x, y});
+			}
+			return vertices;
+		}
+
+		contains(x, y){
+			return this.isPointInHexagon(x, y);
+		}
+
+		isPointInHexagon(px, py){
+			// Simple distance-based check for hexagon containment
+			return p.dist(px, py, this.p.x, this.p.y) <= this.radius;
+		}
+
+		render(){
+			// Update vertices based on current position and size
+			this.radius = Math.min(this.s.x, this.s.y) / 2;
+			this.vertices = this.calculateHexVertices();
+
+			// Draw hexagon with animation based on cs.x
+			for(let i = 0; i < 6; i++){
+				const currentVertex = this.vertices[i];
+				const nextVertex = this.vertices[(i + 1) % 6];
+				const prevVertex = this.vertices[(i - 1 + 6) % 6];
+
+				// Calculate the line segment to draw based on cs.x
+				// cs.x = 0: draw from corner towards center (small segments)
+				// cs.x = 1: draw complete lines between vertices
+				const progress = p.map(this.cs.x, 0, 1, 0.2, 0.9, true);
+
+				// Offset from vertices - lines don't start exactly at the vertex
+				const offset = 0.1; // 10% offset from vertex
+
+				// Draw line towards next vertex
+				const startToNextX = p.lerp(currentVertex.x, nextVertex.x, offset);
+				const startToNextY = p.lerp(currentVertex.y, nextVertex.y, offset);
+				const endX = p.lerp(currentVertex.x, nextVertex.x, offset + progress * (1 - offset));
+				const endY = p.lerp(currentVertex.y, nextVertex.y, offset + progress * (1 - offset));
+				p.line(startToNextX, startToNextY, endX, endY);
+
+				// Draw line towards previous vertex
+				const startToPrevX = p.lerp(currentVertex.x, prevVertex.x, offset);
+				const startToPrevY = p.lerp(currentVertex.y, prevVertex.y, offset);
+				const startX = p.lerp(currentVertex.x, prevVertex.x, offset + progress * (1 - offset));
+				const startY = p.lerp(currentVertex.y, prevVertex.y, offset + progress * (1 - offset));
+				p.line(startToPrevX, startToPrevY, startX, startY);
+			}
 		}
 	}
 
