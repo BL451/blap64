@@ -1,3 +1,5 @@
+import { getViewportSize } from "../../utils";
+
 export const sketch = function (p) {
     let fbo = undefined;
     let short = 128;
@@ -48,17 +50,7 @@ export const sketch = function (p) {
         short = p.min(s.width, s.height);
     };
 
-    function getViewportSize() {
-        let vw = Math.max(
-            document.documentElement.clientWidth || 0,
-            window.innerWidth || 0,
-        );
-        let vh = Math.max(
-            document.documentElement.clientHeight || 0,
-            window.innerHeight || 0,
-        );
-        return { width: vw, height: vh };
-    }
+
 };
 
 export const oopsSketch = (node) => {

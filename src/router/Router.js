@@ -14,10 +14,10 @@ export default class Router {
 
         // regex for the route
         let regex_path =
-            route.path.replace(/([:*])(\w+)/g, (full, colon, name) => {
+            "^/?#?" + route.path.replace(/([:*])(\w+)/g, (full, colon, name) => {
                 param_names.push(name);
                 return "([^\/]+)";
-            }) + "(?:\/|$)";
+            }) + "$";
         let params = {};
 
         // match the route using the regex above
@@ -40,13 +40,13 @@ export default class Router {
         if (path == this.path || this.is_navigating) {
             return;
         }
-        
+
         // Check for skipAnimations URL parameter
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('skipAnimations') === 'true' && !options.hasOwnProperty('skipAnimations')) {
             options.skipAnimations = true;
         }
-        
+
         this.path = path;
         // Look for a matching route, display 404 page otherwise
         const route = this.routes.filter((route) => this.match(route, path))[0];
@@ -87,7 +87,7 @@ export default class Router {
                 document.getElementById("app").style.opacity = 1;
                 this.is_navigating = false;
             }.bind(this),
-            200,
+            250,
         );
     }
     }

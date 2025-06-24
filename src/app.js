@@ -5,13 +5,15 @@ import { mobileCheck } from "./utils.js";
 import homeView from "./views/Home/home.js";
 import codeartView from "./views/CodeArt/codeart.js";
 import aboutView from "./views/About/about.js";
+import installationsView from "./views/Installations/installations.js";
 import oopsView from "./views/Oops/oops.js";
 
 const routes = [
-    new Route("home", "/", homeView),
+    new Route("installations", "/codeart/installations", installationsView),
     new Route("codeart", "/codeart", codeartView),
     new Route("about", "/about", aboutView),
     new Route("oops", "/oops", oopsView),
+    new Route("home", "/", homeView),
 ];
 
 // Create router instance and make it globally available

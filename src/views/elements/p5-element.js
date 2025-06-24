@@ -2,6 +2,7 @@ import { LitElement, html, css } from "lit";
 import { homeSketch } from "../Home/sketch.js";
 import { oopsSketch } from "../Oops/sketch.js";
 import { codeartSketch } from "../CodeArt/sketch.js";
+import { installationsSketch } from "../Installations/sketch.js";
 
 export class p5Element extends LitElement {
     static styles = css`
@@ -88,7 +89,7 @@ export class p5Element extends LitElement {
             if (!this.containerDiv) {
                 this.containerDiv = this.shadowRoot.querySelector('#sketch-container');
             }
-            
+
             if (!this.containerDiv) {
                 console.warn('p5-element: Container not ready yet, retrying...');
                 setTimeout(() => this.initializeSketch(), 100);
@@ -105,6 +106,8 @@ export class p5Element extends LitElement {
                 this.p5Instance = homeSketch(this.containerDiv, { skipAnimations: this.skipAnimations });
             } else if (this.sketch === "codeart") {
                 this.p5Instance = codeartSketch(this.containerDiv);
+            } else if (this.sketch === "installations") {
+                this.p5Instance = installationsSketch(this.containerDiv);
             } else {
                 this.p5Instance = oopsSketch(this.containerDiv);
             }
