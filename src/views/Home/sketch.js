@@ -1,4 +1,4 @@
-import { smoothFollow, easeInCubic, getFontSizes, widthCheck, loadGoogleFontSet, injectFontLink, getViewportSize, AnimationManager, UICornerBoxButton, UIArcButton, UITriangleButton, UIHexButton, TextWriter } from "../../utils";
+import { smoothFollow, easeInCubic, getFontSizes, widthCheck, loadGoogleFontSet, injectFontLink, getViewportSize, AnimationManager, UICornerBoxButton, UIArcButton, UITriangleButton, UIHexButton, TextWriter, updateCursor } from "../../utils";
 
 // Home sketch with animation support
 // options.skipAnimations: boolean - when true, skips intro animations and shows final state immediately
@@ -191,9 +191,15 @@ export const sketch = function (p, options = {}) {
             fontVariationSettings: `wght 900`
         });
         animation_manager.execute(p);
+        
+        // Update cursor based on hover state
+        updateCursor(p, p.mouseX, p.mouseY, ui);
 	}
 
-	p.mousePressed = function(){
+	p.mousePressed = function(event){
+	    if (event && event.button !== 0) {
+            return;
+        }
 	    if (ui_opacity < 128){
             return;
 		}
@@ -258,9 +264,9 @@ export const sketch = function (p, options = {}) {
         if (skipAnimations) {
             // Preserve final states when skipping animations
             intro_texts.length = 0;
-            intro_texts.push(new TextWriter(padding[0] * p.width, padding[0] * p.width, 0.8*p.width, p.height / 2, "BLAP64", font_sizes.large));
-            intro_texts.push(new TextWriter(padding[1] * p.width, 0.18 * p.height, p.width / 2, p.height / 2, "I play many roles:", font_sizes.small));
-            intro_texts.push(new TextWriter(padding[1] * p.width, 0.22 * p.height, p.width, p.height / 2, "CREATIVE TECHNOLOGIST\nEDUCATOR\nARTIST\nand more...", font_sizes.medium));
+            intro_texts.push(new TextWriter(p, padding[0] * p.width, padding[0] * p.width, 0.8*p.width, p.height / 2, "BLAP64", font_sizes.large));
+            intro_texts.push(new TextWriter(p, padding[1] * p.width, 0.18 * p.height, p.width / 2, p.height / 2, "I play many roles:", font_sizes.small));
+            intro_texts.push(new TextWriter(p, padding[1] * p.width, 0.22 * p.height, p.width, p.height / 2, "CREATIVE TECHNOLOGIST\nEDUCATOR\nARTIST\nand more...", font_sizes.medium));
         } else {
             // Update positions but preserve current animation states and text content
             intro_texts[0].p.x = padding[0] * p.width;

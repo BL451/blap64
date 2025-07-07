@@ -1,0 +1,100 @@
+import { html } from "lit-html";
+
+// Map routes to human-readable directory names and their actual paths
+const pathMap = {
+    'home': '/',
+    'about': '/about',
+    'interactive': '/codeart',
+    'live': '/codeart/installations',
+    '404': '/oops'
+};
+
+// Function to get breadcrumb segments with navigation paths
+function getBreadcrumbSegments(currentPath) {
+    // Remove hashbang if present (handles /#/, #/, ##/, etc.)
+    const cleanPath = currentPath.replace(/^\/?#+\/?/, '') || '/';
+    
+    // Handle root path
+    if (cleanPath === '/' || cleanPath === '') {
+        return [
+            { name: '~', path: null },
+            { name: 'home', path: '/' }
+        ];
+    }
+    
+    // Handle nested paths
+    if (cleanPath === '/codeart/installations') {
+        return [
+            { name: '~', path: null },
+            { name: 'home', path: '/' },
+            { name: 'interactive', path: '/codeart' },
+            { name: 'live', path: '/codeart/installations' }
+        ];
+    }
+    
+    // Handle single level paths
+    if (cleanPath === '/about') {
+        return [
+            { name: '~', path: null },
+            { name: 'home', path: '/' },
+            { name: 'about', path: '/about' }
+        ];
+    }
+    
+    if (cleanPath === '/codeart') {
+        return [
+            { name: '~', path: null },
+            { name: 'home', path: '/' },
+            { name: 'interactive', path: '/codeart' }
+        ];
+    }
+    
+    if (cleanPath === '/oops') {
+        return [
+            { name: '~', path: null },
+            { name: 'home', path: '/' },
+            { name: '404', path: '/oops' }
+        ];
+    }
+    
+    // Fallback for unmapped paths
+    return [
+        { name: '~', path: null },
+        { name: 'home', path: '/' },
+        { name: cleanPath.replace('/', ''), path: cleanPath }
+    ];
+}
+
+// Handle navigation clicks
+function handleBreadcrumbClick(event, path) {
+    event.preventDefault();
+    if (path && window.appRouter) {
+        // Skip animations when navigating to home from breadcrumb
+        const options = path === '/' ? { skipAnimations: true } : {};
+        window.appRouter.navigate(path, options);
+    }
+}
+
+export const createBreadcrumbNav = (currentPath) => {
+    const segments = getBreadcrumbSegments(currentPath);
+    
+    return html`
+        <div class="breadcrumb-nav">
+            <span class="breadcrumb-text">
+                <span class="breadcrumb-segment" @click=${(e) => handleBreadcrumbClick(e, '/')}>~/home</span>${segments.length > 2 ? segments.slice(2).map(segment => html`<span class="breadcrumb-separator">/</span><span class="breadcrumb-segment" @click=${(e) => handleBreadcrumbClick(e, segment.path)}>${segment.name}</span>`) : ''}
+            </span>
+        </div>
+    `;
+};
+
+// Function to update breadcrumb when route changes
+export const updateBreadcrumb = (currentPath) => {
+    const breadcrumbContainer = document.getElementById("breadcrumb-container");
+    if (breadcrumbContainer) {
+        // Ensure we clean the path here too in case router passes it with hashbang
+        const cleanPath = currentPath.replace(/^\/?#+\/?/, '') || '/';
+        import("lit").then(({ render }) => {
+            render(createBreadcrumbNav(cleanPath), breadcrumbContainer);
+        });
+    }
+};

@@ -1,4 +1,4 @@
-import { getViewportSize, UITriangleButton, easeInCubic, smoothFollow } from "../../utils";
+import { getViewportSize, UITriangleButton, easeInCubic, smoothFollow, updateCursor } from "../../utils";
 
 export const sketch = function (p) {
     let ui = [];
@@ -64,6 +64,9 @@ export const sketch = function (p) {
             ui_element.textWriter.renderSequentialRandom(p.map(d, 100, 0.5*p.width, 1, 0, true));
         });
         renderDecor();
+        
+        // Update cursor based on hover state
+        updateCursor(p, p.mouseX, p.mouseY, ui);
     };
 
     p.windowResized = function windowResized() {
@@ -76,7 +79,10 @@ export const sketch = function (p) {
         layoutUI();
     };
 
-    p.mousePressed = function(){
+    p.mousePressed = function(event){
+        if (event && event.button !== 0) {
+            return;
+        }
         const ANIMATION_DELAY = 500;
         ui.forEach((ui_element, index) => {
 		if (ui_element.contains(p.mouseX, p.mouseY)){

@@ -22,12 +22,13 @@ export default (routes) => {
     window.addEventListener("hashchange", (e) => {
         // Detect if this is a back/forward navigation by checking if user initiated it
         const isBackForward = !router.is_navigating;
-        const path = e.target.location.hash.substr(1);
+        const rawPath = e.target.location.hash.substr(1);
+        const cleanPath = rawPath.replace(/^\/?#+\/?/, '') || '/';
         
         if (isBackForward) {
-            router.navigate(path, { skipAnimations: true });
+            router.navigate(cleanPath, { skipAnimations: true });
         } else {
-            router.navigate(path);
+            router.navigate(cleanPath);
         }
     });
 

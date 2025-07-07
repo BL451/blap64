@@ -64,6 +64,12 @@ export class p5Element extends LitElement {
         try {
             if (this.p5Instance) {
                 console.log(`p5-element: Cleaning up p5 instance for ${this.sketch}`);
+                
+                // Call custom cleanup method if it exists
+                if (typeof this.p5Instance.cleanupSketch === 'function') {
+                    this.p5Instance.cleanupSketch();
+                }
+                
                 // Remove the p5 instance properly
                 this.p5Instance.remove();
                 this.p5Instance = null;

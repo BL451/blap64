@@ -1,4 +1,5 @@
 import { render } from "lit";
+import { updateBreadcrumb } from "../views/elements/breadcrumb-nav.js";
 
 export default class Router {
     constructor(routes = [], render_node) {
@@ -6,7 +7,10 @@ export default class Router {
         this.render_node = render_node;
         this.path = "";
         this.is_navigating = false;
-        this.navigate(location.pathname + location.hash);
+        // Clean the initial path to avoid hashbang issues
+        const rawInitialPath = location.pathname + location.hash;
+        const initialPath = rawInitialPath.replace(/^\/?#+\/?/, '') || '/';
+        this.navigate(initialPath);
     }
 
     match(route, request_path) {
@@ -86,6 +90,9 @@ export default class Router {
                 // Sick fade bro
                 document.getElementById("app").style.opacity = 1;
                 this.is_navigating = false;
+                // Update breadcrumb navigation with clean path
+                const cleanPath = path.replace(/^\/?#+\/?/, '') || '/';
+                updateBreadcrumb(cleanPath);
             }.bind(this),
             250,
         );

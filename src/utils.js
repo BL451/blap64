@@ -32,6 +32,54 @@ export const widthCheck = (w) => {
     return false;
 };
 
+// Media utilities
+export const getMediaPath = (mediaItem) => {
+    if (typeof mediaItem === 'string') {
+        return mediaItem;
+    } else if (mediaItem && typeof mediaItem === 'object') {
+        return mediaItem.default || mediaItem.src || mediaItem.href || mediaItem.toString();
+    } else {
+        return String(mediaItem);
+    }
+};
+
+export const isVideoFile = (path) => {
+    return path.toLowerCase().match(/\.(mp4|mov|webm|avi)(\?.*)?$/i);
+};
+
+export const calculateMediaDimensions = (aspectRatio, maxWidth, maxHeight) => {
+    let mediaWidth, mediaHeight;
+    if (aspectRatio > maxWidth / maxHeight) {
+        mediaWidth = maxWidth;
+        mediaHeight = maxWidth / aspectRatio;
+    } else {
+        mediaHeight = maxHeight;
+        mediaWidth = maxHeight * aspectRatio;
+    }
+    return { width: mediaWidth, height: mediaHeight };
+};
+
+export const calculateCropDimensions = (mediaWidth, mediaHeight, boxWidth, boxHeight) => {
+    const aspectRatio = mediaWidth / mediaHeight;
+    const boxAspectRatio = boxWidth / boxHeight;
+    let sourceX = 0;
+    let sourceY = 0;
+    let sourceWidth = mediaWidth;
+    let sourceHeight = mediaHeight;
+
+    if (aspectRatio > boxAspectRatio) {
+        // Media is wider - crop sides
+        sourceWidth = mediaHeight * boxAspectRatio;
+        sourceX = (mediaWidth - sourceWidth) / 2;
+    } else {
+        // Media is taller - crop top/bottom
+        sourceHeight = mediaWidth / boxAspectRatio;
+        sourceY = (mediaHeight - sourceHeight) / 2;
+    }
+    
+    return { sourceX, sourceY, sourceWidth, sourceHeight };
+};
+
 export const getViewportSize = () => {
     let vw = Math.max(
         document.documentElement.clientWidth || 0,
@@ -61,6 +109,45 @@ export const loadGoogleFontSet = async (url, p = window) => {
     pf.path = pf.path || url;
     });
     return pfonts;
+};
+
+// Reusable cursor management function
+// Takes p5 instance, mouse coordinates, and array of objects with contains() method
+// Also accepts optional custom hover checks as functions
+export const updateCursor = (p, mouseX, mouseY, ...hoverCheckTargets) => {
+    let isHovering = false;
+
+    // Check all provided targets for hover state
+    for (const target of hoverCheckTargets) {
+        if (Array.isArray(target)) {
+            // Handle arrays of objects with contains() method
+            for (const element of target) {
+                if (element && element.contains && element.contains(mouseX, mouseY)) {
+                    isHovering = true;
+                    break;
+                }
+            }
+        } else if (typeof target === 'function') {
+            // Handle custom hover check functions
+            if (target(mouseX, mouseY)) {
+                isHovering = true;
+            }
+        } else if (target && target.contains) {
+            // Handle single objects with contains() method
+            if (target.contains(mouseX, mouseY)) {
+                isHovering = true;
+            }
+        }
+        
+        if (isHovering) break;
+    }
+
+    // Set cursor style
+    if (isHovering) {
+        p.cursor('pointer');
+    } else {
+        p.cursor('default');
+    }
 };
 
 // UI Classes
@@ -160,6 +247,7 @@ export class UIPlanetButton extends UIObj{
         this.textOffsetX = textOffsetX;
         this.textOffsetY = textOffsetY;
         this.textWriter = new TextWriter(p, x + textOffsetX, y + textOffsetY, undefined, undefined, text, textSize);
+        this.active = false;
     }
 
     contains(x, y){
@@ -247,6 +335,18 @@ export class UIPlanetButton extends UIObj{
 
     radialToCartesian(r, a){
         return { x: r * this.p5.cos(a), y: -r * this.p5.sin(a) };
+    }
+
+    toggle(){
+        this.active = !this.active;
+    }
+
+    setActive(active){
+        this.active = active;
+    }
+
+    isActive(){
+        return this.active;
     }
 }
 

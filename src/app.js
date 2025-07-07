@@ -1,6 +1,8 @@
 import createRouter from "./router/index.js";
 import Route from "./router/Route.js";
 import { mobileCheck } from "./utils.js";
+import { render } from "lit";
+import { createBreadcrumbNav } from "./views/elements/breadcrumb-nav.js";
 
 import homeView from "./views/Home/home.js";
 import codeartView from "./views/CodeArt/codeart.js";
@@ -19,6 +21,15 @@ const routes = [
 // Create router instance and make it globally available
 const router = createRouter(routes);
 window.appRouter = router;
+
+// Initialize breadcrumb navigation
+const breadcrumbContainer = document.getElementById("breadcrumb-container");
+if (breadcrumbContainer) {
+    // Clean the initial path to remove hashbang
+    const rawPath = window.location.hash || '/';
+    const initialPath = rawPath.replace(/^\/?#+\/?/, '') || '/';
+    render(createBreadcrumbNav(initialPath), breadcrumbContainer);
+}
 
 // Listen for custom navigation events from p5 sketches
 document.addEventListener('navigate-to', (event) => {
