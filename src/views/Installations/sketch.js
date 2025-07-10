@@ -426,17 +426,19 @@ export const sketch = function (p, options = {}) {
                 const leftArrowX = arrowStartX + arrowPadding;
                 const rightArrowX = arrowStartX + arrowPadding * 2 + arrowSize;
                 
-                // Check left arrow (previous)
+                // Check left arrow (previous with wraparound)
                 if (p.mouseX >= leftArrowX && p.mouseX <= leftArrowX + arrowSize &&
-                    p.mouseY >= arrowY && p.mouseY <= arrowY + arrowSize && activeInfoCard > 0) {
-                    navigateToProject(activeInfoCard - 1);
+                    p.mouseY >= arrowY && p.mouseY <= arrowY + arrowSize) {
+                    const prevIndex = activeInfoCard === 0 ? projects.length - 1 : activeInfoCard - 1;
+                    navigateToProject(prevIndex);
                     return;
                 }
                 
-                // Check right arrow (next)
+                // Check right arrow (next with wraparound)
                 if (p.mouseX >= rightArrowX && p.mouseX <= rightArrowX + arrowSize &&
-                    p.mouseY >= arrowY && p.mouseY <= arrowY + arrowSize && activeInfoCard < projects.length - 1) {
-                    navigateToProject(activeInfoCard + 1);
+                    p.mouseY >= arrowY && p.mouseY <= arrowY + arrowSize) {
+                    const nextIndex = activeInfoCard === projects.length - 1 ? 0 : activeInfoCard + 1;
+                    navigateToProject(nextIndex);
                     return;
                 }
             }
@@ -815,17 +817,14 @@ export const sketch = function (p, options = {}) {
         const leftArrowX = arrowStartX + arrowPadding;
         const rightArrowX = arrowStartX + arrowPadding * 2 + arrowSize;
         
-        // Check if we can navigate in each direction
-        const canGoPrev = activeInfoCard > 0;
-        const canGoNext = activeInfoCard < projects.length - 1;
+        // Arrows are always active with wraparound navigation
+        const arrowAlpha = infoCardAlpha;
         
-        // Left arrow (previous)
-        const leftAlpha = canGoPrev ? infoCardAlpha : infoCardAlpha * 0.3;
-        renderArrowButton(leftArrowX, arrowY, arrowSize, 'left', leftAlpha, isMobile);
+        // Left arrow (previous with wraparound)
+        renderArrowButton(leftArrowX, arrowY, arrowSize, 'left', arrowAlpha, isMobile);
         
-        // Right arrow (next)  
-        const rightAlpha = canGoNext ? infoCardAlpha : infoCardAlpha * 0.3;
-        renderArrowButton(rightArrowX, arrowY, arrowSize, 'right', rightAlpha, isMobile);
+        // Right arrow (next with wraparound)  
+        renderArrowButton(rightArrowX, arrowY, arrowSize, 'right', arrowAlpha, isMobile);
         
         // Project counter text (e.g., "2 / 7")
         const counterY = arrowY + arrowSize + (isMobile ? 25 : 20);
@@ -925,15 +924,15 @@ export const sketch = function (p, options = {}) {
                 const leftArrowX = arrowStartX + arrowPadding;
                 const rightArrowX = arrowStartX + arrowPadding * 2 + arrowSize;
                 
-                // Check left arrow
+                // Check left arrow (always active with wraparound)
                 if (mouseX >= leftArrowX && mouseX <= leftArrowX + arrowSize &&
-                    mouseY >= arrowY && mouseY <= arrowY + arrowSize && activeInfoCard > 0) {
+                    mouseY >= arrowY && mouseY <= arrowY + arrowSize) {
                     return true;
                 }
                 
-                // Check right arrow
+                // Check right arrow (always active with wraparound)
                 if (mouseX >= rightArrowX && mouseX <= rightArrowX + arrowSize &&
-                    mouseY >= arrowY && mouseY <= arrowY + arrowSize && activeInfoCard < projects.length - 1) {
+                    mouseY >= arrowY && mouseY <= arrowY + arrowSize) {
                     return true;
                 }
             }
