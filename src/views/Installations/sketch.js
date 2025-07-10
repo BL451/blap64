@@ -1,7 +1,7 @@
 import { getViewportSize, UITriangleButton, UIPlanetButton, easeInCubic, smoothFollow, loadGoogleFontSet, widthCheck, updateCursor, getMediaPath, isVideoFile, calculateMediaDimensions, calculateCropDimensions } from "../../utils";
-import { projects } from "./project-details";
+import { projects, findProjectBySlug, getProjectIndexBySlug } from "./project-details";
 
-export const sketch = function (p) {
+export const sketch = function (p, options = {}) {
     let ui = [];
     let short = 128;
     let smoothX = 0;
@@ -28,7 +28,14 @@ export const sketch = function (p) {
     let expandedMediaAnimationStart = 0;
     let targetExpandedAlpha = 0;
     let nativeVideoElement = null;
+    let pendingProjectSlug = null;
+    let layoutInitialized = false;
+    let frameCount = 0;
+    let currentPath = null;
+    let isInternalNavigation = false;
 
+    let hashChangeHandler = null;
+    
     // Add cleanup method to be called when sketch is destroyed
     p.cleanupSketch = function() {
         // Clean up native video element
@@ -54,6 +61,14 @@ export const sketch = function (p) {
         // Re-enable browser swipe navigation
         document.body.style.overscrollBehavior = '';
         document.body.style.touchAction = '';
+        
+        // Remove hash change listener
+        if (hashChangeHandler) {
+            window.removeEventListener('hashchange', hashChangeHandler);
+            hashChangeHandler = null;
+        }
+        
+        // Don't clear session storage here - let setup function handle it for back navigation detection
     };
 
     // Helper functions for layout calculations
@@ -126,6 +141,7 @@ export const sketch = function (p) {
         r = 0.07 * short;
         setupSolarSystem(r);
         layoutUI();
+        layoutInitialized = true;
     }
 
     p.setup = async function setup() {
@@ -146,10 +162,50 @@ export const sketch = function (p) {
         let bg = document.getElementById("bg");
         let loading_div = bg.shadowRoot.getElementById("p5_loading");
         if (loading_div) loading_div.remove();
+        
+        // Handle direct project navigation via URL parameter
+        if (options && options.project) {
+            pendingProjectSlug = options.project;
+            currentPath = `/interactive/live/${options.project}`;
+            // Store that we have an active project
+            sessionStorage.setItem('installationsActiveProject', options.project);
+        } else {
+            currentPath = '/interactive/live';
+            // Check if we had an active project before and now we don't
+            const wasActiveProject = sessionStorage.getItem('installationsActiveProject');
+            if (wasActiveProject) {
+                // We navigated back from a project to main page - clear the storage
+                sessionStorage.removeItem('installationsActiveProject');
+                // Ensure no project opens automatically on back navigation
+                pendingProjectSlug = null;
+                
+                // Initialize with info card closed
+                activeInfoCard = null;
+                infoCardAlpha = 0;
+                targetAlpha = 0;
+                infoCardAnimating = false;
+            }
+        }
+        
+        // Add hash change listener to detect back navigation within the same route
+        hashChangeHandler = function(event) {
+            const newHash = window.location.hash.substr(1);
+            const cleanPath = newHash && newHash !== '' ? 
+                (newHash.startsWith('/') ? newHash : '/' + newHash) : '/';
+            
+            // If we're on the installations page and URL changed to just /interactive/live
+            // and we have an active info card, close it
+            if (cleanPath === '/interactive/live' && activeInfoCard !== null) {
+                closeInfoCard();
+            }
+        };
+        
+        window.addEventListener('hashchange', hashChangeHandler);
     };
 
     p.draw = function draw() {
         p.background(23);
+        frameCount++;
         smoothX = smoothFollow(p.mouseX, smoothX, 0.003 * p.deltaTime);
         smoothY = smoothFollow(p.mouseY, smoothY, 0.003 * p.deltaTime);
         smoothV.x = smoothX;
@@ -158,6 +214,18 @@ export const sketch = function (p) {
         p.stroke(230);
         p.strokeWeight(1);
         renderSolarSystem();
+        
+        // Handle pending project opening after layout is initialized and a few frames have passed
+        if (pendingProjectSlug && layoutInitialized && planetButtons && planetButtons.length > 0 && frameCount > 5) {
+            const projectIndex = getProjectIndexBySlug(pendingProjectSlug);
+            if (projectIndex !== -1 && projectIndex < planetButtons.length) {
+                openInfoCard(projectIndex);
+                pendingProjectSlug = null; // Clear the pending slug
+            } else {
+                // If project not found, clear the pending slug to avoid infinite attempts
+                pendingProjectSlug = null;
+            }
+        }
         p.noFill();
         p.stroke(230, 50);
         const s = short * 0.03;
@@ -205,7 +273,7 @@ export const sketch = function (p) {
         // Update cursor based on hover state
         // Don't include planet buttons when info card is active
         const hoverTargets = activeInfoCard !== null ?
-            [ui, getCloseButtonHoverCheck()] :
+            [ui, getCloseButtonHoverCheck(), getNavigationButtonHoverCheck()] :
             [ui, ...planetButtons, getCloseButtonHoverCheck()];
         updateCursor(p, p.mouseX, p.mouseY, ...hoverTargets);
 
@@ -346,6 +414,33 @@ export const sketch = function (p) {
                 return;
             }
 
+            // Check if clicking navigation arrows
+            if (projects.length > 1) {
+                const arrowSize = isMobile ? 50 : 40;
+                const arrowPadding = isMobile ? 20 : 15;
+                const arrowY = cardY + cardSize + arrowPadding;
+                
+                const totalArrowWidth = arrowSize * 2 + arrowPadding * 3;
+                const arrowStartX = cardX + (cardSize - totalArrowWidth) / 2;
+                
+                const leftArrowX = arrowStartX + arrowPadding;
+                const rightArrowX = arrowStartX + arrowPadding * 2 + arrowSize;
+                
+                // Check left arrow (previous)
+                if (p.mouseX >= leftArrowX && p.mouseX <= leftArrowX + arrowSize &&
+                    p.mouseY >= arrowY && p.mouseY <= arrowY + arrowSize && activeInfoCard > 0) {
+                    navigateToProject(activeInfoCard - 1);
+                    return;
+                }
+                
+                // Check right arrow (next)
+                if (p.mouseX >= rightArrowX && p.mouseX <= rightArrowX + arrowSize &&
+                    p.mouseY >= arrowY && p.mouseY <= arrowY + arrowSize && activeInfoCard < projects.length - 1) {
+                    navigateToProject(activeInfoCard + 1);
+                    return;
+                }
+            }
+
             // Check if clicking in gallery area
             const project = projects[activeInfoCard];
             if (project.images && project.images.length > 0) {
@@ -380,7 +475,16 @@ export const sketch = function (p) {
         planetButtons.forEach((planetButton, index) => {
             if (planetButton.contains(p.mouseX, p.mouseY)) {
                 openInfoCard(index);
-                // Add planet-specific actions here
+                // Update URL to include project slug
+                const project = projects[index];
+                if (project && project.slug && window.appRouter) {
+                    const newPath = `/interactive/live/${project.slug}`;
+                    // Only update if the current path is different
+                    if (window.location.hash !== `#${newPath}`) {
+                        window.history.pushState(null, '', `#${newPath}`);
+                        currentPath = newPath;
+                    }
+                }
                 return;
             }
         });
@@ -489,6 +593,14 @@ export const sketch = function (p) {
         // Disable browser swipe navigation while info card is open
         document.body.style.overscrollBehavior = 'none';
         document.body.style.touchAction = 'none';
+        
+        // Update breadcrumb to show current project
+        const project = projects[index];
+        if (project && project.slug) {
+            import("../elements/breadcrumb-nav.js").then(({ updateBreadcrumb }) => {
+                updateBreadcrumb(`/interactive/live/${project.slug}`);
+            });
+        }
     }
 
     function closeInfoCard() {
@@ -507,6 +619,20 @@ export const sketch = function (p) {
         // Re-enable browser swipe navigation when info card is closed
         document.body.style.overscrollBehavior = '';
         document.body.style.touchAction = '';
+        
+        // Update URL back to main installations page
+        if (window.location.hash.includes('/interactive/live/') && window.location.hash !== '#/interactive/live') {
+            window.history.pushState(null, '', '#/interactive/live');
+            currentPath = '/interactive/live';
+        }
+        
+        // Update breadcrumb back to installations page
+        import("../elements/breadcrumb-nav.js").then(({ updateBreadcrumb }) => {
+            updateBreadcrumb('/interactive/live');
+        });
+        
+        // Clear session storage
+        sessionStorage.removeItem('installationsActiveProject');
     }
 
     function getCloseButtonHoverCheck() {
@@ -669,6 +795,150 @@ export const sketch = function (p) {
                 fontVariationSettings: `wght 900`
             });
         }
+        
+        // Navigation arrows (only show if there are multiple projects)
+        if (projects.length > 1) {
+            renderNavigationArrows(cardX, cardY, cardSize, isMobile, baseTextScale);
+        }
+    }
+
+    function renderNavigationArrows(cardX, cardY, cardSize, isMobile, baseTextScale) {
+        // Arrow button dimensions - responsive to screen size
+        const arrowSize = isMobile ? 50 : 40;
+        const arrowPadding = isMobile ? 20 : 15;
+        const arrowY = cardY + cardSize + arrowPadding;
+        
+        // Position arrows centered below the card
+        const totalArrowWidth = arrowSize * 2 + arrowPadding * 3; // 2 arrows + spacing
+        const arrowStartX = cardX + (cardSize - totalArrowWidth) / 2;
+        
+        const leftArrowX = arrowStartX + arrowPadding;
+        const rightArrowX = arrowStartX + arrowPadding * 2 + arrowSize;
+        
+        // Check if we can navigate in each direction
+        const canGoPrev = activeInfoCard > 0;
+        const canGoNext = activeInfoCard < projects.length - 1;
+        
+        // Left arrow (previous)
+        const leftAlpha = canGoPrev ? infoCardAlpha : infoCardAlpha * 0.3;
+        renderArrowButton(leftArrowX, arrowY, arrowSize, 'left', leftAlpha, isMobile);
+        
+        // Right arrow (next)  
+        const rightAlpha = canGoNext ? infoCardAlpha : infoCardAlpha * 0.3;
+        renderArrowButton(rightArrowX, arrowY, arrowSize, 'right', rightAlpha, isMobile);
+        
+        // Project counter text (e.g., "2 / 7")
+        const counterY = arrowY + arrowSize + (isMobile ? 25 : 20);
+        p.fill(230, infoCardAlpha);
+        p.noStroke();
+        p.textAlign(p.CENTER, p.CENTER);
+        p.textFont('BPdotsSquareVF', { fontVariationSettings: `wght 600` });
+        p.textSize((isMobile ? 16 : 14) * baseTextScale);
+        p.text(`${activeInfoCard + 1} / ${projects.length}`, cardX + cardSize/2, counterY);
+    }
+    
+    function renderArrowButton(x, y, size, direction, alpha, isMobile) {
+        // Button background
+        p.fill(40, 40, 40, alpha);
+        p.stroke(100, alpha);
+        p.strokeWeight(isMobile ? 2 : 1);
+        p.rect(x, y, size, size);
+        
+        // Arrow symbol
+        p.fill(230, alpha);
+        p.noStroke();
+        
+        const arrowPadding = size * 0.25;
+        const arrowCenterX = x + size/2;
+        const arrowCenterY = y + size/2;
+        const arrowWidth = size * 0.3;
+        const arrowHeight = size * 0.4;
+        
+        if (direction === 'left') {
+            // Left-pointing triangle
+            p.triangle(
+                arrowCenterX - arrowWidth/2, arrowCenterY,
+                arrowCenterX + arrowWidth/2, arrowCenterY - arrowHeight/2,
+                arrowCenterX + arrowWidth/2, arrowCenterY + arrowHeight/2
+            );
+        } else {
+            // Right-pointing triangle  
+            p.triangle(
+                arrowCenterX + arrowWidth/2, arrowCenterY,
+                arrowCenterX - arrowWidth/2, arrowCenterY - arrowHeight/2,
+                arrowCenterX - arrowWidth/2, arrowCenterY + arrowHeight/2
+            );
+        }
+    }
+    
+    function navigateToProject(newIndex, fromHashChange = false) {
+        if (newIndex >= 0 && newIndex < projects.length && newIndex !== activeInfoCard) {
+            // Update active info card
+            activeInfoCard = newIndex;
+            
+            // Reset gallery scroll
+            galleryScrollX = 0;
+            targetGalleryScrollX = 0;
+            
+            // Close any expanded media
+            if (expandedMediaIndex !== null) {
+                closeExpandedMedia();
+            }
+            
+            // Load media for new project
+            loadMediaForProject(projects[newIndex]);
+            
+            // Update URL and breadcrumb
+            const newProject = projects[newIndex];
+            if (newProject && newProject.slug) {
+                const newPath = `/interactive/live/${newProject.slug}`;
+                
+                // Only update URL if this wasn't triggered by a hash change
+                if (!fromHashChange) {
+                    isInternalNavigation = true;
+                    window.history.replaceState(null, '', `#${newPath}`);
+                }
+                currentPath = newPath;
+                
+                // Update breadcrumb
+                import("../elements/breadcrumb-nav.js").then(({ updateBreadcrumb }) => {
+                    updateBreadcrumb(newPath);
+                });
+                
+                // Update session storage
+                sessionStorage.setItem('installationsActiveProject', newProject.slug);
+            }
+        }
+    }
+    
+    function getNavigationButtonHoverCheck() {
+        return (mouseX, mouseY) => {
+            if (activeInfoCard !== null && projects.length > 1) {
+                const { size: cardSize, x: cardX, y: cardY, isMobile } = getCardDimensions();
+                const arrowSize = isMobile ? 50 : 40;
+                const arrowPadding = isMobile ? 20 : 15;
+                const arrowY = cardY + cardSize + arrowPadding;
+                
+                const totalArrowWidth = arrowSize * 2 + arrowPadding * 3;
+                const arrowStartX = cardX + (cardSize - totalArrowWidth) / 2;
+                
+                const leftArrowX = arrowStartX + arrowPadding;
+                const rightArrowX = arrowStartX + arrowPadding * 2 + arrowSize;
+                
+                // Check left arrow
+                if (mouseX >= leftArrowX && mouseX <= leftArrowX + arrowSize &&
+                    mouseY >= arrowY && mouseY <= arrowY + arrowSize && activeInfoCard > 0) {
+                    return true;
+                }
+                
+                // Check right arrow
+                if (mouseX >= rightArrowX && mouseX <= rightArrowX + arrowSize &&
+                    mouseY >= arrowY && mouseY <= arrowY + arrowSize && activeInfoCard < projects.length - 1) {
+                    return true;
+                }
+            }
+            return false;
+        };
     }
 
     function loadMediaForProject(project) {
@@ -1143,6 +1413,6 @@ export const sketch = function (p) {
     };
 }
 
-export const installationsSketch = (node) => {
-    return new p5(sketch, node);
+export const installationsSketch = (node, options = {}) => {
+    return new p5((p) => sketch(p, options), node);
 };

@@ -20,6 +20,7 @@ export class p5Element extends LitElement {
         id: { type: String },
         sketch: { type: String },
         skipAnimations: { type: Boolean },
+        options: { type: Object },
     };
 
     constructor() {
@@ -27,6 +28,7 @@ export class p5Element extends LitElement {
         this.id = "bg";
         this.sketch = "";
         this.skipAnimations = false;
+        this.options = {};
         this.p5Instance = null;
         this.containerDiv = null;
         this.isInitialized = false;
@@ -51,7 +53,7 @@ export class p5Element extends LitElement {
     updated(changedProperties) {
         super.updated(changedProperties);
         // Only reinitialize if already initialized and properties actually changed
-        if (this.isInitialized && (changedProperties.has('sketch') || changedProperties.has('skipAnimations'))) {
+        if (this.isInitialized && (changedProperties.has('sketch') || changedProperties.has('skipAnimations') || changedProperties.has('options'))) {
             this.cleanupSketch();
             this.initializeSketch();
         } else if (!this.isInitialized) {
@@ -105,7 +107,7 @@ export class p5Element extends LitElement {
             // Clear any existing content
             this.containerDiv.innerHTML = '';
 
-            console.log(`p5-element: Initializing sketch: ${this.sketch}, skipAnimations: ${this.skipAnimations}`);
+            console.log(`p5-element: Initializing sketch: ${this.sketch}, skipAnimations: ${this.skipAnimations}, options:`, this.options);
 
             // Create the appropriate sketch based on the sketch property
             if (this.sketch === "home") {
@@ -113,7 +115,7 @@ export class p5Element extends LitElement {
             } else if (this.sketch === "codeart") {
                 this.p5Instance = codeartSketch(this.containerDiv);
             } else if (this.sketch === "installations") {
-                this.p5Instance = installationsSketch(this.containerDiv);
+                this.p5Instance = installationsSketch(this.containerDiv, this.options);
             } else {
                 this.p5Instance = oopsSketch(this.containerDiv);
             }

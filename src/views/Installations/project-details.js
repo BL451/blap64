@@ -12,6 +12,7 @@
 export const projects = [
     {
         name: "Sketching Flock",
+        slug: "sketching-flock",
         type: "Interactive Installation, Projection",
         location: "Toronto, Canada",
         year: "2025",
@@ -32,6 +33,7 @@ export const projects = [
     },
     {
         name: "Blind Spots",
+        slug: "blind-spots",
         type: "Interactive Installation, Projection",
         location: "Toronto, Canada",
         year: "2025",
@@ -40,6 +42,7 @@ export const projects = [
     },
     {
         name: "Long Winter 13.1",
+        slug: "long-winter-13-1",
         type: "VJ Performance, Audio Reactive, Projection",
         location: "Toronto, Canada",
         year: "2024",
@@ -48,6 +51,7 @@ export const projects = [
     },
     {
         name: "Game, Set, Match",
+        slug: "game-set-match",
         type: "Interactive Installation, Projection",
         location: "Toronto, Canada",
         year: "2024",
@@ -56,6 +60,7 @@ export const projects = [
     },
     {
         name: "Bird Conductor",
+        slug: "bird-conductor",
         type: "Interactive Installation, Projection",
         location: "Toronto, Canada",
         year: "2024",
@@ -64,6 +69,7 @@ export const projects = [
     },
     {
         name: "Live Coding",
+        slug: "live-coding",
         type: "Visual Performance, Audio Reactive, Projection",
         location: "Toronto, Canada",
         year: "2024",
@@ -72,6 +78,7 @@ export const projects = [
     },
     {
         name: "Surveil Yourself",
+        slug: "surveil-yourself",
         type: "Interactive Installation, Projection",
         location: "Toronto, Canada",
         year: "2023",
@@ -79,3 +86,13 @@ export const projects = [
         images: []
     },
 ];
+
+// Helper function to find project by slug
+export const findProjectBySlug = (slug) => {
+    return projects.find(project => project.slug === slug);
+};
+
+// Helper function to get project index by slug
+export const getProjectIndexBySlug = (slug) => {
+    return projects.findIndex(project => project.slug === slug);
+};

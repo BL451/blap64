@@ -1,4 +1,5 @@
 import { html } from "lit-html";
+import { findProjectBySlug } from "../Installations/project-details.js";
 
 // Map routes to human-readable directory names and their actual paths
 const pathMap = {
@@ -19,6 +20,20 @@ function getBreadcrumbSegments(currentPath) {
         return [
             { name: '~', path: null },
             { name: 'home', path: '/' }
+        ];
+    }
+
+    // Handle project-specific paths
+    const projectMatch = cleanPath.match(/^\/interactive\/live\/(.+)$/);
+    if (projectMatch) {
+        const projectSlug = projectMatch[1];
+        const project = findProjectBySlug(projectSlug);
+        return [
+            { name: '~', path: null },
+            { name: 'home', path: '/' },
+            { name: 'interactive', path: '/interactive' },
+            { name: 'live', path: '/interactive/live' },
+            { name: project ? project.name : projectSlug, path: cleanPath }
         ];
     }
 

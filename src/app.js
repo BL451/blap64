@@ -11,6 +11,7 @@ import installationsView from "./views/Installations/installations.js";
 import oopsView from "./views/Oops/oops.js";
 
 const routes = [
+    new Route("project", "/interactive/live/:project", installationsView),
     new Route("installations", "/interactive/live", installationsView),
     new Route("codeart", "/interactive", codeartView),
     new Route("about", "/about", aboutView),
