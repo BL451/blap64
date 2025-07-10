@@ -11,7 +11,7 @@ export default (props) => html`
                 As an educator, Benjamin leads workshops and mentorship programs for diverse communities that bridge technical skill-building with experimental arts practices and community engagement. His current research focuses on developing open source software for social impact, creating accessible tools for creative coding and interactive media while investigating how technology can amplify rather than replace human creativity. Through his work with organizations like InterAccess Gallery, Long Winter Music & Arts Festival, and UKAI Projects, he supports artists in developing technically sophisticated work that remains deeply human-centered.
             </p>
             <br /><br /><br />
-            <a href="https://github.com/BL451/blap64">
+            <a href="https://github.com/BL451/blap64" target="_blank" rel="noopener">
                 CLICK HERE TO VIEW THE CODE FOR THIS WEBSITE
             </a>
         </div>
@@ -22,9 +22,9 @@ export default (props) => html`
                 <h3>Education & Training</h3>
                 <p class="main-paragraph">
                     <strong>2024-Present</strong> - Mentored by digital artist, designer, and technologist Priam Givord<br>
-                    <strong>2024</strong> - <a href="https://www.aimetaphorsworkshop.com/">"AI Metaphors" Workshop</a> - University of Toronto, UKAI Projects, InterAccess Gallery<br>
-                    <strong>2024</strong> - <a href="https://ukaiprojects.com/pages/festival">"Carnival of Shipwreck"</a> Cultural Philosophy and New Media workshop series - UKAI Projects<br>
-                    <strong>2024</strong> - <a href="https://labs.hxouse.com/">"Habitats"</a> Unreal Engine 5 & Cultural Philosophy Workshop - HXOUSE LABS<br>
+                    <strong>2024</strong> - <a href="https://www.aimetaphorsworkshop.com/" target="_blank" rel="noopener">"AI Metaphors" Workshop</a> - University of Toronto, UKAI Projects, InterAccess Gallery<br>
+                    <strong>2024</strong> - <a href="https://ukaiprojects.com/pages/festival" target="_blank" rel="noopener">"Carnival of Shipwreck"</a> Cultural Philosophy and New Media workshop series - UKAI Projects<br>
+                    <strong>2024</strong> - <a href="https://labs.hxouse.com/" target="_blank" rel="noopener">"Habitats"</a> Unreal Engine 5 & Cultural Philosophy Workshop - HXOUSE LABS<br>
                     <strong>2019-Present</strong> - Self-taught interactive media techniques through online videos and articles<br>
                     <strong>2015-2020</strong> - BASc., Engineering Science - University of Toronto
                 </p>
@@ -54,14 +54,14 @@ export default (props) => html`
                     <strong>2025</strong> - <em>IA Flow Fields</em>, flashDRIVE Digital Arts Fundraiser Exhibition - InterAccess Gallery<br>
                     <strong>2025</strong> - <em>Sketching Flock</em>, Farewell to The Bridge - UKAI Projects, The Bridge<br>
                     <strong>2025</strong> - <em>Zen Flock</em>, LW13.5 x Open HDMI - Long Winter x InterAccess, St. Anne's Parish Hall<br>
-                    <strong>2025</strong> - <a href="https://youtu.be/DqIPjKy6nvE"><em>Sketching Flock</em></a>, "Goodbye Dupont" Open HDMI - InterAccess Gallery<br>
+                    <strong>2025</strong> - <a href="https://youtu.be/DqIPjKy6nvE" target="_blank" rel="noopener"><em>Sketching Flock</em></a>, "Goodbye Dupont" Open HDMI - InterAccess Gallery<br>
                     <strong>2025</strong> - <em>Blind Spots</em>, Aberrant AI Open Studio - UKAI Projects, The Bridge<br>
                     <strong>2025</strong> - <em>The Reader</em>, Aberrant AI Open Studio - UKAI Projects, The Bridge<br>
-                    <strong>2024</strong> - <a href="https://www.youtube.com/watch?v=xboqER963Dc"><em>Live VJ Set</em></a>, LW13.1 - Long Winter, Allan Gardens Children's Conservatory<br>
-                    <strong>2024</strong> - <em>Game, Set, Match</em>, <a href="https://interaccess.org/news/2024/may/ia-gateway-selected-artists">IA Gateway 2024</a> - InterAccess Gallery<br>
-                    <strong>2024</strong> - <a href="https://interaccess.org/event/2024/open-hdmi-spring-2024-ii">Open HDMI: Spring 2024 II</a> - InterAccess Gallery<br>
-                    <strong>2024</strong> - <a href="https://youtu.be/VeqpI7Po8QU"><em>Bird Conductor</em></a>, LW12.3 - Long Winter, The Bridge<br>
-                    <strong>2024</strong> - <a href="https://interaccess.org/event/2024/open-hdmi-spring-2024">Open HDMI: Spring 2024</a> - InterAccess Gallery<br>
+                    <strong>2024</strong> - <a href="https://www.youtube.com/watch?v=xboqER963Dc" target="_blank" rel="noopener"><em>Live VJ Set</em></a>, LW13.1 - Long Winter, Allan Gardens Children's Conservatory<br>
+                    <strong>2024</strong> - <em>Game, Set, Match</em>, <a href="https://interaccess.org/news/2024/may/ia-gateway-selected-artists" target="_blank" rel="noopener">IA Gateway 2024</a> - InterAccess Gallery<br>
+                    <strong>2024</strong> - <a href="https://interaccess.org/event/2024/open-hdmi-spring-2024-ii" target="_blank" rel="noopener">Open HDMI: Spring 2024 II</a> - InterAccess Gallery<br>
+                    <strong>2024</strong> - <a href="https://youtu.be/VeqpI7Po8QU" target="_blank" rel="noopener"><em>Bird Conductor</em></a>, LW12.3 - Long Winter, The Bridge<br>
+                    <strong>2024</strong> - <a href="https://interaccess.org/event/2024/open-hdmi-spring-2024" target="_blank" rel="noopener">Open HDMI: Spring 2024</a> - InterAccess Gallery<br>
                     <strong>2023</strong> - <em>Surveil Yourself</em>, P2P 2023 InterAccess Member Showcase Open HDMI - InterAccess Gallery
                 </p>
             </div>
@@ -71,21 +71,21 @@ export default (props) => html`
                 <p class="main-paragraph">
                     <strong>2025</strong> - 1:1 Code Art Mentorship program<br>
                     <strong>2025</strong> - "We Have AI At Home" - Privacy-First Local AI Workshop - UKAI Projects, The Bridge<br>
-                    <strong>2017</strong> - <a href="https://outreach.engineering.utoronto.ca/files/2016/12/DEEP-Leadership-Camp-2017-Instructor-Job-Description.pdf">Da Vinci Engineering Enrichment Program Leadership Camp Instructor</a> - University of Toronto<br>
-                    <strong>2016</strong> - <a href="https://youtu.be/hzHWC9LJT8U">Carr Astronomical Observatory Astrophotography Workshop #1</a> - Royal Astronomical Society of Canada, Carr Astronomical Observatory<br>
-                    <strong>2016</strong> - <a href="https://rascto.ca/content/rascto-astrophotography-session-5">RASCTO Astrophotography Session #5 at the David Dunlap Observatory</a> - Royal Astronomical Society of Canada, Carr Astronomical Observatory<br>
+                    <strong>2017</strong> - <a href="https://outreach.engineering.utoronto.ca/files/2016/12/DEEP-Leadership-Camp-2017-Instructor-Job-Description.pdf" target="_blank" rel="noopener">Da Vinci Engineering Enrichment Program Leadership Camp Instructor</a> - University of Toronto<br>
+                    <strong>2016</strong> - <a href="https://youtu.be/hzHWC9LJT8U" target="_blank" rel="noopener">Carr Astronomical Observatory Astrophotography Workshop #1</a> - Royal Astronomical Society of Canada, Carr Astronomical Observatory<br>
+                    <strong>2016</strong> - <a href="https://rascto.ca/content/rascto-astrophotography-session-5" target="_blank" rel="noopener">RASCTO Astrophotography Session #5 at the David Dunlap Observatory</a> - Royal Astronomical Society of Canada, Carr Astronomical Observatory<br>
                     <strong>2015</strong> - Recreational Astronomy Night meetings (2) at the Ontario Science Centre - Royal Astronomical Society of Canada, Ontario Science Centre<br>
-                    <strong>2014</strong> - <a href="https://rascto.ca/content/recreational-astronomy-night-16">RASCTO Members' Night at the University of Toronto</a> - Royal Astronomical Society of Canada, University of Toronto<br>
-                    <strong>2014</strong> - <a href="https://rascto.ca/news/astrophoto-editing-lightroom-and-photoshop">RASCTO Members' Night at the David Dunlap Observatory</a> - Royal Astronomical Society of Canada, David Dunlap Observatory
+                    <strong>2014</strong> - <a href="https://rascto.ca/content/recreational-astronomy-night-16" target="_blank" rel="noopener">RASCTO Members' Night at the University of Toronto</a> - Royal Astronomical Society of Canada, University of Toronto<br>
+                    <strong>2014</strong> - <a href="https://rascto.ca/news/astrophoto-editing-lightroom-and-photoshop" target="_blank" rel="noopener">RASCTO Members' Night at the David Dunlap Observatory</a> - Royal Astronomical Society of Canada, David Dunlap Observatory
                 </p>
             </div>
 
             <div class="cv-section">
                 <h3>Independent Projects</h3>
                 <p class="main-paragraph">
-                    <strong>2025</strong> - <a href="https://blap64.substack.com/">"Code Art Corner" weekly newsletter</a><br>
-                    <strong>2024</strong> - <a href="https://editor.p5js.org/blapcode/collections/ZbpMINM3u">Genuary Generative Art Prompt Series</a><br>
-                    <strong>2024</strong> - <a href="https://youtu.be/AohJn0CFkYY">Cipher Fault</a><br>
+                    <strong>2025</strong> - <a href="https://blap64.substack.com/" target="_blank" rel="noopener">"Code Art Corner" weekly newsletter</a><br>
+                    <strong>2024</strong> - <a href="https://editor.p5js.org/blapcode/collections/ZbpMINM3u" target="_blank" rel="noopener">Genuary Generative Art Prompt Series</a><br>
+                    <strong>2024</strong> - <a href="https://youtu.be/AohJn0CFkYY" target="_blank" rel="noopener">Cipher Fault</a><br>
                     <strong>2023-Present</strong> - "Stoat" Discord Bot
                 </p>
             </div>
@@ -93,7 +93,7 @@ export default (props) => html`
             <div class="cv-section">
                 <h3>Publications</h3>
                 <p class="main-paragraph">
-                    <strong>2020</strong> - <a href="https://cumincad.scix.net/data/works/att/ecaade2020_393.pdf">eCAADe Conference Proceedings Volume 1</a> - Education and research in Computer Aided Architectural Design in Europe
+                    <strong>2020</strong> - <a href="https://cumincad.scix.net/data/works/att/ecaade2020_393.pdf" target="_blank" rel="noopener">eCAADe Conference Proceedings Volume 1</a> - Education and research in Computer Aided Architectural Design in Europe
                 </p>
             </div>
 

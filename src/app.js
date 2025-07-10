@@ -11,8 +11,8 @@ import installationsView from "./views/Installations/installations.js";
 import oopsView from "./views/Oops/oops.js";
 
 const routes = [
-    new Route("installations", "/codeart/installations", installationsView),
-    new Route("codeart", "/codeart", codeartView),
+    new Route("installations", "/interactive/live", installationsView),
+    new Route("codeart", "/interactive", codeartView),
     new Route("about", "/about", aboutView),
     new Route("oops", "/oops", oopsView),
     new Route("home", "/", homeView),
@@ -26,8 +26,9 @@ window.appRouter = router;
 const breadcrumbContainer = document.getElementById("breadcrumb-container");
 if (breadcrumbContainer) {
     // Clean the initial path to remove hashbang
-    const rawPath = window.location.hash || '/';
-    const initialPath = rawPath.replace(/^\/?#+\/?/, '') || '/';
+    const rawPath = window.location.hash.substr(1);
+    const initialPath = rawPath && rawPath !== '' ?
+        (rawPath.startsWith('/') ? rawPath : '/' + rawPath) : '/';
     render(createBreadcrumbNav(initialPath), breadcrumbContainer);
 }
 

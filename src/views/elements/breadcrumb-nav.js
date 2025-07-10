@@ -4,8 +4,8 @@ import { html } from "lit-html";
 const pathMap = {
     'home': '/',
     'about': '/about',
-    'interactive': '/codeart',
-    'live': '/codeart/installations',
+    'interactive': '/interactive',
+    'live': '/interactive/live',
     '404': '/oops'
 };
 
@@ -13,7 +13,7 @@ const pathMap = {
 function getBreadcrumbSegments(currentPath) {
     // Remove hashbang if present (handles /#/, #/, ##/, etc.)
     const cleanPath = currentPath.replace(/^\/?#+\/?/, '') || '/';
-    
+
     // Handle root path
     if (cleanPath === '/' || cleanPath === '') {
         return [
@@ -21,17 +21,17 @@ function getBreadcrumbSegments(currentPath) {
             { name: 'home', path: '/' }
         ];
     }
-    
+
     // Handle nested paths
-    if (cleanPath === '/codeart/installations') {
+    if (cleanPath === '/interactive/live') {
         return [
             { name: '~', path: null },
             { name: 'home', path: '/' },
-            { name: 'interactive', path: '/codeart' },
-            { name: 'live', path: '/codeart/installations' }
+            { name: 'interactive', path: '/interactive' },
+            { name: 'live', path: '/interactive/live' }
         ];
     }
-    
+
     // Handle single level paths
     if (cleanPath === '/about') {
         return [
@@ -40,15 +40,15 @@ function getBreadcrumbSegments(currentPath) {
             { name: 'about', path: '/about' }
         ];
     }
-    
-    if (cleanPath === '/codeart') {
+
+    if (cleanPath === '/interactive') {
         return [
             { name: '~', path: null },
             { name: 'home', path: '/' },
-            { name: 'interactive', path: '/codeart' }
+            { name: 'interactive', path: '/interactive' }
         ];
     }
-    
+
     if (cleanPath === '/oops') {
         return [
             { name: '~', path: null },
@@ -56,7 +56,7 @@ function getBreadcrumbSegments(currentPath) {
             { name: '404', path: '/oops' }
         ];
     }
-    
+
     // Fallback for unmapped paths
     return [
         { name: '~', path: null },
@@ -77,7 +77,7 @@ function handleBreadcrumbClick(event, path) {
 
 export const createBreadcrumbNav = (currentPath) => {
     const segments = getBreadcrumbSegments(currentPath);
-    
+
     return html`
         <div class="breadcrumb-nav">
             <span class="breadcrumb-text">

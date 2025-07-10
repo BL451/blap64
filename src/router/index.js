@@ -23,12 +23,11 @@ export default (routes) => {
         // Detect if this is a back/forward navigation by checking if user initiated it
         const isBackForward = !router.is_navigating;
         const rawPath = e.target.location.hash.substr(1);
-        const cleanPath = rawPath.replace(/^\/?#+\/?/, '') || '/';
+        const cleanPath = rawPath && rawPath !== '' ? 
+            (rawPath.startsWith('/') ? rawPath : '/' + rawPath) : '/';
         
         if (isBackForward) {
             router.navigate(cleanPath, { skipAnimations: true });
-        } else {
-            router.navigate(cleanPath);
         }
     });
 

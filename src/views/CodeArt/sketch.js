@@ -64,7 +64,7 @@ export const sketch = function (p) {
             ui_element.textWriter.renderSequentialRandom(p.map(d, 100, 0.5*p.width, 1, 0, true));
         });
         renderDecor();
-        
+
         // Update cursor based on hover state
         updateCursor(p, p.mouseX, p.mouseY, ui);
     };
@@ -91,7 +91,7 @@ export const sketch = function (p) {
 				switch(index) {
 					case 0: // Projects and Installations
 					    setTimeout(() => {
- 							window.appRouter.navigate('/codeart/installations');
+ 							window.appRouter.navigate('/interactive/live');
   						}, ANIMATION_DELAY);
 						break;
 					case 1: // Physical Artifacts

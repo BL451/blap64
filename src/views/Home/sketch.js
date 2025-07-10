@@ -54,7 +54,7 @@ export const sketch = function (p, options = {}) {
 
         animation_states = [
             {
-                "start_time": 1000,
+                "start_time": 500,
                 "duration": 1000,
                 "idx": 0,
                 "fn": intro_texts[0].renderSequentialRandom.bind(intro_texts[0]),
@@ -191,7 +191,7 @@ export const sketch = function (p, options = {}) {
             fontVariationSettings: `wght 900`
         });
         animation_manager.execute(p);
-        
+
         // Update cursor based on hover state
         updateCursor(p, p.mouseX, p.mouseY, ui);
 	}
@@ -211,7 +211,7 @@ export const sketch = function (p, options = {}) {
 					switch(index) {
 						case 0: // First button - INTERACTIVE
 						    setTimeout(() => {
-    							window.appRouter.navigate('/codeart');
+    							window.appRouter.navigate('/interactive');
     						}, ANIMATION_DELAY);
 							break;
 						case 1: // Second button - PHOTO

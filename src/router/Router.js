@@ -8,8 +8,9 @@ export default class Router {
         this.path = "";
         this.is_navigating = false;
         // Clean the initial path to avoid hashbang issues
-        const rawInitialPath = location.pathname + location.hash;
-        const initialPath = rawInitialPath.replace(/^\/?#+\/?/, '') || '/';
+        const rawInitialPath = location.hash.substr(1);
+        const initialPath = rawInitialPath && rawInitialPath !== '' ? 
+            (rawInitialPath.startsWith('/') ? rawInitialPath : '/' + rawInitialPath) : '/';
         this.navigate(initialPath);
     }
 
@@ -18,7 +19,7 @@ export default class Router {
 
         // regex for the route
         let regex_path =
-            "^/?#?" + route.path.replace(/([:*])(\w+)/g, (full, colon, name) => {
+            "^" + route.path.replace(/([:*])(\w+)/g, (full, colon, name) => {
                 param_names.push(name);
                 return "([^\/]+)";
             }) + "$";
@@ -60,8 +61,19 @@ export default class Router {
         .forEach((route) => route.classList.remove("route-active"));
     //.forEach((route) => (route.className = "pointer route"));
     if (!route) {
-        // This triggers the hashchange event, causing navigate() to be called again and matching the route with our 404 page
-        window.location.href = "#/oops";
+        // Find the 404 route and render it directly
+        const notFoundRoute = this.routes.find(r => r.path === "/oops");
+        if (notFoundRoute) {
+            this.is_navigating = true;
+            document.getElementById("app").style.opacity = 0;
+            setTimeout(() => {
+                render(notFoundRoute.renderView(), this.render_node);
+                document.getElementById("app").style.opacity = 1;
+                this.is_navigating = false;
+                updateBreadcrumb("/oops");
+            }, 250);
+        }
+        return;
     } else {
         this.is_navigating = true;
         // Fade out the main view
@@ -76,9 +88,11 @@ export default class Router {
         // Render new page and fade in the main view after 200ms
         setTimeout(
             function () {
-                // Hashbanging navigation
-                window.location.href =
-                    path.search("/#") === -1 ? "#" + path : path;
+                // Update URL to match clean path
+                const cleanPath = path.startsWith('/') ? path : '/' + path;
+                if (window.location.hash !== '#' + cleanPath) {
+                    window.location.hash = '#' + cleanPath;
+                }
                 // Add navigation options to route props
                 const routeProps = route.props || {};
                 if (options.skipAnimations) {
@@ -91,7 +105,6 @@ export default class Router {
                 document.getElementById("app").style.opacity = 1;
                 this.is_navigating = false;
                 // Update breadcrumb navigation with clean path
-                const cleanPath = path.replace(/^\/?#+\/?/, '') || '/';
                 updateBreadcrumb(cleanPath);
             }.bind(this),
             250,
