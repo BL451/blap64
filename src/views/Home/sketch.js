@@ -29,7 +29,7 @@ export const sketch = function (p, options = {}) {
 		await loadGoogleFontSet('../../assets/fonts/BPdotsSquareVF.ttf');
 		p.textAlign(p.CENTER, p.CENTER);
 		short = p.min(p.width, p.height);
-		const s_font = Math.max(0.022*p.width, 32);
+		const s_font = mobile ? 14 : Math.max(0.022*p.width, 32);
 		ui.push(new UICornerBoxButton(p, 0.25*p.width, 0.7*p.height, 0.26*short, 0.26*short, 0.01*p.width, 0.01*p.width, "INTERACTIVE\nMEDIA", s_font));
 		ui.push(new UIArcButton(p, 0.5*p.width, 0.7*p.height, 0.3*short, 0.3*short, 0.01*p.width, 0.01*p.width, "PHOTO", s_font));
 		ui.push(new UITriangleButton(p, 0.75*p.width, 0.35*p.height, 0.2*short, 0.2*short, 0.01*p.width, 0.01*p.width, -0.5*p.PI, "ABOUT", s_font));
@@ -147,30 +147,31 @@ export const sketch = function (p, options = {}) {
 
 	p.draw = function() {
 	    // deltaTime allows us to be framerate agnostic for animation speed
-		smoothX = smoothFollow(p.mouseX, smoothX, 0.003*p.deltaTime);
-		smoothY = smoothFollow(p.mouseY, smoothY, 0.003*p.deltaTime);
+		if (!mobile){
+            smoothX = smoothFollow(p.mouseX, smoothX, 0.003*p.deltaTime);
+            smoothY = smoothFollow(p.mouseY, smoothY, 0.003*p.deltaTime);
+		} else {
+            smoothX = p.width * (0.5 + 0.2 * p.cos(0.0007 * p.millis()));
+            smoothY = p.height * (0.75 + 0.2 * p.sin(0.0007 * p.millis()));
+		}
 		p.clear();
 		p.background(23);
         p.textAlign(p.CENTER, p.CENTER);
         ui.forEach((ui_element) => {
-            const l = ui_element.dist(smoothX, smoothY);
-            ui_element.cs.x = easeInCubic(p.map(l, 0, 0.5*p.width, 1, 0));
-            ui_element.cs.y = easeInCubic(p.map(l, 0, 0.5*p.width, 1, 0));
-            p.strokeWeight(1 + 0.015*short*easeInCubic(p.map(l, 0, 0.5*p.width, 1, 0, true)));
+            const d = ui_element.dist(smoothX, smoothY);
+            ui_element.cs.x = easeInCubic(p.map(d, 0, 0.5*p.width, 1, 0));
+            ui_element.cs.y = easeInCubic(p.map(d, 0, 0.5*p.width, 1, 0));
+            p.strokeWeight(1 + 0.015*short*easeInCubic(p.map(d, 0, 0.5*p.width, 1, 0, true)));
             p.noFill();
             if (ui_element.contains(p.mouseX, p.mouseY)){
-                        p.stroke(230, 20, 20, ui_opacity);
+                p.stroke(230, 20, 20, ui_opacity);
             } else {
-                        p.stroke(230, ui_opacity);
+                p.stroke(230, ui_opacity);
             }
             ui_element.render();
 
             // Text rendering
             p.noStroke();
-            let d = 0;
-            if (!mobile){
-                d = ui_element.textWriter.dist(smoothX, smoothY);
-            }
             p.textFont('BPdotsSquareVF', {
                 fontVariationSettings: `wght ${p.map(d/p.width, 1, 0, 100, 900, true)}`
             });

@@ -4,34 +4,30 @@ export default (props) => html`
     <div class="about-container">
         <div class="about-bio">
             <h1>Benjamin Lappalainen</h1>
-            <h2>(he/him)</h2>
+            <h3>(he/him)</h3>
             <p class="main-paragraph">
-                Benjamin Lappalainen is a Toronto-based multidisciplinary artist, creative technologist, and educator creating interactive installations that blur the boundaries between digital and physical experience. His work explores how emerging technologies can foster new forms of human connection and creative expression, often incorporating audio-reactive visuals, computer vision, AI, and algorithmic processes into innovative interaction design.
+                I am a Toronto-based creative technologist, educator, and multidisciplinary artist creating interactive installations that blur the boundaries between digital and physical experience. My work explores how emerging technologies can foster new forms of human connection and creative expression, often incorporating audio-reactive visuals, computer vision, AI, and algorithmic processes into innovative interaction design.
                 <br><br>
-                As an educator, Benjamin leads workshops and mentorship programs for diverse communities that bridge technical skill-building with experimental arts practices and community engagement. His current research focuses on developing open source software for social impact, creating accessible tools for creative coding and interactive media while investigating how technology can amplify rather than replace human creativity. Through his work with organizations like InterAccess Gallery, Long Winter Music & Arts Festival, and UKAI Projects, he supports artists in developing technically sophisticated work that remains deeply human-centered.
+                As an educator, I lead workshops and mentorship programs for diverse communities that bridge technical skill-building with experimental arts practices and community engagement. My current research focuses on developing open source software for social impact, creating accessible tools for creative coding and interactive media while investigating how technology can amplify rather than replace human creativity. Through my work with organizations like InterAccess Gallery, Long Winter Music & Arts Festival, and UKAI Projects, I support artists in developing technically sophisticated work that remains deeply human-centered.
             </p>
-            <br /><br /><br />
-            <a href="https://github.com/BL451/blap64" target="_blank" rel="noopener">
-                CLICK HERE TO VIEW THE CODE FOR THIS WEBSITE
-            </a>
         </div>
         <div class="about-cv">
             <h1>Curriculum Vitae</h1>
 
             <div class="cv-section">
-                <h3>Education & Training</h3>
+                <h2>Education & Training</h2>
                 <p class="main-paragraph">
-                    <strong>2024-Present</strong> - Mentored by digital artist, designer, and technologist Priam Givord<br>
+                    <strong>2024</strong> - Mentored by digital artist and technologist Priam Givord<br>
                     <strong>2024</strong> - <a href="https://www.aimetaphorsworkshop.com/" target="_blank" rel="noopener">"AI Metaphors" Workshop</a> - University of Toronto, UKAI Projects, InterAccess Gallery<br>
                     <strong>2024</strong> - <a href="https://ukaiprojects.com/pages/festival" target="_blank" rel="noopener">"Carnival of Shipwreck"</a> Cultural Philosophy and New Media workshop series - UKAI Projects<br>
                     <strong>2024</strong> - <a href="https://labs.hxouse.com/" target="_blank" rel="noopener">"Habitats"</a> Unreal Engine 5 & Cultural Philosophy Workshop - HXOUSE LABS<br>
-                    <strong>2019-Present</strong> - Self-taught interactive media techniques through online videos and articles<br>
+                    <strong>2019-Present</strong> - Self-taught interactive media techniques<br>
                     <strong>2015-2020</strong> - BASc., Engineering Science - University of Toronto
                 </p>
             </div>
 
             <div class="cv-section">
-                <h3>Work Experience</h3>
+                <h2>Work Experience</h2>
                 <p class="main-paragraph">
                     <strong>2025-Present</strong> - XR Development Lead - UKAI Projects<br>
                     <strong>2025</strong> - <em>We Play in the World They Make</em> Role-Playing Game - UKAI Projects<br>
@@ -49,7 +45,7 @@ export default (props) => html`
             </div>
 
             <div class="cv-section">
-                <h3>Selected New Media Exhibitions & Performances</h3>
+                <h2>Selected New Media Exhibitions & Performances</h2>
                 <p class="main-paragraph">
                     <strong>2025</strong> - <em>IA Flow Fields</em>, flashDRIVE Digital Arts Fundraiser Exhibition - InterAccess Gallery<br>
                     <strong>2025</strong> - <em>Sketching Flock</em>, Farewell to The Bridge - UKAI Projects, The Bridge<br>
@@ -67,7 +63,7 @@ export default (props) => html`
             </div>
 
             <div class="cv-section">
-                <h3>Teaching</h3>
+                <h2>Teaching</h2>
                 <p class="main-paragraph">
                     <strong>2025</strong> - 1:1 Code Art Mentorship program<br>
                     <strong>2025</strong> - "We Have AI At Home" - Privacy-First Local AI Workshop - UKAI Projects, The Bridge<br>
@@ -81,7 +77,7 @@ export default (props) => html`
             </div>
 
             <div class="cv-section">
-                <h3>Independent Projects</h3>
+                <h2>Independent Projects</h2>
                 <p class="main-paragraph">
                     <strong>2025</strong> - <a href="https://blap64.substack.com/" target="_blank" rel="noopener">"Code Art Corner" weekly newsletter</a><br>
                     <strong>2024</strong> - <a href="https://editor.p5js.org/blapcode/collections/ZbpMINM3u" target="_blank" rel="noopener">Genuary Generative Art Prompt Series</a><br>
@@ -91,14 +87,14 @@ export default (props) => html`
             </div>
 
             <div class="cv-section">
-                <h3>Publications</h3>
+                <h2>Publications</h2>
                 <p class="main-paragraph">
                     <strong>2020</strong> - <a href="https://cumincad.scix.net/data/works/att/ecaade2020_393.pdf" target="_blank" rel="noopener">eCAADe Conference Proceedings Volume 1</a> - Education and research in Computer Aided Architectural Design in Europe
                 </p>
             </div>
 
             <div class="cv-section">
-                <h3>Residencies</h3>
+                <h2>Residencies</h2>
                 <p class="main-paragraph">
                     <strong>2024</strong> - Aberrant AI - AI through the lens of Horror - UKAI Projects
                 </p>

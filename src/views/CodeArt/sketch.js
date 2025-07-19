@@ -1,4 +1,4 @@
-import { getViewportSize, UITriangleButton, easeInCubic, smoothFollow, updateCursor } from "../../utils";
+import { getViewportSize, UITriangleButton, easeInCubic, smoothFollow, updateCursor, widthCheck } from "../../utils";
 
 export const sketch = function (p) {
     let ui = [];
@@ -12,10 +12,11 @@ export const sketch = function (p) {
         p.noCanvas();
         p.pixelDensity(1);
         const s = getViewportSize();
+        mobile = widthCheck(s.width);
         p.createCanvas(s.width, s.height);
         short = p.min(s.width, s.height);
         cx = 0.5 * p.width;
-        cy = 0.6 * p.height;
+        cy = mobile ? 0.5 * p.height : 0.6 * p.height;
         r = 0.2 * short;
         layoutUI();
         p.background(23);
@@ -29,15 +30,21 @@ export const sketch = function (p) {
 
     p.draw = function draw() {
         p.background(23);
-        smoothX = smoothFollow(p.mouseX, smoothX, 0.003*p.deltaTime);
-		smoothY = smoothFollow(p.mouseY, smoothY, 0.003*p.deltaTime);
+        if (!mobile){
+            smoothX = smoothFollow(p.mouseX, smoothX, 0.003*p.deltaTime);
+            smoothY = smoothFollow(p.mouseY, smoothY, 0.003*p.deltaTime);
+        } else {
+            smoothX = p.width * (0.5 + 0.2 * p.cos(-p.PI/2 + 0.001 * p.millis()));
+            smoothY = p.height * (0.5 + 0.2 * p.sin(-p.PI / 2 + 0.001 * p.millis()));
+        }
+
         p.noFill();
         p.stroke(230);
         p.strokeWeight(1);
         ui.forEach((ui_element) => {
-            const l = ui_element.dist(smoothX, smoothY);
-            ui_element.cs.x = easeInCubic(p.map(l, 0, 0.5*p.width, 1, 0));
-            ui_element.cs.y = easeInCubic(p.map(l, 0, 0.5*p.width, 1, 0));
+            const d = ui_element.dist(smoothX, smoothY);
+            ui_element.cs.x = easeInCubic(p.map(d, 0, 0.5*p.width, 1, 0));
+            ui_element.cs.y = easeInCubic(p.map(d, 0, 0.5*p.width, 1, 0));
             //p.strokeWeight(1 + 0.015*short*easeInCubic(p.map(l, 0, 0.5*p.width, 1, 0, true)));
             p.noFill();
             if (ui_element.contains(p.mouseX, p.mouseY)){
@@ -49,10 +56,6 @@ export const sketch = function (p) {
 
             // Text rendering
             p.noStroke();
-            let d = 0;
-            if (!mobile){
-                d = l; //ui_element.textWriter.dist(smoothX, smoothY);
-            }
             p.textFont('BPdotsSquareVF', {
                 fontVariationSettings: `wght ${p.map(d/p.width, 1, 0, 100, 900, true)}`
             });
@@ -71,6 +74,7 @@ export const sketch = function (p) {
 
     p.windowResized = function windowResized() {
         const s = getViewportSize();
+        mobile = widthCheck(s.width);
         p.resizeCanvas(s.width, s.height);
         short = p.min(s.width, s.height);
         cx = 0.5*p.width;
@@ -112,13 +116,13 @@ export const sketch = function (p) {
 
     function layoutUI(){
         ui.length = 0;
-        const s_font = Math.max(0.022*p.width, 32);
+        const s_font = mobile ? 18 : Math.max(0.022*p.width, 32);
         ui.push(new UITriangleButton(p, cx, cy - r, 0.1*short, 0.1*short, 0.01*p.width, 0.01*p.width, -0.5*p.PI, "LIVE\nEXPERIENCES", s_font));
         ui[0].setTextOffset(0, -0.9*r);
         ui.push(new UITriangleButton(p, cx - r*p.cos(p.PI/6), cy + r*p.sin(p.PI/6), 0.1*short, 0.1*short, 0.01*p.width, 0.01*p.width, -0.5*p.PI, "PHYSICAL\nARTIFACTS", s_font));
-        ui[1].setTextOffset(-0.95*r*p.cos(p.PI/6), 0.95*r*p.sin(p.PI/6));
+        ui[1].setTextOffset(-0.95*r*p.cos(p.PI/6), 1.15*r*p.sin(p.PI/6));
         ui.push(new UITriangleButton(p, cx + r*p.cos(p.PI/6), cy + r*p.sin(p.PI/6), 0.1*short, 0.1*short, 0.01*p.width, 0.01*p.width, -0.5*p.PI, "WEB\nEXPERIENCES", s_font));
-        ui[2].setTextOffset(0.95*r*p.cos(p.PI/6), 0.95*r*p.sin(p.PI/6));
+        ui[2].setTextOffset(0.95*r*p.cos(p.PI/6), 1.15*r*p.sin(p.PI/6));
     }
 
     function renderDecor(){

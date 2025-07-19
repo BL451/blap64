@@ -122,7 +122,7 @@ button {
 
 
 .route-mobile {
-    font-size: 8vmin;
+    font-size: 5vmin;
 }
 
 .route-active {
@@ -169,8 +169,8 @@ h1 {
 }
 
 h2 {
-    margin: 0.5vmin 0 0 0;
-    padding: auto;
+    margin: 1.5vmin 0 0.5vmin 0;
+    padding: 1vmin 0;
     width: 100%;
     font-family: "BPdotsSquareVF";
     color: #fafafa;
@@ -181,8 +181,8 @@ h2 {
 }
 
 h3 {
-    margin: 1.5vmin 0 0.5vmin 0;
-    padding: 1vmin 0;
+    margin: 0.5vmin 0 0.5vmin 0;
+    padding: auto;
     font-family: "BPdotsSquareVF";
     color: #fafafa;
     font-size: 2.5vmin;
@@ -272,43 +272,43 @@ h3 {
         overflow: auto;
         height: auto;
     }
-    
+
     .breadcrumb-nav {
-        font-size: 3.6vmin;
-        padding: 12px 16px;
+        font-size: 4vmin;
+        padding: 8px 8px;
     }
-    
+
     .about-container {
         flex-direction: column;
         height: auto;
         overflow: visible;
     }
-    
+
     .about-bio, .about-cv {
         flex: none;
         padding: 5% 5%;
         overflow: visible;
     }
-    
+
     h1 {
-        font-size: 8vmin;
+        font-size: 5vmin;
         margin: 0 0 0 0;
         width: 100%;
     }
-    
+
     h2 {
-        font-size: 6vmin;
+        font-size: 3.6vmin;
         margin: 1vmin 0 0 0;
         width: 100%;
     }
-    
+
     h3 {
-        font-size: 5vmin;
+        font-size: 3vmin;
     }
-    
+
     .main-paragraph {
         margin: 2vmin 0 0 0;
         width: 100%;
-        font-size: 4vmin;
+        font-size: 11px;
     }
 }

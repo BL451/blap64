@@ -34,8 +34,14 @@ export const sketch = function (p, options = {}) {
     let currentPath = null;
     let isInternalNavigation = false;
 
+    // Media loading tracking to prevent duplicates
+    let mediaBeingLoaded = new Set();
+
+    // Resize throttling
+    let resizeTimeout = null;
+
     let hashChangeHandler = null;
-    
+
     // Add cleanup method to be called when sketch is destroyed
     p.cleanupSketch = function() {
         // Clean up native video element
@@ -43,7 +49,7 @@ export const sketch = function (p, options = {}) {
             nativeVideoElement.remove();
             nativeVideoElement = null;
         }
-        
+
         // Clean up any loaded video elements
         loadedMedia.forEach((mediaData, path) => {
             if (mediaData.type === 'video' && mediaData.element && mediaData.element.remove) {
@@ -51,48 +57,47 @@ export const sketch = function (p, options = {}) {
             }
         });
         loadedMedia.clear();
-        
+
         // Reset state
         activeInfoCard = null;
         expandedMediaIndex = null;
         infoCardAlpha = 0;
         expandedMediaAlpha = 0;
-        
+
         // Re-enable browser swipe navigation
         document.body.style.overscrollBehavior = '';
         document.body.style.touchAction = '';
-        
+
         // Remove hash change listener
         if (hashChangeHandler) {
             window.removeEventListener('hashchange', hashChangeHandler);
             hashChangeHandler = null;
         }
-        
+
         // Don't clear session storage here - let setup function handle it for back navigation detection
     };
 
     // Helper functions for layout calculations
     function getCardDimensions() {
         const isMobile = widthCheck(p.width);
-        const cardSize = isMobile ?
-            p.min(p.width * 0.95, p.height * 0.9) :
-            p.min(p.width * 0.9, p.height * 0.85, 900);
-        const cardX = (p.width - cardSize) / 2;
-        const cardY = (p.height - cardSize) / 2;
-        return { size: cardSize, x: cardX, y: cardY, isMobile };
+        const cardWidth = isMobile ? p.width * 0.95 : p.width * 0.82;
+        const cardHeight = isMobile ? p.height * 0.88 : p.height * 0.82; // Increased mobile height to 0.88 (was 0.75)
+        const cardX = (p.width - cardWidth) / 2;
+        // Move mobile card much higher up since breadcrumb is now hidden, keep desktop unchanged
+        const cardY = isMobile ? (p.height - cardHeight) / 2 - 40 : (p.height - cardHeight) / 2 - 20;
+        return { width: cardWidth, height: cardHeight, x: cardX, y: cardY, isMobile };
     }
 
-    function getGalleryLayout(cardSize, cardX, cardY, isMobile) {
-        const baseTextScale = isMobile ? cardSize / 400 : cardSize / 600;
-        const padding = 25 * baseTextScale;
-        const lineHeight = 25 * baseTextScale;
+    function getGalleryLayout(cardWidth, cardHeight, cardX, cardY, isMobile) {
+        const padding = isMobile ? 20 : 24;
+        const lineHeight = isMobile ? 28 : 32;
         const galleryY = cardY + padding + lineHeight * 5.3;
-        const galleryHeight = cardSize * 0.4;
-        return { galleryY, galleryHeight, baseTextScale, padding, lineHeight };
+        const galleryHeight = cardHeight * 0.35; // Slightly smaller to leave more room for text
+        return { galleryY, galleryHeight, padding, lineHeight };
     }
 
-    function getGalleryItemDimensions(galleryHeight, scale) {
-        const galleryPadding = 10 * scale;
+    function getGalleryItemDimensions(galleryHeight, isMobile) {
+        const galleryPadding = isMobile ? 8 : 10;
         const itemHeight = galleryHeight - (2 * galleryPadding);
         const itemWidth = itemHeight * 1.5; // 3:2 aspect ratio
         return { itemWidth, itemHeight, galleryPadding };
@@ -162,7 +167,7 @@ export const sketch = function (p, options = {}) {
         let bg = document.getElementById("bg");
         let loading_div = bg.shadowRoot.getElementById("p5_loading");
         if (loading_div) loading_div.remove();
-        
+
         // Handle direct project navigation via URL parameter
         if (options && options.project) {
             pendingProjectSlug = options.project;
@@ -178,7 +183,7 @@ export const sketch = function (p, options = {}) {
                 sessionStorage.removeItem('installationsActiveProject');
                 // Ensure no project opens automatically on back navigation
                 pendingProjectSlug = null;
-                
+
                 // Initialize with info card closed
                 activeInfoCard = null;
                 infoCardAlpha = 0;
@@ -186,20 +191,20 @@ export const sketch = function (p, options = {}) {
                 infoCardAnimating = false;
             }
         }
-        
+
         // Add hash change listener to detect back navigation within the same route
         hashChangeHandler = function(event) {
             const newHash = window.location.hash.substr(1);
-            const cleanPath = newHash && newHash !== '' ? 
+            const cleanPath = newHash && newHash !== '' ?
                 (newHash.startsWith('/') ? newHash : '/' + newHash) : '/';
-            
+
             // If we're on the installations page and URL changed to just /interactive/live
             // and we have an active info card, close it
             if (cleanPath === '/interactive/live' && activeInfoCard !== null) {
                 closeInfoCard();
             }
         };
-        
+
         window.addEventListener('hashchange', hashChangeHandler);
     };
 
@@ -214,7 +219,7 @@ export const sketch = function (p, options = {}) {
         p.stroke(230);
         p.strokeWeight(1);
         renderSolarSystem();
-        
+
         // Handle pending project opening after layout is initialized and a few frames have passed
         if (pendingProjectSlug && layoutInitialized && planetButtons && planetButtons.length > 0 && frameCount > 5) {
             const projectIndex = getProjectIndexBySlug(pendingProjectSlug);
@@ -289,9 +294,17 @@ export const sketch = function (p, options = {}) {
     };
 
     p.windowResized = function windowResized() {
-        const s = getViewportSize();
-        p.resizeCanvas(s.width, s.height);
-        initializeLayout();
+        // Throttle resize events to prevent performance issues during orientation changes
+        if (resizeTimeout) {
+            clearTimeout(resizeTimeout);
+        }
+
+        resizeTimeout = setTimeout(() => {
+            const s = getViewportSize();
+            p.resizeCanvas(s.width, s.height);
+            initializeLayout();
+            resizeTimeout = null;
+        }, 150); // Wait 150ms after resize stops
     };
 
     p.mousePressed = function (event) {
@@ -352,10 +365,11 @@ export const sketch = function (p, options = {}) {
             const mediaX = (p.width - mediaWidth) / 2;
             const mediaY = (p.height - mediaHeight) / 2;
 
-            // Check close button
-            const closeSize = 40;
-            const closeX = mediaX + mediaWidth - closeSize - 10;
-            const closeY = mediaY + 10;
+            // Check close button (now centered below media)
+            const closeSize = isMobile ? 50 : 40;
+            const closePadding = isMobile ? 20 : 15;
+            const closeX = (p.width - closeSize) / 2; // Center horizontally
+            const closeY = mediaY + mediaHeight + closePadding;
 
             if (p.mouseX >= closeX && p.mouseX <= closeX + closeSize &&
                 p.mouseY >= closeY && p.mouseY <= closeY + closeSize) {
@@ -365,9 +379,10 @@ export const sketch = function (p, options = {}) {
 
             // Native video players handle their own controls
 
-            // Click outside media closes it
+            // Click outside media and close button area closes it
+            const totalHeight = mediaHeight + closePadding + closeSize;
             if (p.mouseX < mediaX || p.mouseX > mediaX + mediaWidth ||
-                p.mouseY < mediaY || p.mouseY > mediaY + mediaHeight) {
+                p.mouseY < mediaY || p.mouseY > mediaY + totalHeight) {
                 closeExpandedMedia();
                 return;
             }
@@ -402,9 +417,9 @@ export const sketch = function (p, options = {}) {
 
         // Check if clicking on info card or close button
         if (activeInfoCard !== null) {
-            const { size: cardSize, x: cardX, y: cardY, isMobile } = getCardDimensions();
+            const { width: cardWidth, height: cardHeight, x: cardX, y: cardY, isMobile } = getCardDimensions();
             const closeButtonSize = isMobile ? 44 : 30;
-            const closeButtonX = cardX + cardSize - closeButtonSize - 10;
+            const closeButtonX = cardX + cardWidth - closeButtonSize - 10;
             const closeButtonY = cardY + 10;
 
             // Check if clicking close button
@@ -418,14 +433,16 @@ export const sketch = function (p, options = {}) {
             if (projects.length > 1) {
                 const arrowSize = isMobile ? 50 : 40;
                 const arrowPadding = isMobile ? 20 : 15;
-                const arrowY = cardY + cardSize + arrowPadding;
-                
-                const totalArrowWidth = arrowSize * 2 + arrowPadding * 3;
-                const arrowStartX = cardX + (cardSize - totalArrowWidth) / 2;
-                
-                const leftArrowX = arrowStartX + arrowPadding;
-                const rightArrowX = arrowStartX + arrowPadding * 2 + arrowSize;
-                
+                const arrowY = cardY + cardHeight + arrowPadding;
+
+                // Use new arrow positioning logic (same as in renderNavigationArrows)
+                const counterWidth = 80;
+                const totalWidth = arrowSize * 2 + counterWidth + arrowPadding * 2;
+                const startX = cardX + (cardWidth - totalWidth) / 2;
+
+                const leftArrowX = startX;
+                const rightArrowX = startX + arrowSize + counterWidth + arrowPadding * 2;
+
                 // Check left arrow (previous with wraparound)
                 if (p.mouseX >= leftArrowX && p.mouseX <= leftArrowX + arrowSize &&
                     p.mouseY >= arrowY && p.mouseY <= arrowY + arrowSize) {
@@ -433,7 +450,7 @@ export const sketch = function (p, options = {}) {
                     navigateToProject(prevIndex);
                     return;
                 }
-                
+
                 // Check right arrow (next with wraparound)
                 if (p.mouseX >= rightArrowX && p.mouseX <= rightArrowX + arrowSize &&
                     p.mouseY >= arrowY && p.mouseY <= arrowY + arrowSize) {
@@ -446,13 +463,12 @@ export const sketch = function (p, options = {}) {
             // Check if clicking in gallery area
             const project = projects[activeInfoCard];
             if (project.images && project.images.length > 0) {
-                const baseTextScale = isMobile ? cardSize / 400 : cardSize / 600;
-                const padding = 25 * baseTextScale;
-                const lineHeight = 25 * baseTextScale;
+                const padding = isMobile ? 20 : 24;
+                const lineHeight = isMobile ? 28 : 32;
                 const galleryY = cardY + padding + lineHeight * 5.3; // Approximate gallery Y position
-                const galleryHeight = cardSize * 0.4;
+                const galleryHeight = cardHeight * 0.35;
 
-                if (p.mouseX >= cardX + padding && p.mouseX <= cardX + cardSize - padding &&
+                if (p.mouseX >= cardX + padding && p.mouseX <= cardX + cardWidth - padding &&
                     p.mouseY >= galleryY && p.mouseY <= galleryY + galleryHeight) {
                     // Start gallery dragging
                     galleryDragging = true;
@@ -463,8 +479,8 @@ export const sketch = function (p, options = {}) {
             }
 
             // Check if clicking outside the card
-            if (p.mouseX < cardX || p.mouseX > cardX + cardSize ||
-                p.mouseY < cardY || p.mouseY > cardY + cardSize) {
+            if (p.mouseX < cardX || p.mouseX > cardX + cardWidth ||
+                p.mouseY < cardY || p.mouseY > cardY + cardHeight) {
                 closeInfoCard();
                 return;
             }
@@ -509,15 +525,28 @@ export const sketch = function (p, options = {}) {
             if (dragDistance < 5 && activeInfoCard !== null) {
                 const project = projects[activeInfoCard];
                 if (project && project.images && project.images.length > 0) {
-                    const { size: cardSize, x: cardX, y: cardY, isMobile } = getCardDimensions();
-                    const { galleryY, galleryHeight, baseTextScale, padding } = getGalleryLayout(cardSize, cardX, cardY, isMobile);
-                    const { itemWidth, itemHeight, galleryPadding } = getGalleryItemDimensions(galleryHeight, baseTextScale);
-                    const startX = cardX + padding + galleryPadding; // Left padding
-                    const startY = galleryY + galleryPadding; // Top padding
+                    const { width: cardWidth, height: cardHeight, x: cardX, y: cardY, isMobile } = getCardDimensions();
+                    const { galleryY, padding, lineHeight } = getGalleryLayout(cardWidth, cardHeight, cardX, cardY, isMobile);
+                    
+                    // Use EXACT same galleryHeight calculation as main rendering
+                    const galleryHeight = isMobile ? cardHeight * 0.3 : cardHeight * 0.4;
+                    
+                    // Use EXACT same calculations as renderGallery for consistent click detection
+                    const galleryAreaPadding = isMobile ? 8 : 10; // This is the 'padding' variable in rendering
+                    const itemHeight = galleryHeight - (2 * galleryAreaPadding);
+                    const itemWidth = itemHeight * 1.5; // 3:2 aspect ratio
+                    
+                    // Gallery area coordinates (same as rendering: x=cardX+padding, y=galleryY)
+                    const galleryX = cardX + padding; // Card padding
+                    const galleryY_coords = galleryY;
+                    
+                    // Start coordinates within gallery area (same as rendering: startX = x + padding)
+                    const startX = galleryX + galleryAreaPadding; // Gallery area left padding
+                    const startY = galleryY_coords + galleryAreaPadding; // Gallery area top padding
 
                     // Check if clicking on a specific media item
                     for (let i = 0; i < project.images.length; i++) {
-                        const itemX = startX + i * (itemWidth + galleryPadding) + galleryScrollX;
+                        const itemX = startX + i * (itemWidth + galleryAreaPadding) + galleryScrollX;
                         if (p.mouseX >= itemX && p.mouseX <= itemX + itemWidth &&
                             p.mouseY >= startY && p.mouseY <= startY + itemHeight) {
                             openExpandedMedia(i);
@@ -530,19 +559,20 @@ export const sketch = function (p, options = {}) {
             // Apply momentum/easing to final scroll position
             const project = projects[activeInfoCard];
             if (project && project.images && project.images.length > 0) {
-                const cardSize = widthCheck(p.width) ?
-                    p.min(p.width * 0.95, p.height * 0.9) :
-                    p.min(p.width * 0.9, p.height * 0.85, 900);
+                const { width: cardWidth, height: cardHeight } = getCardDimensions();
                 const isMobile = widthCheck(p.width);
-                const baseTextScale = isMobile ? cardSize / 400 : cardSize / 600;
-                const padding = 25 * baseTextScale;
-                const galleryWidth = cardSize - 2 * padding;
-                const galleryHeight = cardSize * 0.4;
-                const itemHeight = galleryHeight * 0.9;
+                const padding = isMobile ? 20 : 24;
+                const galleryWidth = cardWidth - 2 * padding;
+                
+                // Use EXACT same galleryHeight as main rendering
+                const galleryHeight = isMobile ? cardHeight * 0.3 : cardHeight * 0.4;
+                
+                // Use same calculations as rendering and click detection
+                const galleryAreaPadding = isMobile ? 8 : 10;
+                const itemHeight = galleryHeight - (2 * galleryAreaPadding);
                 const itemWidth = itemHeight * 1.5; // 3:2 aspect ratio
-                const itemSpacing = 20 * baseTextScale;
-                const totalWidth = project.images.length * (itemWidth + itemSpacing) - itemSpacing;
-                const maxScroll = p.max(0, totalWidth - galleryWidth + 20 * baseTextScale);
+                const totalWidth = project.images.length * (itemWidth + galleryAreaPadding) - galleryAreaPadding;
+                const maxScroll = p.max(0, totalWidth);
                 targetGalleryScrollX = p.constrain(targetGalleryScrollX, -maxScroll, 0);
             }
         }
@@ -553,22 +583,24 @@ export const sketch = function (p, options = {}) {
             const project = projects[activeInfoCard];
             if (project && project.images && project.images.length > 0) {
                 // Check if mouse is over gallery area
-                const { size: cardSize, x: cardX, y: cardY, isMobile } = getCardDimensions();
-                const { galleryY, galleryHeight, baseTextScale, padding } = getGalleryLayout(cardSize, cardX, cardY, isMobile);
+                const { width: cardWidth, height: cardHeight, x: cardX, y: cardY, isMobile } = getCardDimensions();
+                const { galleryY, padding, lineHeight } = getGalleryLayout(cardWidth, cardHeight, cardX, cardY, isMobile);
+                
+                // Use EXACT same galleryHeight as main rendering
+                const galleryHeight = isMobile ? cardHeight * 0.3 : cardHeight * 0.4;
 
-                if (p.mouseX >= cardX + padding && p.mouseX <= cardX + cardSize - padding &&
+                if (p.mouseX >= cardX + padding && p.mouseX <= cardX + cardWidth - padding &&
                     p.mouseY >= galleryY && p.mouseY <= galleryY + galleryHeight) {
 
                     const scrollAmount = event.delta * 2;
                     targetGalleryScrollX -= scrollAmount;
 
-                    // Constrain scroll bounds using correct 3:2 aspect ratio
-                    const galleryWidth = cardSize - 2 * padding;
-                    const itemHeight = galleryHeight * 0.9;
+                    // Constrain scroll bounds using same calculations as rendering
+                    const galleryAreaPadding = isMobile ? 8 : 10;
+                    const itemHeight = galleryHeight - (2 * galleryAreaPadding);
                     const itemWidth = itemHeight * 1.5; // 3:2 aspect ratio
-                    const itemSpacing = 20 * baseTextScale;
-                    const totalWidth = project.images.length * (itemWidth + itemSpacing) - itemSpacing;
-                    const maxScroll = p.max(0, totalWidth - galleryWidth + 20 * baseTextScale);
+                    const totalWidth = project.images.length * (itemWidth + galleryAreaPadding) - galleryAreaPadding;
+                    const maxScroll = p.max(0, totalWidth);
                     targetGalleryScrollX = p.constrain(targetGalleryScrollX, -maxScroll, 0);
 
                     return false; // Prevent page scroll
@@ -591,17 +623,60 @@ export const sketch = function (p, options = {}) {
         targetGalleryScrollX = 0;
         galleryDragging = false;
         loadMediaForProject(projects[index]);
-        
+
         // Disable browser swipe navigation while info card is open
         document.body.style.overscrollBehavior = 'none';
         document.body.style.touchAction = 'none';
-        
+
+        // Lock orientation on mobile to prevent performance issues
+        if (screen.orientation && screen.orientation.lock) {
+            try {
+                screen.orientation.lock('portrait-primary').catch(() => {
+                    // Silently fail if orientation lock isn't supported
+                });
+            } catch (e) {
+                // Silently fail if orientation lock isn't supported
+            }
+        }
+
+        // Hide breadcrumb navigation on mobile when infoCard opens
+        if (widthCheck(p.width)) {
+            const breadcrumbContainer = document.getElementById("breadcrumb-container");
+            if (breadcrumbContainer) {
+                breadcrumbContainer.style.display = 'none';
+            }
+        }
+
         // Update breadcrumb to show current project
         const project = projects[index];
         if (project && project.slug) {
             import("../elements/breadcrumb-nav.js").then(({ updateBreadcrumb }) => {
                 updateBreadcrumb(`/interactive/live/${project.slug}`);
             });
+        }
+    }
+
+    function navigateToProject(newIndex) {
+        activeInfoCard = newIndex;
+        galleryScrollX = 0;
+        targetGalleryScrollX = 0;
+        galleryDragging = false;
+        loadMediaForProject(projects[newIndex]);
+
+        // Update URL and breadcrumb
+        const project = projects[newIndex];
+        if (project && project.slug) {
+            const newPath = `/interactive/live/${project.slug}`;
+            if (window.location.hash !== `#${newPath}`) {
+                isInternalNavigation = true;
+                window.history.pushState(null, '', `#${newPath}`);
+                currentPath = newPath;
+
+                // Update breadcrumb
+                import("../elements/breadcrumb-nav.js").then(({ updateBreadcrumb }) => {
+                    updateBreadcrumb(newPath);
+                });
+            }
         }
     }
 
@@ -617,32 +692,102 @@ export const sketch = function (p, options = {}) {
         if (expandedMediaIndex !== null) {
             closeExpandedMedia();
         }
-        
+
         // Re-enable browser swipe navigation when info card is closed
         document.body.style.overscrollBehavior = '';
         document.body.style.touchAction = '';
-        
+
+        // Unlock orientation when closing info card
+        if (screen.orientation && screen.orientation.unlock) {
+            try {
+                screen.orientation.unlock();
+            } catch (e) {
+                // Silently fail if orientation unlock isn't supported
+            }
+        }
+
+        // Show breadcrumb navigation on mobile when infoCard closes
+        if (widthCheck(p.width)) {
+            const breadcrumbContainer = document.getElementById("breadcrumb-container");
+            if (breadcrumbContainer) {
+                breadcrumbContainer.style.display = 'block';
+            }
+        }
+
+
         // Update URL back to main installations page
         if (window.location.hash.includes('/interactive/live/') && window.location.hash !== '#/interactive/live') {
             window.history.pushState(null, '', '#/interactive/live');
             currentPath = '/interactive/live';
         }
-        
+
         // Update breadcrumb back to installations page
         import("../elements/breadcrumb-nav.js").then(({ updateBreadcrumb }) => {
             updateBreadcrumb('/interactive/live');
         });
-        
+
         // Clear session storage
         sessionStorage.removeItem('installationsActiveProject');
     }
 
     function getCloseButtonHoverCheck() {
         return (mouseX, mouseY) => {
+            // Check expanded media close button first (higher priority)
+            if (expandedMediaIndex !== null) {
+                const isMobileCheck = widthCheck(p.width);
+                const closeSize = isMobileCheck ? 50 : 40;
+                const closePadding = isMobileCheck ? 20 : 15;
+                const closeX = (p.width - closeSize) / 2;
+
+                // Calculate media position to get close button Y position
+                const project = projects[activeInfoCard];
+                if (project && project.images && expandedMediaIndex < project.images.length) {
+                    const mediaItem = project.images[expandedMediaIndex];
+                    let pathString = typeof mediaItem === 'string' ? mediaItem :
+                        (mediaItem && typeof mediaItem === 'object' ?
+                            mediaItem.default || mediaItem.src || mediaItem.href || mediaItem.toString() :
+                            String(mediaItem));
+
+                    const isVideo = pathString.toLowerCase().match(/\.(mp4|mov|webm|avi)(\?.*)?$/i);
+                    const maxWidth = isMobileCheck ? p.width : p.width * 0.8;
+                    const maxHeight = isMobileCheck ? p.height * 0.8 : p.height * 0.8;
+                    let mediaHeight;
+
+                    if (isVideo) {
+                        const aspectRatio = nativeVideoElement && nativeVideoElement.videoWidth && nativeVideoElement.videoHeight ?
+                            nativeVideoElement.videoWidth / nativeVideoElement.videoHeight : 16 / 9;
+                        if (aspectRatio > maxWidth / maxHeight) {
+                            mediaHeight = maxWidth / aspectRatio;
+                        } else {
+                            mediaHeight = maxHeight;
+                        }
+                    } else {
+                        const mediaData = loadedMedia.get(pathString);
+                        if (mediaData && mediaData.loaded && mediaData.element) {
+                            const aspectRatio = mediaData.element.width / mediaData.element.height;
+                            if (aspectRatio > maxWidth / maxHeight) {
+                                mediaHeight = maxWidth / aspectRatio;
+                            } else {
+                                mediaHeight = maxHeight;
+                            }
+                        } else {
+                            mediaHeight = maxHeight; // fallback
+                        }
+                    }
+
+                    const mediaY = (p.height - mediaHeight) / 2;
+                    const closeY = mediaY + mediaHeight + closePadding;
+
+                    return mouseX >= closeX && mouseX <= closeX + closeSize &&
+                        mouseY >= closeY && mouseY <= closeY + closeSize;
+                }
+            }
+
+            // Check info card close button
             if (activeInfoCard !== null) {
-                const { size: cardSize, x: cardX, y: cardY, isMobile } = getCardDimensions();
+                const { width: cardWidth, height: cardHeight, x: cardX, y: cardY, isMobile } = getCardDimensions();
                 const closeButtonSize = isMobile ? 44 : 30;
-                const closeButtonX = cardX + cardSize - closeButtonSize - 10;
+                const closeButtonX = cardX + cardWidth - closeButtonSize - 10;
                 const closeButtonY = cardY + 10;
 
                 return mouseX >= closeButtonX && mouseX <= closeButtonX + closeButtonSize &&
@@ -666,7 +811,7 @@ export const sketch = function (p, options = {}) {
             const speed = 0.00005 / (1 + i * 0.3);
             const size = starRadius * (0.3 + p.random(0.2));
             const color = p.map(i, 0, planetCount, 230, 120);
-            const textSize = mobile ? Math.max(16, size * 0.8) : Math.max(14, size * 0.7);
+            const textSize = mobile ? Math.max(10, size * 0.5) : Math.max(14, size * 0.7);
             const textOffsetY = size * 1.2; // Position text below planet
 
             planetButtons.push(new UIPlanetButton(p, 0, 0, size, orbitRadius, angle, speed, color, projects[i].name, textSize, 0, textOffsetY));
@@ -725,7 +870,7 @@ export const sketch = function (p, options = {}) {
 
     function renderInfoCard(project) {
         // Calculate card size based on screen size
-        const { size: cardSize, x: cardX, y: cardY, isMobile } = getCardDimensions();
+        const { width: cardWidth, height: cardHeight, x: cardX, y: cardY, isMobile } = getCardDimensions();
 
         // Card background with semi-transparent overlay
         p.fill(0, 0, 0, 120 * (infoCardAlpha / 255));
@@ -736,11 +881,11 @@ export const sketch = function (p, options = {}) {
         p.fill(23, 23, 23, 240 * (infoCardAlpha / 255));
         p.stroke(230, infoCardAlpha);
         p.strokeWeight(2);
-        p.rect(cardX, cardY, cardSize, cardSize);
+        p.rect(cardX, cardY, cardWidth, cardHeight);
 
         // Close button
         const closeButtonSize = isMobile ? 44 : 30;
-        const closeButtonX = cardX + cardSize - closeButtonSize - 10;
+        const closeButtonX = cardX + cardWidth - closeButtonSize - 10;
         const closeButtonY = cardY + 10;
         renderCloseButton(closeButtonX, closeButtonY, closeButtonSize, infoCardAlpha);
 
@@ -749,110 +894,116 @@ export const sketch = function (p, options = {}) {
         p.noStroke();
         p.textAlign(p.LEFT, p.TOP);
 
-        // Scale text sizes based on card size - smaller fonts for desktop
-        const baseTextScale = isMobile ? cardSize / 400 : cardSize / 600;
-        const padding = 25 * baseTextScale;
-        const lineHeight = 25 * baseTextScale;
+        // Fixed text sizes for desktop and mobile with tighter mobile spacing
+        const padding = isMobile ? 20 : 24;
+        const baseLineHeight = isMobile ? 20 : 32; // Much tighter line height for mobile
         let textY = cardY + padding;
 
-        // Project Name (larger)
+        // Project Name (larger) - with multiline support
         p.textFont('BPdotsSquareVF', {
             fontVariationSettings: `wght 900`
         });
-        p.textSize(24 * baseTextScale);
-        p.text(project.name, cardX + padding, textY, cardSize - 2 * padding - closeButtonSize);
-        textY += lineHeight * 1.8;
+        const nameSize = isMobile ? 22 : 32;
+        p.textSize(nameSize);
+
+        // Calculate approximate number of lines for project name
+        const nameWidth = cardWidth - 2 * padding - closeButtonSize;
+        const nameTextWidth = p.textWidth(project.name);
+        const estimatedLines = Math.ceil(nameTextWidth / nameWidth);
+
+        p.text(project.name, cardX + padding, textY, nameWidth);
+        textY += (estimatedLines * nameSize * 1.2) + (isMobile ? 8 : 16); // Use actual text size for height
+
+        // Type, then Year - Location on same line
+        p.textSize(isMobile ? 12 : 18);
 
         // Type
-        p.textSize(16 * baseTextScale);
-        p.text(project.type, cardX + padding, textY, cardSize - 2 * padding);
-        textY += lineHeight;
+        p.text(project.type, cardX + padding, textY, cardWidth - 2 * padding);
+        textY += isMobile ? 14 : baseLineHeight; // Reduced spacing on mobile
 
-        // Location
-        p.text(project.location, cardX + padding, textY, cardSize - 2 * padding);
-        textY += lineHeight;
-
-        // Year
-        p.text(project.year, cardX + padding, textY, cardSize - 2 * padding);
-        textY += lineHeight * 1.5;
+        // Year - Location (combined on one line)
+        const yearLocationText = `${project.year} - ${project.location}`;
+        p.text(yearLocationText, cardX + padding, textY, cardWidth - 2 * padding);
+        textY += isMobile ? 18 : baseLineHeight * 1.5; // Slightly more space before gallery
 
         // Gallery section (if images exist)
         if (project.images && project.images.length > 0) {
-            const galleryHeight = cardSize * 0.4;
+            const galleryHeight = isMobile ? cardHeight * 0.3 : cardHeight * 0.4;
             const galleryY = textY;
-            renderGallery(project.images, cardX + padding, galleryY, cardSize - 2 * padding, galleryHeight, baseTextScale);
-            textY += galleryHeight + lineHeight;
+            renderGallery(project.images, cardX + padding, galleryY, cardWidth - 2 * padding, galleryHeight, isMobile);
+            textY += galleryHeight + (isMobile ? 12 : baseLineHeight); // Much tighter spacing on mobile
         }
 
         // Description (if available)
         if (project.description && project.description.length > 0) {
             p.textFont('ZxGamut', { fontVariationSettings: `wght 400` });
-            p.textSize(14 * baseTextScale);
+            p.textSize(isMobile ? 10 : 16);
             p.fill(230, infoCardAlpha);
             p.noStroke();
-            const descriptionHeight = cardSize - (textY - cardY) - padding;
-            p.text(project.description, cardX + padding, textY, cardSize - 2 * padding, descriptionHeight);
+            const descriptionHeight = cardHeight - (textY - cardY) - (isMobile ? 10 : padding);
+            p.text(project.description, cardX + padding, textY, cardWidth - 2 * padding, descriptionHeight);
             // Reset font back to default
             p.textFont('BPdotsSquareVF', {
                 fontVariationSettings: `wght 900`
             });
         }
-        
+
         // Navigation arrows (only show if there are multiple projects)
         if (projects.length > 1) {
-            renderNavigationArrows(cardX, cardY, cardSize, isMobile, baseTextScale);
+            renderNavigationArrows(cardX, cardY, cardWidth, cardHeight, isMobile);
         }
     }
 
-    function renderNavigationArrows(cardX, cardY, cardSize, isMobile, baseTextScale) {
+    function renderNavigationArrows(cardX, cardY, cardWidth, cardHeight, isMobile) {
         // Arrow button dimensions - responsive to screen size
         const arrowSize = isMobile ? 50 : 40;
         const arrowPadding = isMobile ? 20 : 15;
-        const arrowY = cardY + cardSize + arrowPadding;
-        
-        // Position arrows centered below the card
-        const totalArrowWidth = arrowSize * 2 + arrowPadding * 3; // 2 arrows + spacing
-        const arrowStartX = cardX + (cardSize - totalArrowWidth) / 2;
-        
-        const leftArrowX = arrowStartX + arrowPadding;
-        const rightArrowX = arrowStartX + arrowPadding * 2 + arrowSize;
-        
+        const arrowY = cardY + cardHeight + arrowPadding;
+
+        // Position arrows with counter centered between them
+        const counterWidth = 80; // Estimate width needed for counter text
+        const totalWidth = arrowSize * 2 + counterWidth + arrowPadding * 2; // 2 arrows + counter + spacing
+        const startX = cardX + (cardWidth - totalWidth) / 2;
+
+        const leftArrowX = startX;
+        const rightArrowX = startX + arrowSize + counterWidth + arrowPadding * 2;
+        const counterX = startX + arrowSize + arrowPadding;
+
         // Arrows are always active with wraparound navigation
         const arrowAlpha = infoCardAlpha;
-        
+
         // Left arrow (previous with wraparound)
         renderArrowButton(leftArrowX, arrowY, arrowSize, 'left', arrowAlpha, isMobile);
-        
-        // Right arrow (next with wraparound)  
+
+        // Right arrow (next with wraparound)
         renderArrowButton(rightArrowX, arrowY, arrowSize, 'right', arrowAlpha, isMobile);
-        
-        // Project counter text (e.g., "2 / 7")
-        const counterY = arrowY + arrowSize + (isMobile ? 25 : 20);
+
+        // Project counter text centered between arrows
         p.fill(230, infoCardAlpha);
         p.noStroke();
         p.textAlign(p.CENTER, p.CENTER);
         p.textFont('BPdotsSquareVF', { fontVariationSettings: `wght 600` });
-        p.textSize((isMobile ? 16 : 14) * baseTextScale);
-        p.text(`${activeInfoCard + 1} / ${projects.length}`, cardX + cardSize/2, counterY);
+        p.textSize(isMobile ? 12 : 18);
+        p.text(`${activeInfoCard + 1} / ${projects.length}`, counterX + counterWidth/2, arrowY + arrowSize/2);
     }
-    
+
     function renderArrowButton(x, y, size, direction, alpha, isMobile) {
         // Button background
         p.fill(40, 40, 40, alpha);
         p.stroke(100, alpha);
         p.strokeWeight(isMobile ? 2 : 1);
         p.rect(x, y, size, size);
-        
+
         // Arrow symbol
         p.fill(230, alpha);
         p.noStroke();
-        
+
         const arrowPadding = size * 0.25;
         const arrowCenterX = x + size/2;
         const arrowCenterY = y + size/2;
         const arrowWidth = size * 0.3;
         const arrowHeight = size * 0.4;
-        
+
         if (direction === 'left') {
             // Left-pointing triangle
             p.triangle(
@@ -861,7 +1012,7 @@ export const sketch = function (p, options = {}) {
                 arrowCenterX + arrowWidth/2, arrowCenterY + arrowHeight/2
             );
         } else {
-            // Right-pointing triangle  
+            // Right-pointing triangle
             p.triangle(
                 arrowCenterX + arrowWidth/2, arrowCenterY,
                 arrowCenterX - arrowWidth/2, arrowCenterY - arrowHeight/2,
@@ -869,67 +1020,69 @@ export const sketch = function (p, options = {}) {
             );
         }
     }
-    
+
     function navigateToProject(newIndex, fromHashChange = false) {
         if (newIndex >= 0 && newIndex < projects.length && newIndex !== activeInfoCard) {
             // Update active info card
             activeInfoCard = newIndex;
-            
+
             // Reset gallery scroll
             galleryScrollX = 0;
             targetGalleryScrollX = 0;
-            
+
             // Close any expanded media
             if (expandedMediaIndex !== null) {
                 closeExpandedMedia();
             }
-            
+
             // Load media for new project
             loadMediaForProject(projects[newIndex]);
-            
+
             // Update URL and breadcrumb
             const newProject = projects[newIndex];
             if (newProject && newProject.slug) {
                 const newPath = `/interactive/live/${newProject.slug}`;
-                
+
                 // Only update URL if this wasn't triggered by a hash change
                 if (!fromHashChange) {
                     isInternalNavigation = true;
                     window.history.replaceState(null, '', `#${newPath}`);
                 }
                 currentPath = newPath;
-                
+
                 // Update breadcrumb
                 import("../elements/breadcrumb-nav.js").then(({ updateBreadcrumb }) => {
                     updateBreadcrumb(newPath);
                 });
-                
+
                 // Update session storage
                 sessionStorage.setItem('installationsActiveProject', newProject.slug);
             }
         }
     }
-    
+
     function getNavigationButtonHoverCheck() {
         return (mouseX, mouseY) => {
             if (activeInfoCard !== null && projects.length > 1) {
-                const { size: cardSize, x: cardX, y: cardY, isMobile } = getCardDimensions();
+                const { width: cardWidth, height: cardHeight, x: cardX, y: cardY, isMobile } = getCardDimensions();
                 const arrowSize = isMobile ? 50 : 40;
                 const arrowPadding = isMobile ? 20 : 15;
-                const arrowY = cardY + cardSize + arrowPadding;
-                
-                const totalArrowWidth = arrowSize * 2 + arrowPadding * 3;
-                const arrowStartX = cardX + (cardSize - totalArrowWidth) / 2;
-                
-                const leftArrowX = arrowStartX + arrowPadding;
-                const rightArrowX = arrowStartX + arrowPadding * 2 + arrowSize;
-                
+                const arrowY = cardY + cardHeight + arrowPadding;
+
+                // Use new arrow positioning logic (same as in renderNavigationArrows)
+                const counterWidth = 80;
+                const totalWidth = arrowSize * 2 + counterWidth + arrowPadding * 2;
+                const startX = cardX + (cardWidth - totalWidth) / 2;
+
+                const leftArrowX = startX;
+                const rightArrowX = startX + arrowSize + counterWidth + arrowPadding * 2;
+
                 // Check left arrow (always active with wraparound)
                 if (mouseX >= leftArrowX && mouseX <= leftArrowX + arrowSize &&
                     mouseY >= arrowY && mouseY <= arrowY + arrowSize) {
                     return true;
                 }
-                
+
                 // Check right arrow (always active with wraparound)
                 if (mouseX >= rightArrowX && mouseX <= rightArrowX + arrowSize &&
                     mouseY >= arrowY && mouseY <= arrowY + arrowSize) {
@@ -940,8 +1093,14 @@ export const sketch = function (p, options = {}) {
         };
     }
 
+    // Track loaded media for cleanup
+    const loadedMediaForProject = new Map();
+
     function loadMediaForProject(project) {
         if (!project.images || project.images.length === 0) return;
+
+        // Clean up previous project media first
+        cleanupUnusedMedia(project);
 
         project.images.forEach((mediaItem, index) => {
             const pathString = getMediaPath(mediaItem);
@@ -949,86 +1108,155 @@ export const sketch = function (p, options = {}) {
             if (!loadedMedia.has(pathString)) {
                 const isVideo = isVideoFile(pathString);
 
-                // On mobile, check if we have a thumbnail for this video
-                if (mobile && isVideo) {
+                // Strict mobile handling - NEVER load video elements on mobile
+                const isMobileCheck = widthCheck(p.width);
+                if (isMobileCheck && isVideo) {
                     if (project.thumbnails && project.thumbnails[mediaItem]) {
-                        // Load thumbnail image instead of video for mobile
-                        const thumbnailPath = project.thumbnails[mediaItem];
-                        p.loadImage(thumbnailPath, (img) => {
-                            loadedMedia.set(pathString, { element: img, type: 'video-thumbnail', videoSrc: pathString, loaded: true });
-                        }, (err) => {
-                            console.error('Failed to load video thumbnail:', thumbnailPath, err);
-                            // Fallback to black placeholder if thumbnail fails
-                            loadedMedia.set(pathString, { element: null, type: 'video-placeholder', videoSrc: pathString, loaded: true });
-                        });
+                        // Lazy load thumbnail only when needed
+                        loadedMedia.set(pathString, { element: null, type: 'video-thumbnail-lazy', videoSrc: pathString, thumbnailPath: project.thumbnails[mediaItem], loaded: false });
                     } else {
                         // No thumbnail available - use black placeholder
                         loadedMedia.set(pathString, { element: null, type: 'video-placeholder', videoSrc: pathString, loaded: true });
                     }
                     return;
                 }
+
+                // Desktop video loading
                 if (isVideo) {
                     loadVideoElement(pathString);
                 } else {
-                    p.loadImage(pathString, (img) => {
-                        loadedMedia.set(pathString, { element: img, type: 'image', loaded: true });
-                    }, (err) => {
-                        console.error('Failed to load image:', pathString, err);
-                    });
+                    // Lazy load images as well
+                    loadedMedia.set(pathString, { element: null, type: 'image-lazy', imagePath: pathString, loaded: false });
                 }
             }
+
+            // Track media for this project
+            if (!loadedMediaForProject.has(project.slug)) {
+                loadedMediaForProject.set(project.slug, new Set());
+            }
+            loadedMediaForProject.get(project.slug).add(pathString);
         });
     }
 
     function loadVideoElement(pathString) {
+        // Only create video elements on desktop
+        const isMobileCheck = widthCheck(p.width);
+        if (isMobileCheck) {
+            console.warn('Attempted to load video on mobile - this should not happen');
+            return;
+        }
+
+        // Check if video is already loaded or being loaded
+        if (loadedMedia.has(pathString) || mediaBeingLoaded.has(pathString)) {
+            return;
+        }
+
+        // Mark as being loaded and set initial unloaded state
+        mediaBeingLoaded.add(pathString);
+        loadedMedia.set(pathString, { element: null, type: 'video', loaded: false });
+
         const video = p.createVideo(pathString, () => {
-            loadedMedia.set(pathString, { element: video, type: 'video', loaded: true });
+            // Only set loaded once when video is ready
+            const currentData = loadedMedia.get(pathString);
+            if (currentData && !currentData.loaded) {
+                loadedMedia.set(pathString, { element: video, type: 'video', loaded: true });
+                mediaBeingLoaded.delete(pathString);
+            }
         });
         video.hide();
         video.volume(0);
 
-        // Set attributes for iOS compatibility first
+        // Set attributes for iOS compatibility
         video.elt.setAttribute('playsinline', true);
         video.elt.setAttribute('muted', true);
         video.elt.setAttribute('preload', 'metadata');
 
-        // Different behavior for mobile vs desktop
-        if (!mobile) {
-            // Desktop: autoplay looping for moving preview
-            video.loop();
-        } else {
-            // Mobile: load first frame only (fallback when no thumbnail available)
-            video.noLoop();
-            video.pause();
+        // Desktop: autoplay looping for moving preview
+        video.loop();
 
-            video.elt.addEventListener('loadedmetadata', () => {
-                video.elt.currentTime = 0.1;
-            });
-
-            video.elt.addEventListener('seeked', () => {
-                video.pause();
-            });
-        }
-
-        video.elt.addEventListener('loadeddata', () => {
-            loadedMedia.set(pathString, { element: video, type: 'video', loaded: true });
-        });
-
+        // Single consolidated event listener to avoid multiple updates
         video.elt.addEventListener('canplay', () => {
-            loadedMedia.set(pathString, { element: video, type: 'video', loaded: true });
+            const currentData = loadedMedia.get(pathString);
+            if (currentData && !currentData.loaded) {
+                loadedMedia.set(pathString, { element: video, type: 'video', loaded: true });
+                mediaBeingLoaded.delete(pathString);
+            }
         });
 
-        loadedMedia.set(pathString, { element: video, type: 'video', loaded: false });
-
+        // Fallback timeout in case events don't fire
         setTimeout(() => {
             const currentData = loadedMedia.get(pathString);
             if (currentData && !currentData.loaded) {
                 loadedMedia.set(pathString, { element: video, type: 'video', loaded: true });
+                mediaBeingLoaded.delete(pathString);
             }
         }, 3000);
     }
 
-    function renderGallery(images, x, y, width, height, scale) {
+    function cleanupUnusedMedia(currentProject) {
+        // Clean up media from other projects to free memory
+        loadedMediaForProject.forEach((mediaSet, projectSlug) => {
+            if (projectSlug !== currentProject.slug) {
+                mediaSet.forEach(pathString => {
+                    const mediaData = loadedMedia.get(pathString);
+                    if (mediaData && mediaData.element) {
+                        // Remove video elements from DOM
+                        if (mediaData.type === 'video' && mediaData.element.elt) {
+                            mediaData.element.remove();
+                        }
+                    }
+                    loadedMedia.delete(pathString);
+                });
+                loadedMediaForProject.delete(projectSlug);
+            }
+        });
+    }
+
+    function lazyLoadMedia(pathString) {
+        const mediaData = loadedMedia.get(pathString);
+        if (!mediaData || mediaData.loaded || mediaBeingLoaded.has(pathString)) return;
+
+        // Mark as being loaded to prevent duplicates
+        mediaBeingLoaded.add(pathString);
+
+        if (mediaData.type === 'video-thumbnail-lazy') {
+            // Load thumbnail image
+            p.loadImage(mediaData.thumbnailPath, (img) => {
+                loadedMedia.set(pathString, {
+                    element: img,
+                    type: 'video-thumbnail',
+                    videoSrc: pathString,
+                    loaded: true
+                });
+                mediaBeingLoaded.delete(pathString);
+            }, (err) => {
+                console.error('Failed to load video thumbnail:', mediaData.thumbnailPath, err);
+                loadedMedia.set(pathString, {
+                    element: null,
+                    type: 'video-placeholder',
+                    videoSrc: pathString,
+                    loaded: true
+                });
+                mediaBeingLoaded.delete(pathString);
+            });
+        } else if (mediaData.type === 'image-lazy') {
+            // Load image
+            p.loadImage(mediaData.imagePath, (img) => {
+                loadedMedia.set(pathString, {
+                    element: img,
+                    type: 'image',
+                    loaded: true
+                });
+                mediaBeingLoaded.delete(pathString);
+            }, (err) => {
+                console.error('Failed to load image:', mediaData.imagePath, err);
+                mediaBeingLoaded.delete(pathString);
+            });
+        }
+    }
+
+
+    function renderGallery(images, x, y, width, height, isMobile) {
         if (!images || images.length === 0) return;
 
         // Gallery container background
@@ -1047,7 +1275,7 @@ export const sketch = function (p, options = {}) {
         p.drawingContext.clip();
 
         // Use 3:2 aspect ratio for gallery items with equal padding
-        const padding = 10 * scale; // Equal padding for all sides and between items
+        const padding = isMobile ? 8 : 10; // Equal padding for all sides and between items
         const itemHeight = height - (2 * padding); // Account for top and bottom padding
         const itemWidth = itemHeight * 1.5; // 3:2 aspect ratio
         const totalWidth = images.length * (itemWidth + padding) - padding; // Last item doesn't need trailing padding
@@ -1067,6 +1295,11 @@ export const sketch = function (p, options = {}) {
             if (itemX + itemWidth >= x && itemX <= x + width) {
                 const mediaData = loadedMedia.get(pathString);
 
+                // Lazy load media when it becomes visible
+                if (mediaData && !mediaData.loaded) {
+                    lazyLoadMedia(pathString);
+                }
+
                 if (mediaData && mediaData.loaded) {
                     p.push();
                     p.tint(255, infoCardAlpha);
@@ -1079,19 +1312,13 @@ export const sketch = function (p, options = {}) {
 
                             p.image(img, itemX, startY, itemWidth, itemHeight, sourceX, sourceY, sourceWidth, sourceHeight);
                         } else if (mediaData.type === 'video-thumbnail') {
-                            // Mobile: Show thumbnail image with play icon
+                            // Mobile: Show thumbnail image (no play icon to avoid blocking taps)
                             const img = mediaData.element;
                             const { sourceX, sourceY, sourceWidth, sourceHeight } = calculateCropDimensions(img.width, img.height, itemWidth, itemHeight);
 
                             p.image(img, itemX, startY, itemWidth, itemHeight, sourceX, sourceY, sourceWidth, sourceHeight);
-
-                            // Small play icon overlay
-                            const playSize = itemWidth * 0.15;
-                            const playX = itemX + (itemWidth - playSize) / 2;
-                            const playY = startY + (itemHeight - playSize) / 2;
-                            renderPlayIcon(playX, playY, playSize, infoCardAlpha);
                         } else if (mediaData.type === 'video') {
-                            // Show first frame of video as preview
+                            // Show first frame of video as preview (no play icon)
                             const video = mediaData.element;
                             if (video.elt && (video.elt.readyState >= 1 || video.elt.videoWidth > 0)) {
                                 const videoWidth = video.elt.videoWidth || video.width || 1920;
@@ -1105,27 +1332,6 @@ export const sketch = function (p, options = {}) {
                                 p.noStroke();
                                 p.rect(itemX, startY, itemWidth, itemHeight);
                             }
-
-                            // Smaller, more subtle play icon overlay
-                            const playSize = itemWidth * 0.15; // Reduced from 0.3 to 0.15
-                            const playX = itemX + (itemWidth - playSize) / 2;
-                            const playY = startY + (itemHeight - playSize) / 2;
-
-                            // Semi-transparent play button background
-                            p.fill(0, 0, 0, 120 * (infoCardAlpha / 255)); // Darker, more subtle
-                            p.noStroke();
-                            p.circle(playX + playSize/2, playY + playSize/2, playSize);
-
-                            // Play triangle - smaller and more subtle
-                            p.fill(255, 255, 255, 180 * (infoCardAlpha / 255));
-                            const triangleSize = playSize * 0.35;
-                            const triangleCenterX = playX + playSize/2 + triangleSize * 0.1;
-                            const triangleCenterY = playY + playSize/2;
-                            p.triangle(
-                                triangleCenterX - triangleSize/2, triangleCenterY - triangleSize/2,
-                                triangleCenterX - triangleSize/2, triangleCenterY + triangleSize/2,
-                                triangleCenterX + triangleSize/2, triangleCenterY
-                            );
                         } else if (mediaData.type === 'video-placeholder') {
                             // Mobile: Show black placeholder with play icon
                             p.fill(23, 23, 23, 240 * (infoCardAlpha / 255));
@@ -1151,24 +1357,46 @@ export const sketch = function (p, options = {}) {
                         p.fill(200, infoCardAlpha * 0.7);
                         p.noStroke();
                         p.textAlign(p.CENTER, p.CENTER);
-                        p.textSize(10 * scale);
+                        p.textSize(isMobile ? 6 : 12);
                         p.text(mediaData.type === 'video' ? 'Video Error' : 'Image Error', itemX + itemWidth / 2, startY + itemHeight / 2);
                     }
 
                     p.pop();
+                } else if (mediaData) {
+                    // Show appropriate placeholder based on type
+                    if (mediaData.type === 'video-thumbnail-lazy' || mediaData.type === 'image-lazy') {
+                        // Light placeholder for lazy loading items
+                        p.fill(60, 60, 60, 120 * (infoCardAlpha / 255));
+                        p.stroke(110, infoCardAlpha * 0.4);
+                        p.strokeWeight(1);
+                        p.rect(itemX, startY, itemWidth, itemHeight);
+
+                        // Subtle loading indicator
+                        p.fill(180, infoCardAlpha * 0.6);
+                        p.noStroke();
+                        p.textAlign(p.CENTER, p.CENTER);
+                        p.textSize(isMobile ? 6 : 12);
+                        p.text('•••', itemX + itemWidth / 2, startY + itemHeight / 2);
+                    } else {
+                        // Standard loading placeholder
+                        p.fill(50, 50, 50, 150 * (infoCardAlpha / 255));
+                        p.stroke(100, infoCardAlpha * 0.5);
+                        p.strokeWeight(1);
+                        p.rect(itemX, startY, itemWidth, itemHeight);
+
+                        // Loading text
+                        p.fill(150, infoCardAlpha * 0.7);
+                        p.noStroke();
+                        p.textAlign(p.CENTER, p.CENTER);
+                        p.textSize(isMobile ? 8 : 14);
+                        p.text('Loading...', itemX + itemWidth / 2, startY + itemHeight / 2);
+                    }
                 } else {
-                    // Placeholder for loading media
-                    p.fill(50, 50, 50, 150 * (infoCardAlpha / 255));
-                    p.stroke(100, infoCardAlpha * 0.5);
+                    // No media data available
+                    p.fill(40, 40, 40, 100 * (infoCardAlpha / 255));
+                    p.stroke(80, infoCardAlpha * 0.3);
                     p.strokeWeight(1);
                     p.rect(itemX, startY, itemWidth, itemHeight);
-
-                    // Loading text
-                    p.fill(150, infoCardAlpha * 0.7);
-                    p.noStroke();
-                    p.textAlign(p.CENTER, p.CENTER);
-                    p.textSize(12 * scale);
-                    p.text('Loading...', itemX + itemWidth / 2, startY + itemHeight / 2);
                 }
 
                 // Media border
@@ -1234,7 +1462,12 @@ export const sketch = function (p, options = {}) {
         p.rect(0, 0, p.width, p.height);
 
         // Create or update native video element
-        if (!nativeVideoElement) {
+        if (!nativeVideoElement || nativeVideoElement.src !== videoPath) {
+            // Clean up existing video if it exists
+            if (nativeVideoElement) {
+                nativeVideoElement.remove();
+            }
+            
             nativeVideoElement = document.createElement('video');
             nativeVideoElement.src = videoPath;
             nativeVideoElement.controls = true;
@@ -1283,10 +1516,11 @@ export const sketch = function (p, options = {}) {
         nativeVideoElement.style.height = videoHeight + 'px';
         nativeVideoElement.style.opacity = expandedMediaAlpha / 255;
 
-        // Close button (drawn over the video)
-        const closeSize = 40;
-        const closeX = videoX + videoWidth - closeSize - 10;
-        const closeY = videoY + 10;
+        // Close button (centered below the video, similar to arrow buttons)
+        const closeSize = isMobile ? 50 : 40;
+        const closePadding = isMobile ? 20 : 15;
+        const closeY = videoY + videoHeight + closePadding;
+        const closeX = (p.width - closeSize) / 2; // Center horizontally
 
         p.fill(0, 0, 0, 150 * (expandedMediaAlpha / 255));
         p.stroke(255, expandedMediaAlpha);
@@ -1296,7 +1530,7 @@ export const sketch = function (p, options = {}) {
         // X symbol
         p.stroke(255, expandedMediaAlpha);
         p.strokeWeight(3);
-        const padding = 12;
+        const padding = closeSize * 0.3; // Proportional padding
         p.line(closeX + padding, closeY + padding,
             closeX + closeSize - padding, closeY + closeSize - padding);
         p.line(closeX + closeSize - padding, closeY + padding,
@@ -1385,10 +1619,11 @@ export const sketch = function (p, options = {}) {
         p.image(mediaData.element, mediaX, mediaY, mediaWidth, mediaHeight);
         p.pop();
 
-        // Close button
-        const closeSize = 40;
-        const closeX = mediaX + mediaWidth - closeSize - 10;
-        const closeY = mediaY + 10;
+        // Close button (centered below the image, similar to arrow buttons)
+        const closeSize = isMobile ? 50 : 40;
+        const closePadding = isMobile ? 20 : 15;
+        const closeY = mediaY + mediaHeight + closePadding;
+        const closeX = (p.width - closeSize) / 2; // Center horizontally
 
         p.fill(0, 0, 0, 150 * (expandedMediaAlpha / 255));
         p.stroke(255, expandedMediaAlpha);
@@ -1398,7 +1633,7 @@ export const sketch = function (p, options = {}) {
         // X symbol
         p.stroke(255, expandedMediaAlpha);
         p.strokeWeight(3);
-        const padding = 12;
+        const padding = closeSize * 0.3; // Proportional padding
         p.line(closeX + padding, closeY + padding,
             closeX + closeSize - padding, closeY + closeSize - padding);
         p.line(closeX + closeSize - padding, closeY + padding,

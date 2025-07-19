@@ -19,7 +19,7 @@ export const easeInCubic = (x) => {
 
 export const getFontSizes = (w, h) => {
     if (w < 1000 && mobileCheck()){
-        return { "small": 32, "medium": 64, "large": 128};
+        return { "small": 16, "medium": 24, "large": 48};
     } else {
         return { "small": 24, "medium": 32, "large": 64};
     }
@@ -76,7 +76,7 @@ export const calculateCropDimensions = (mediaWidth, mediaHeight, boxWidth, boxHe
         sourceHeight = mediaWidth / boxAspectRatio;
         sourceY = (mediaHeight - sourceHeight) / 2;
     }
-    
+
     return { sourceX, sourceY, sourceWidth, sourceHeight };
 };
 
@@ -138,7 +138,7 @@ export const updateCursor = (p, mouseX, mouseY, ...hoverCheckTargets) => {
                 isHovering = true;
             }
         }
-        
+
         if (isHovering) break;
     }
 
