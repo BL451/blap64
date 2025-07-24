@@ -257,7 +257,7 @@ export class UIPlanetButton extends UIObj{
 
     updatePosition(centerX, centerY, deltaTime){
         this.angle += -this.speed * deltaTime;
-        const pos = this.radialToCartesian(this.orbitRadius, this.angle);
+        const pos = radialToCartesian(this.orbitRadius, this.angle, this.p5);
         this.p.x = centerX + pos.x;
         this.p.y = centerY + pos.y;
 
@@ -322,26 +322,37 @@ export class UIPlanetButton extends UIObj{
             });
             this.p5.textSize(this.textWriter.size);
 
-            // Wrap text if longer than 16 characters
-            const maxChars = 16;
-            const words = this.textWriter.t.split(' ');
-            let lines = [];
-            let currentLine = '';
+            // Try to get cached text data, fall back to calculation if not available
+            let lines;
+            let lineHeight;
+            
+            // Check if we have access to the global textCache (from sketch.js)
+            if (typeof window !== 'undefined' && window.textCache && window.textCache.has(this.textWriter.t)) {
+                const cached = window.textCache.get(this.textWriter.t);
+                lines = cached.lines;
+                lineHeight = cached.lineHeight;
+            } else {
+                // Fallback to original calculation (for compatibility)
+                const maxChars = 16;
+                const words = this.textWriter.t.split(' ');
+                lines = [];
+                let currentLine = '';
 
-            for (const word of words) {
-                if ((currentLine + word).length > maxChars && currentLine.length > 0) {
-                    lines.push(currentLine.trim());
-                    currentLine = word + ' ';
-                } else {
-                    currentLine += word + ' ';
+                for (const word of words) {
+                    if ((currentLine + word).length > maxChars && currentLine.length > 0) {
+                        lines.push(currentLine.trim());
+                        currentLine = word + ' ';
+                    } else {
+                        currentLine += word + ' ';
+                    }
                 }
-            }
-            if (currentLine.length > 0) {
-                lines.push(currentLine.trim());
+                if (currentLine.length > 0) {
+                    lines.push(currentLine.trim());
+                }
+                lineHeight = this.textWriter.size * 1.2;
             }
 
             // Render each line
-            const lineHeight = this.textWriter.size * 1.2;
             lines.forEach((line, lineIndex) => {
                 const lineY = this.textWriter.p.y + (lineIndex - (lines.length - 1) / 2) * lineHeight;
                 this.p5.text(line, this.textWriter.p.x, lineY);
@@ -358,9 +369,6 @@ export class UIPlanetButton extends UIObj{
         this.textWriter.p.y = this.p.y + this.textOffsetY;
     }
 
-    radialToCartesian(r, a){
-        return { x: r * this.p5.cos(a), y: -r * this.p5.sin(a) };
-    }
 
     toggle(){
         this.active = !this.active;
@@ -537,6 +545,18 @@ export class UIHexButton extends UIObj{
         }
     }
 }
+
+// Date utility functions
+export const daysSince = (startDate) => {
+    const start = new Date(startDate);
+    const now = new Date();
+    return Math.floor((now - start) / (1000 * 60 * 60 * 24));
+};
+
+// Math utility functions
+export const radialToCartesian = (r, a, p5Instance) => {
+    return { x: r * p5Instance.cos(a), y: -r * p5Instance.sin(a) };
+};
 
 export class TextWriter extends UIObj{
     constructor(p, x, y, w, h, t, size = 32, weight = undefined){

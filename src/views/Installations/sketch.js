@@ -1,4 +1,4 @@
-import { getViewportSize, UIPlanetButton, smoothFollow, loadGoogleFontSet, widthCheck, updateCursor, getMediaPath, isVideoFile, calculateCropDimensions } from "../../utils";
+import { getViewportSize, UIPlanetButton, smoothFollow, loadGoogleFontSet, widthCheck, updateCursor, getMediaPath, isVideoFile, calculateCropDimensions, daysSince, radialToCartesian } from "../../utils";
 import { projects, findProjectBySlug, getProjectIndexBySlug } from "./project-details";
 
 export const sketch = function (p, options = {}) {
@@ -29,7 +29,6 @@ export const sketch = function (p, options = {}) {
     let layoutInitialized = false;
     let frameCount = 0;
     let currentPath = null;
-    let isInternalNavigation = false;
 
     // Interface data
     let sols = 0;
@@ -38,6 +37,9 @@ export const sketch = function (p, options = {}) {
     let currentPreviewIndex = 0;
     let previewStartTime = 0;
     let previewDuration = 2000; // 2 seconds per preview
+    
+    // Text calculation cache for performance
+    let textCache = new Map();
 
     // Media loading tracking to prevent duplicates
     let mediaBeingLoaded = new Set();
@@ -212,6 +214,7 @@ export const sketch = function (p, options = {}) {
             }
         };
 
+        // Calculate days since project start
         sols = daysSince('2024-08-14');
         window.addEventListener('hashchange', hashChangeHandler);
     };
@@ -328,6 +331,7 @@ export const sketch = function (p, options = {}) {
         if (expandedMediaIndex !== null || expandedMediaAlpha > 0) {
             renderExpandedMedia();
         }
+        
     };
 
     p.windowResized = function windowResized() {
@@ -679,7 +683,6 @@ export const sketch = function (p, options = {}) {
         if (project && project.slug) {
             const newPath = `/interactive/live/${project.slug}`;
             if (window.location.hash !== `#${newPath}`) {
-                isInternalNavigation = true;
                 window.history.pushState(null, '', `#${newPath}`);
                 currentPath = newPath;
 
@@ -808,60 +811,79 @@ export const sketch = function (p, options = {}) {
         };
     }
 
-    function radialToCartesian(r, a, x, y){
-        return p.createVector(r * p.cos(a) + x, r * p.sin(a) + y);
-    }
 
-    function daysSince(dateString) {
-        const targetDate = new Date(dateString);
-        const now = new Date();
-        const diffTime = now - targetDate;
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays;
+    
+    function preCalculateTextData() {
+        textCache.clear();
+        
+        const textOffsetX = mobile ? 25 : 40;
+        const textSize = mobile ? 14 : 18;
+        
+        // Set text size for accurate width calculations
+        p.textSize(textSize);
+        
+        projects.forEach((project, index) => {
+            // Calculate text wrapping
+            const maxChars = 16;
+            const words = project.name.split(' ');
+            let lines = [];
+            let currentLine = '';
+            
+            for (const word of words) {
+                if ((currentLine + word).length > maxChars && currentLine.length > 0) {
+                    lines.push(currentLine.trim());
+                    currentLine = word + ' ';
+                } else {
+                    currentLine += word + ' ';
+                }
+            }
+            if (currentLine.length > 0) {
+                lines.push(currentLine.trim());
+            }
+            
+            // Calculate dimensions
+            const lineHeight = textSize * 1.2;
+            const totalHeight = lines.length * lineHeight;
+            
+            // Get maximum line width
+            let maxWidth = 0;
+            lines.forEach(line => {
+                const lineWidth = p.textWidth(line);
+                if (lineWidth > maxWidth) maxWidth = lineWidth;
+            });
+            
+            // Store in cache
+            textCache.set(project.name, {
+                lines,
+                totalHeight,
+                maxWidth,
+                textOffsetX,
+                textSize,
+                lineHeight
+            });
+        });
+        
+        // Expose cache globally for UIPlanetButton access
+        window.textCache = textCache;
     }
 
     function isHoveringText(planetButton, mouseX, mouseY, projectName) {
-        const textOffsetX = mobile ? 25 : 40;
-        const textSize = mobile ? 12 : 14;
-        const textX = planetButton.p.x + textOffsetX;
+        // Get cached text data
+        const cached = textCache.get(projectName);
+        if (!cached) {
+            // Fallback - should not happen if cache is properly initialized
+            return false;
+        }
+        
+        const textX = planetButton.p.x + cached.textOffsetX;
         const textY = planetButton.p.y;
-
-        // Calculate text wrapping (same logic as UIPlanetButton)
-        const maxChars = 16;
-        const words = projectName.split(' ');
-        let lines = [];
-        let currentLine = '';
-
-        for (const word of words) {
-            if ((currentLine + word).length > maxChars && currentLine.length > 0) {
-                lines.push(currentLine.trim());
-                currentLine = word + ' ';
-            } else {
-                currentLine += word + ' ';
-            }
-        }
-        if (currentLine.length > 0) {
-            lines.push(currentLine.trim());
-        }
-
-        // Calculate text bounding box
-        const lineHeight = textSize * 1.2;
-        const totalHeight = lines.length * lineHeight;
-
-        // Get maximum line width
-        p.textSize(textSize);
-        let maxWidth = 0;
-        lines.forEach(line => {
-            const lineWidth = p.textWidth(line);
-            if (lineWidth > maxWidth) maxWidth = lineWidth;
-        });
-
-        // Define text bounding rectangle
+        
+        // Define text bounding rectangle using cached values
         const textBounds = {
             x: textX,
-            y: textY - totalHeight / 2,
-            width: maxWidth,
-            height: totalHeight
+            y: textY - cached.totalHeight / 2,
+            width: cached.maxWidth,
+            height: cached.totalHeight
         };
 
         // Check if mouse is within text bounds
@@ -871,6 +893,9 @@ export const sketch = function (p, options = {}) {
 
     function setupRadialLayout() {
         planetButtons = [];
+        
+        // Pre-calculate all text data for performance
+        preCalculateTextData();
 
         const nodeCount = projects.length;
         const baseRadius = mobile ? 20 : 25;
@@ -884,7 +909,10 @@ export const sketch = function (p, options = {}) {
             // Calculate position based on proto.js pattern
             const y = p.height - 0.25 * (i + 1) * step - 0.05*step;
             const r = 0.25 * (i + 1) * step;
-            const pos = radialToCartesian(r, -0.75*p.PI + i*0.09 , centerX, y);
+            // Calculate radial position
+            const angle = -0.75*p.PI + i*0.09;
+            const radialPos = radialToCartesian(r, angle, p);
+            const pos = p.createVector(radialPos.x + centerX, -radialPos.y + y);
             // Position node along the radial line (upward from center)
             const nodeX = pos.x;//centerX;
             const nodeY = pos.y;//y - r; // Position at the top of the circle
@@ -918,6 +946,7 @@ export const sketch = function (p, options = {}) {
         }
 
         p.pop();
+        
         // Render planet buttons with integrated text rendering
         planetButtons.forEach((planetButton, index) => {
             const project = projects[index];
@@ -1332,7 +1361,6 @@ export const sketch = function (p, options = {}) {
 
                 // Only update URL if this wasn't triggered by a hash change
                 if (!fromHashChange) {
-                    isInternalNavigation = true;
                     window.history.replaceState(null, '', `#${newPath}`);
                 }
                 currentPath = newPath;
