@@ -1,16 +1,13 @@
-import { getViewportSize, UITriangleButton, UIPlanetButton, easeInCubic, smoothFollow, loadGoogleFontSet, widthCheck, updateCursor, getMediaPath, isVideoFile, calculateMediaDimensions, calculateCropDimensions } from "../../utils";
+import { getViewportSize, UIPlanetButton, smoothFollow, loadGoogleFontSet, widthCheck, updateCursor, getMediaPath, isVideoFile, calculateCropDimensions } from "../../utils";
 import { projects, findProjectBySlug, getProjectIndexBySlug } from "./project-details";
 
 export const sketch = function (p, options = {}) {
-    let ui = [];
     let short = 128;
     let smoothX = 0;
     let smoothY = 0;
     let smoothV = p.createVector(smoothX, smoothY);
     let mobile = false;
-    let cx, cy, r;
     let planetButtons = [];
-    let star_colours = ['#faa000', '#0842f5', '#e61414'];
     let activeInfoCard = null;
     let infoCardAlpha = 0;
     let infoCardAnimationStart = 0;
@@ -33,6 +30,14 @@ export const sketch = function (p, options = {}) {
     let frameCount = 0;
     let currentPath = null;
     let isInternalNavigation = false;
+
+    // Interface data
+    let sols = 0;
+
+    // Mobile sequential preview variables
+    let currentPreviewIndex = 0;
+    let previewStartTime = 0;
+    let previewDuration = 2000; // 2 seconds per preview
 
     // Media loading tracking to prevent duplicates
     let mediaBeingLoaded = new Set();
@@ -141,12 +146,14 @@ export const sketch = function (p, options = {}) {
         const s = getViewportSize();
         short = p.min(s.width, s.height);
         mobile = widthCheck(s.width);
-        cx = 0.5 * p.width;
-        cy = 0.5 * p.height;
-        r = 0.07 * short;
-        setupSolarSystem(r);
-        layoutUI();
+        setupRadialLayout();
         layoutInitialized = true;
+
+        // Reset mobile preview timing when layout changes
+        if (mobile) {
+            previewStartTime = 0;
+            currentPreviewIndex = 0;
+        }
     }
 
     p.setup = async function setup() {
@@ -205,20 +212,50 @@ export const sketch = function (p, options = {}) {
             }
         };
 
+        sols = daysSince('2024-08-14');
         window.addEventListener('hashchange', hashChangeHandler);
     };
 
     p.draw = function draw() {
         p.background(23);
         frameCount++;
-        smoothX = smoothFollow(p.mouseX, smoothX, 0.003 * p.deltaTime);
-        smoothY = smoothFollow(p.mouseY, smoothY, 0.003 * p.deltaTime);
+
+        // Handle smooth cursor movement - mobile vs desktop
+        if (mobile && planetButtons && planetButtons.length > 0) {
+            // Mobile: Sequential preview of each planet button
+            // Initialize preview start time on first frame
+            if (previewStartTime === 0) {
+                previewStartTime = p.millis();
+            }
+
+            // Calculate which planet should be previewed based on elapsed time
+            const elapsedTime = p.millis() - previewStartTime;
+            const cyclePosition = (elapsedTime / previewDuration) % planetButtons.length;
+            const targetIndex = Math.floor(cyclePosition);
+
+            if (targetIndex !== currentPreviewIndex && targetIndex < planetButtons.length) {
+                currentPreviewIndex = targetIndex;
+            }
+
+            // Smoothly move to the current preview planet position
+            const targetPlanet = planetButtons[currentPreviewIndex];
+            if (targetPlanet) {
+                smoothX = p.constrain(smoothFollow(targetPlanet.p.x, smoothX, 0.005 * p.deltaTime), 0, p.width);
+                smoothY = p.constrain(smoothFollow(targetPlanet.p.y, smoothY, 0.005 * p.deltaTime), 0, p.height);
+            }
+        } else {
+            // Desktop: Follow mouse cursor
+            smoothX = smoothFollow(p.mouseX, smoothX, 0.003 * p.deltaTime);
+            smoothY = smoothFollow(p.mouseY, smoothY, 0.003 * p.deltaTime);
+        }
+
         smoothV.x = smoothX;
         smoothV.y = smoothY;
         p.noFill();
         p.stroke(230);
         p.strokeWeight(1);
-        renderSolarSystem();
+        renderRadialLayout();
+        renderHUDDecorations();
 
         // Handle pending project opening after layout is initialized and a few frames have passed
         if (pendingProjectSlug && layoutInitialized && planetButtons && planetButtons.length > 0 && frameCount > 5) {
@@ -278,8 +315,8 @@ export const sketch = function (p, options = {}) {
         // Update cursor based on hover state
         // Don't include planet buttons when info card is active
         const hoverTargets = activeInfoCard !== null ?
-            [ui, getCloseButtonHoverCheck(), getNavigationButtonHoverCheck()] :
-            [ui, ...planetButtons, getCloseButtonHoverCheck()];
+            [getCloseButtonHoverCheck(), getNavigationButtonHoverCheck()] :
+            [...planetButtons, getTextAreasHoverCheck(), getCloseButtonHoverCheck()];
         updateCursor(p, p.mouseX, p.mouseY, ...hoverTargets);
 
         // Render active info card
@@ -389,31 +426,6 @@ export const sketch = function (p, options = {}) {
             return;
         }
 
-        // Check UI elements
-        ui.forEach((ui_element, index) => {
-            if (ui_element.contains(p.mouseX, p.mouseY)) {
-                // Navigate based on which UI element was clicked
-                if (window.appRouter) {
-                    switch (index) {
-                        case 0: // Projects and Installations
-                            setTimeout(() => {
-                                window.appRouter.navigate('/codeart');
-                            }, ANIMATION_DELAY);
-                            break;
-                        case 1: // Web Art
-                            // Add photo route when available
-                            console.log('Photo section coming soon!');
-                            break;
-                        case 2: // Physical Artifacts
-                            setTimeout(() => {
-                                window.appRouter.navigate('/about');
-                            }, ANIMATION_DELAY);
-                            break;
-                    }
-                }
-                return;
-            }
-        });
 
         // Check if clicking on info card or close button
         if (activeInfoCard !== null) {
@@ -489,12 +501,15 @@ export const sketch = function (p, options = {}) {
             return;
         }
 
-        // Check planet buttons
+        // Check planet buttons and their text areas
         planetButtons.forEach((planetButton, index) => {
-            if (planetButton.contains(p.mouseX, p.mouseY)) {
+            const project = projects[index];
+            const planetClicked = planetButton.contains(p.mouseX, p.mouseY);
+            const textClicked = isHoveringText(planetButton, p.mouseX, p.mouseY, project.name);
+
+            if (planetClicked || textClicked) {
                 openInfoCard(index);
                 // Update URL to include project slug
-                const project = projects[index];
                 if (project && project.slug && window.appRouter) {
                     const newPath = `/interactive/live/${project.slug}`;
                     // Only update if the current path is different
@@ -527,19 +542,19 @@ export const sketch = function (p, options = {}) {
                 if (project && project.images && project.images.length > 0) {
                     const { width: cardWidth, height: cardHeight, x: cardX, y: cardY, isMobile } = getCardDimensions();
                     const { galleryY, padding, lineHeight } = getGalleryLayout(cardWidth, cardHeight, cardX, cardY, isMobile);
-                    
+
                     // Use EXACT same galleryHeight calculation as main rendering
                     const galleryHeight = isMobile ? cardHeight * 0.3 : cardHeight * 0.4;
-                    
+
                     // Use EXACT same calculations as renderGallery for consistent click detection
                     const galleryAreaPadding = isMobile ? 8 : 10; // This is the 'padding' variable in rendering
                     const itemHeight = galleryHeight - (2 * galleryAreaPadding);
                     const itemWidth = itemHeight * 1.5; // 3:2 aspect ratio
-                    
+
                     // Gallery area coordinates (same as rendering: x=cardX+padding, y=galleryY)
                     const galleryX = cardX + padding; // Card padding
                     const galleryY_coords = galleryY;
-                    
+
                     // Start coordinates within gallery area (same as rendering: startX = x + padding)
                     const startX = galleryX + galleryAreaPadding; // Gallery area left padding
                     const startY = galleryY_coords + galleryAreaPadding; // Gallery area top padding
@@ -563,10 +578,10 @@ export const sketch = function (p, options = {}) {
                 const isMobile = widthCheck(p.width);
                 const padding = isMobile ? 20 : 24;
                 const galleryWidth = cardWidth - 2 * padding;
-                
+
                 // Use EXACT same galleryHeight as main rendering
                 const galleryHeight = isMobile ? cardHeight * 0.3 : cardHeight * 0.4;
-                
+
                 // Use same calculations as rendering and click detection
                 const galleryAreaPadding = isMobile ? 8 : 10;
                 const itemHeight = galleryHeight - (2 * galleryAreaPadding);
@@ -585,7 +600,7 @@ export const sketch = function (p, options = {}) {
                 // Check if mouse is over gallery area
                 const { width: cardWidth, height: cardHeight, x: cardX, y: cardY, isMobile } = getCardDimensions();
                 const { galleryY, padding, lineHeight } = getGalleryLayout(cardWidth, cardHeight, cardX, cardY, isMobile);
-                
+
                 // Use EXACT same galleryHeight as main rendering
                 const galleryHeight = isMobile ? cardHeight * 0.3 : cardHeight * 0.4;
 
@@ -609,10 +624,6 @@ export const sketch = function (p, options = {}) {
         }
     }
 
-    function layoutUI() {
-        ui.length = 0;
-        const s_font = Math.max(0.022 * p.width, 32);
-    }
 
     function openInfoCard(index) {
         activeInfoCard = index;
@@ -797,76 +808,352 @@ export const sketch = function (p, options = {}) {
         };
     }
 
-    function setupSolarSystem(starRadius) {
+    function radialToCartesian(r, a, x, y){
+        return p.createVector(r * p.cos(a) + x, r * p.sin(a) + y);
+    }
+
+    function daysSince(dateString) {
+        const targetDate = new Date(dateString);
+        const now = new Date();
+        const diffTime = now - targetDate;
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+    }
+
+    function isHoveringText(planetButton, mouseX, mouseY, projectName) {
+        const textOffsetX = mobile ? 25 : 40;
+        const textSize = mobile ? 12 : 14;
+        const textX = planetButton.p.x + textOffsetX;
+        const textY = planetButton.p.y;
+
+        // Calculate text wrapping (same logic as UIPlanetButton)
+        const maxChars = 16;
+        const words = projectName.split(' ');
+        let lines = [];
+        let currentLine = '';
+
+        for (const word of words) {
+            if ((currentLine + word).length > maxChars && currentLine.length > 0) {
+                lines.push(currentLine.trim());
+                currentLine = word + ' ';
+            } else {
+                currentLine += word + ' ';
+            }
+        }
+        if (currentLine.length > 0) {
+            lines.push(currentLine.trim());
+        }
+
+        // Calculate text bounding box
+        const lineHeight = textSize * 1.2;
+        const totalHeight = lines.length * lineHeight;
+
+        // Get maximum line width
+        p.textSize(textSize);
+        let maxWidth = 0;
+        lines.forEach(line => {
+            const lineWidth = p.textWidth(line);
+            if (lineWidth > maxWidth) maxWidth = lineWidth;
+        });
+
+        // Define text bounding rectangle
+        const textBounds = {
+            x: textX,
+            y: textY - totalHeight / 2,
+            width: maxWidth,
+            height: totalHeight
+        };
+
+        // Check if mouse is within text bounds
+        return mouseX >= textBounds.x && mouseX <= textBounds.x + textBounds.width &&
+               mouseY >= textBounds.y && mouseY <= textBounds.y + textBounds.height;
+    }
+
+    function setupRadialLayout() {
         planetButtons = [];
-        /*
-        If this gets too busy, we could consider having a "system" for each year that can be selected from a side/bottom menu?
-        OR we make a larger virtual canvas and "pan" around to visit other systems? >:^)
-        */
-        const planetCount = projects.length;
 
-        for (let i = 0; i < planetCount; i++) {
-            const orbitRadius = starRadius * (1.8 + i * 0.8);
-            const angle = p.random(p.TWO_PI);
-            const speed = 0.00005 / (1 + i * 0.3);
-            const size = starRadius * (0.3 + p.random(0.2));
-            const color = p.map(i, 0, planetCount, 230, 120);
-            const textSize = mobile ? Math.max(10, size * 0.5) : Math.max(14, size * 0.7);
-            const textOffsetY = size * 1.2; // Position text below planet
+        const nodeCount = projects.length;
+        const baseRadius = mobile ? 20 : 25;
+        const textSize = mobile ? 14 : 18;
 
-            planetButtons.push(new UIPlanetButton(p, 0, 0, size, orbitRadius, angle, speed, color, projects[i].name, textSize, 0, textOffsetY));
+        // Based on proto.js design - create concentric circles with radial positioning
+        const step = p.height / 5;
+        const centerX = p.width / 2;
+
+        for (let i = 0; i < nodeCount; i++) {
+            // Calculate position based on proto.js pattern
+            const y = p.height - 0.25 * (i + 1) * step - 0.05*step;
+            const r = 0.25 * (i + 1) * step;
+            const pos = radialToCartesian(r, -0.75*p.PI + i*0.09 , centerX, y);
+            // Position node along the radial line (upward from center)
+            const nodeX = pos.x;//centerX;
+            const nodeY = pos.y;//y - r; // Position at the top of the circle
+
+            // Position text to the right of the node with offset
+            const textOffsetX = mobile ? 25 : 40;
+            const textOffsetY = 0;
+            const planetButton = new UIPlanetButton(p, nodeX, nodeY, baseRadius, 0, p.random(p.TWO_PI), 0, [222, 200], projects[i].name, textSize, textOffsetX, textOffsetY);
+            // Add hover state tracking
+            planetButton.hoverAlpha = 0;
+            planetButton.targetHoverAlpha = 0;
+            planetButtons.push(planetButton);
         }
     }
 
-    function renderSolarSystem() {
-        // Draw the central star
-        renderStar(cx, cy, r);
+    function renderRadialLayout() {
+        // Based on proto.js - render concentric circles first
+        const step = p.height / 5;
+        const centerX = p.width / 2;
 
-        // Draw planets
-        p.noFill();
+        p.push();
+        p.stroke(222, 64);
         p.strokeWeight(1);
+        p.noFill();
 
-        planetButtons.forEach((planetButton, idx) => {
-            // Update planet position
-            planetButton.updatePosition(cx, cy, p.deltaTime);
+        // Draw concentric circles (background)
+        for (let i = 1; i <= planetButtons.length; i++) {
+            const y = p.height - 0.25 * i * step - 0.05*step;
+            const r = 0.25 * i * step;
+            p.circle(centerX, y, 2 * r);
+        }
 
-            // Draw orbital path (faint)
-            p.noFill();
-            p.stroke(80, 80, 80, 100);
-            p.strokeWeight(1);
-            p.circle(cx, cy, planetButton.orbitRadius * 2);
+        p.pop();
+        // Render planet buttons with integrated text rendering
+        planetButtons.forEach((planetButton, index) => {
+            const project = projects[index];
+            if (!project) return;
+            planetButton.angle -= 0.01*p.noise(index);
 
-            // Render planet
-            planetButton.render(smoothV, short);
+            // Handle media preview on hover (to the left of the node)
+            // On mobile, use virtual cursor position; on desktop, use actual mouse
+            const hoverX = mobile ? smoothX : p.mouseX;
+            const hoverY = mobile ? smoothY : p.mouseY;
+
+            // Check if hovering over planet button OR text area
+            const planetHovered = planetButton.contains(hoverX, hoverY);
+            const textHovered = isHoveringText(planetButton, hoverX, hoverY, project.name);
+            const isHovered = planetHovered || textHovered;
+
+            // Update hover state smoothly
+            planetButton.targetHoverAlpha = isHovered ? 1 : 0;
+            planetButton.hoverAlpha = p.lerp(planetButton.hoverAlpha, planetButton.targetHoverAlpha, isHovered ? 0.1 : 0.01);
+
+            // Create a virtual smooth vector that reflects the hover state
+            // This gives consistent distance-based effects regardless of actual cursor position
+            const hoverDistance = p.lerp(200, 0, planetButton.hoverAlpha); // 200 = far (no effect), 20 = close (full effect)
+            const virtualSmoothV = p.createVector(
+                planetButton.p.x + hoverDistance,
+                planetButton.p.y
+            );
+
+            // Render planet button with hover state-based feedback
+            planetButton.render(virtualSmoothV, short);
+
+            if (isHovered && project.images && project.images.length > 0) {
+                // Load preview media if not already loaded
+                if (!planetButton.previewMedia) {
+                    loadPreviewMedia(planetButton, project);
+                }
+
+                // Render media preview to the left of the node
+                if (planetButton.previewMedia && planetButton.previewAlpha > 0.01) {
+                    const previewSize = mobile ? 70 : 160;
+                    const previewX = planetButton.p.x - previewSize - 30; // Position to the left
+                    const previewY = planetButton.p.y - previewSize / 2;
+
+                    p.push();
+
+                    // Render media image with tint
+                    p.tint(255, planetButton.previewAlpha * 255 * 0.7); // Low opacity as requested
+
+                    // Crop from center of media to fit square
+                    const mediaWidth = planetButton.previewMedia.width;
+                    const mediaHeight = planetButton.previewMedia.height;
+                    const cropSize = Math.min(mediaWidth, mediaHeight);
+                    const cropX = (mediaWidth - cropSize) / 2;
+                    const cropY = (mediaHeight - cropSize) / 2;
+
+                    p.image(planetButton.previewMedia,
+                        previewX, previewY,
+                        previewSize, previewSize,
+                        cropX, cropY, cropSize, cropSize);
+
+                    // Remove tint for corner brackets
+                    p.noTint();
+
+                    // Render HUD-style corner brackets
+                    const cornerSize = mobile ? 8 : 12;
+                    const alpha = planetButton.previewAlpha * 150; // Match preview opacity
+
+                    p.stroke(255, alpha);
+                    p.strokeWeight(1);
+                    p.noFill();
+
+                    // Corner brackets (like targeting system)
+                    const corners = [
+                        [previewX, previewY], // top-left
+                        [previewX + previewSize, previewY], // top-right
+                        [previewX + previewSize, previewY + previewSize], // bottom-right
+                        [previewX, previewY + previewSize] // bottom-left
+                    ];
+
+                    corners.forEach(([x, y], index) => {
+                        const xDir = index === 0 || index === 3 ? 1 : -1;
+                        const yDir = index === 0 || index === 1 ? 1 : -1;
+
+                        // Horizontal line
+                        p.line(x, y, x + xDir * cornerSize, y);
+                        // Vertical line
+                        p.line(x, y, x, y + yDir * cornerSize);
+                    });
+
+                    p.pop();
+                }
+            }
+
+            // Update preview alpha
+            if (isHovered) {
+                planetButton.previewAlpha = p.lerp(planetButton.previewAlpha || 0, 1, 0.1);
+            } else {
+                planetButton.previewAlpha = p.lerp(planetButton.previewAlpha || 0, 0, 0.15);
+            }
         });
     }
 
-    function renderStar(x, y, radius) {
-        // Draw the central star body
-        p.fill(star_colours[0]);
+    function renderHUDDecorations() {
+        p.push();
+
+        // Title
+        renderTitle();
+
+        // Perimeter decorations
+        renderPerimeterHUD();
+
+
+        p.pop();
+    }
+
+    function renderTitle() {
+        const titleY = mobile ? 5 : 20;
+        const titleSize = mobile ? 18 : 28;
+
+        p.fill(255, 200);
         p.noStroke();
-        p.circle(x, y, radius * 0.8);
+        p.textAlign(p.CENTER, p.TOP);
+        p.textFont('BPdotsSquareVF', {
+            fontVariationSettings: `wght 900`
+        });
+        p.textSize(titleSize);
+        p.text("LIVE EXPERIENCES", p.width / 2, titleY);
 
-        // Draw rotating triangle ring
-        const triangleCount = 3;
-        const ringRadius = radius * (0.69 + 0.03 * p.sin(0.001 * p.millis()));
-        const triangleSize = radius * 0.15;
-        const rotationSpeed = 0.00005;
-        const currentTime = p.millis();
-        const rotationAngle = currentTime * rotationSpeed;
-        for (let i = 0; i < triangleCount; i++) {
-            const angle = (p.TWO_PI / triangleCount) * i + rotationAngle;
-            const trianglePos = radialToCartesian(ringRadius, angle);
-            const triangleX = x + trianglePos.x;
-            const triangleY = y + trianglePos.y;
+        // Underline decoration
+        const textWidth = p.textWidth("LIVE EXPERIENCES");
+        p.stroke(255, 120);
+        p.strokeWeight(1);
+        p.line(p.width/2 - textWidth/2 - 20, titleY + titleSize + 8,
+               p.width/2 + textWidth/2 + 20, titleY + titleSize + 8);
+    }
 
-            p.push();
-            p.translate(triangleX, triangleY);
-            p.rotate(-angle + p.HALF_PI); // Point triangles outward
-            p.triangle(0, -triangleSize * 0.6, -triangleSize * 0.5, triangleSize * 0.5, triangleSize * 0.5, triangleSize * 0.5);
-            p.pop();
+    function renderPerimeterHUD() {
+        const margin = mobile ? 10 : 40;
+        const cornerSize = mobile ? 20 : 30;
+        const alpha = 100;
+
+        p.stroke(255, alpha);
+        p.strokeWeight(1);
+        p.strokeCap(p.SQUARE);
+        p.noFill();
+
+        // Corner brackets (like targeting system)
+        const corners = [
+            [margin, margin], // top-left
+            [p.width - margin, margin], // top-right
+            [p.width - margin, p.height - margin], // bottom-right
+            [margin, p.height - margin] // bottom-left
+        ];
+
+        corners.forEach(([x, y], index) => {
+            const xDir = index === 0 || index === 3 ? 1 : -1;
+            const yDir = index === 0 || index === 1 ? 1 : -1;
+
+            // Horizontal line
+            p.line(x, y, x + xDir * cornerSize, y);
+            // Vertical line
+            p.line(x, y, x, y + yDir * cornerSize);
+        });
+
+        // Side markers (like coordinate system)
+        const markerCount = mobile ? 3 : 5;
+        const markerSize = 6;
+
+        // Top and bottom markers
+        for (let i = 1; i < markerCount; i++) {
+            const x = p.lerp(margin + cornerSize, p.width - margin - cornerSize, i / markerCount);
+
+            // Top markers
+            p.line(x, margin, x, margin + markerSize);
+            // Bottom markers
+            p.line(x, p.height - margin, x, p.height - margin - markerSize);
+        }
+
+        // Left and right markers
+        for (let i = 1; i < markerCount; i++) {
+            const y = p.lerp(margin + cornerSize, p.height - margin - cornerSize, i / markerCount);
+
+            // Left markers
+            p.line(margin, y, margin + markerSize, y);
+            // Right markers
+            p.line(p.width - margin, y, p.width - margin - markerSize, y);
+        }
+
+        // Status indicators in corners
+        p.fill(255, alpha * 0.6);
+        p.noStroke();
+        p.textAlign(p.LEFT, p.TOP);
+        p.textSize(mobile ? 8 : 11);
+        const step = mobile ? 10 : 13;
+        // System status text
+        p.text("SYS: CAUTION", margin + 0.5*cornerSize, margin + 1*step);
+        p.text("SOL: " + sols.toString(), margin + 0.5*cornerSize, margin + 2*step);
+        p.text("SIG: -27dBm", margin + 0.5*cornerSize, margin + 3*step);
+        p.text("RCS: ON", margin + 0.5*cornerSize, margin + 4*step);
+        /*
+        p.textAlign(p.RIGHT, p.TOP);
+        p.text("SOL:" + sols.toString(), p.width - margin - cornerSize, margin + 5);
+        p.textAlign(p.LEFT, p.BOTTOM);
+        p.text("SIG:-32dBm", margin + cornerSize, p.height - margin - 5);
+        p.textAlign(p.RIGHT, p.BOTTOM);
+        p.text("BATT:64%", p.width - margin - cornerSize, p.height - margin - 5);
+        */
+    }
+
+
+    function loadPreviewMedia(planetButton, project) {
+        if (project && project.images && project.images.length > 0) {
+            const firstMedia = project.images[0];
+            const pathString = getMediaPath(firstMedia);
+            const isVideo = isVideoFile(pathString);
+
+            if (isVideo) {
+                // For videos, try to load thumbnail first, fall back to placeholder
+                if (project.thumbnails && project.thumbnails[firstMedia]) {
+                    p.loadImage(project.thumbnails[firstMedia], (img) => {
+                        planetButton.previewMedia = img;
+                    }, (err) => {
+                        console.warn('Failed to load thumbnail for preview:', err);
+                    });
+                }
+            } else {
+                // For images, load directly
+                p.loadImage(pathString, (img) => {
+                    planetButton.previewMedia = img;
+                }, (err) => {
+                    console.warn('Failed to load image for preview:', err);
+                });
+            }
         }
     }
+
 
     function renderInfoCard(project) {
         // Calculate card size based on screen size
@@ -1086,6 +1373,20 @@ export const sketch = function (p, options = {}) {
                 // Check right arrow (always active with wraparound)
                 if (mouseX >= rightArrowX && mouseX <= rightArrowX + arrowSize &&
                     mouseY >= arrowY && mouseY <= arrowY + arrowSize) {
+                    return true;
+                }
+            }
+            return false;
+        };
+    }
+
+    function getTextAreasHoverCheck() {
+        return (mouseX, mouseY) => {
+            // Check if hovering over any text area
+            for (let i = 0; i < planetButtons.length; i++) {
+                const planetButton = planetButtons[i];
+                const project = projects[i];
+                if (project && isHoveringText(planetButton, mouseX, mouseY, project.name)) {
                     return true;
                 }
             }
@@ -1432,9 +1733,6 @@ export const sketch = function (p, options = {}) {
         p.pop();
     }
 
-    function radialToCartesian(r, a) {
-        return { x: r * p.cos(a), y: -r * p.sin(a) };
-    }
 
     function openExpandedMedia(index) {
         expandedMediaIndex = index;
@@ -1467,7 +1765,7 @@ export const sketch = function (p, options = {}) {
             if (nativeVideoElement) {
                 nativeVideoElement.remove();
             }
-            
+
             nativeVideoElement = document.createElement('video');
             nativeVideoElement.src = videoPath;
             nativeVideoElement.controls = true;
@@ -1641,9 +1939,6 @@ export const sketch = function (p, options = {}) {
 
         // No custom controls needed - native video handles everything
 
-        function zcn(x = 0, y = 0, z = 0) {
-            return 2 * (p.noise(x, y, z) - 0.5);
-        }
     };
 }
 

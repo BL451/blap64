@@ -288,10 +288,10 @@ export class UIPlanetButton extends UIObj{
     }
 
     renderUITriangles(r, d){
-        const squareSize = r * (1.5 + 0.2*this.p5.sin(0.05*this.p.x + 0.05*this.p.y));
+        const squareSize = r * (1.5 + 0.2*this.p5.sin(0.05*this.p.x + 0.05*this.p.y + 0.001*this.p5.millis()));
         const triangleSize = r * 0.2;
 
-        this.p5.fill('#e61414');
+        this.p5.fill(128 + d*127, 20, 20, 128 + d*127);
         this.p5.noStroke();
 
         // Four corners of the square around the planet
@@ -314,14 +314,39 @@ export class UIPlanetButton extends UIObj{
     renderText(d){
         if (this.textWriter && this.textWriter.t && this.textWriter.t.length > 0) {
             this.p5.push();
-            this.p5.fill(230, 64 + 191*d);
+            this.p5.fill(74, 144 + 80*d, 230);
             this.p5.noStroke();
-            this.p5.textAlign(this.p5.CENTER, this.p5.CENTER);
+            this.p5.textAlign(this.p5.LEFT, this.p5.CENTER);
             this.p5.textFont('BPdotsSquareVF', {
                 fontVariationSettings: `wght 900`
             });
             this.p5.textSize(this.textWriter.size);
-            this.p5.text(this.textWriter.t, this.textWriter.p.x, this.textWriter.p.y);
+
+            // Wrap text if longer than 16 characters
+            const maxChars = 16;
+            const words = this.textWriter.t.split(' ');
+            let lines = [];
+            let currentLine = '';
+
+            for (const word of words) {
+                if ((currentLine + word).length > maxChars && currentLine.length > 0) {
+                    lines.push(currentLine.trim());
+                    currentLine = word + ' ';
+                } else {
+                    currentLine += word + ' ';
+                }
+            }
+            if (currentLine.length > 0) {
+                lines.push(currentLine.trim());
+            }
+
+            // Render each line
+            const lineHeight = this.textWriter.size * 1.2;
+            lines.forEach((line, lineIndex) => {
+                const lineY = this.textWriter.p.y + (lineIndex - (lines.length - 1) / 2) * lineHeight;
+                this.p5.text(line, this.textWriter.p.x, lineY);
+            });
+
             this.p5.pop();
         }
     }
