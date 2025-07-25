@@ -447,17 +447,14 @@ export const sketch = function (p, options = {}) {
 
             // Check if clicking navigation arrows
             if (projects.length > 1) {
-                const arrowSize = isMobile ? 50 : 40;
-                const arrowPadding = isMobile ? 20 : 15;
-                const arrowY = cardY + cardHeight + arrowPadding;
+                const arrowSize = 35; // Match updated arrow size
+                const arrowSpacing = 80; // Match updated arrow spacing
+                const arrowY = cardY + cardHeight + (isMobile ? 20 : 15);
 
                 // Use new arrow positioning logic (same as in renderNavigationArrows)
-                const counterWidth = 80;
-                const totalWidth = arrowSize * 2 + counterWidth + arrowPadding * 2;
-                const startX = cardX + (cardWidth - totalWidth) / 2;
-
-                const leftArrowX = startX;
-                const rightArrowX = startX + arrowSize + counterWidth + arrowPadding * 2;
+                const centerX = cardX + cardWidth / 2;
+                const leftArrowX = centerX - arrowSpacing - arrowSize / 2;
+                const rightArrowX = centerX + arrowSpacing - arrowSize / 2;
 
                 // Check left arrow (previous with wraparound)
                 if (p.mouseX >= leftArrowX && p.mouseX <= leftArrowX + arrowSize &&
@@ -1271,19 +1268,16 @@ export const sketch = function (p, options = {}) {
     }
 
     function renderNavigationArrows(cardX, cardY, cardWidth, cardHeight, isMobile) {
-        // Arrow button dimensions - responsive to screen size
-        const arrowSize = isMobile ? 50 : 40;
-        const arrowPadding = isMobile ? 20 : 15;
-        const arrowY = cardY + cardHeight + arrowPadding;
+        // Arrow button dimensions - match lightbox styling
+        const arrowSize = 35; // Match lightbox size
+        const arrowSpacing = 80; // Match lightbox spacing
+        const arrowY = cardY + cardHeight + (isMobile ? 20 : 15);
 
-        // Position arrows with counter centered between them
-        const counterWidth = 80; // Estimate width needed for counter text
-        const totalWidth = arrowSize * 2 + counterWidth + arrowPadding * 2; // 2 arrows + counter + spacing
-        const startX = cardX + (cardWidth - totalWidth) / 2;
-
-        const leftArrowX = startX;
-        const rightArrowX = startX + arrowSize + counterWidth + arrowPadding * 2;
-        const counterX = startX + arrowSize + arrowPadding;
+        // Position arrows with counter centered between them (match lightbox layout)
+        const centerX = cardX + cardWidth / 2;
+        const leftArrowX = centerX - arrowSpacing - arrowSize / 2;
+        const rightArrowX = centerX + arrowSpacing - arrowSize / 2;
+        const counterX = centerX;
 
         // Arrows are always active with wraparound navigation
         const arrowAlpha = infoCardAlpha;
@@ -1294,41 +1288,40 @@ export const sketch = function (p, options = {}) {
         // Right arrow (next with wraparound)
         renderArrowButton(rightArrowX, arrowY, arrowSize, 'right', arrowAlpha, isMobile);
 
-        // Project counter text centered between arrows
+        // Project counter text centered between arrows (match lightbox styling)
         p.fill(230, infoCardAlpha);
         p.noStroke();
         p.textAlign(p.CENTER, p.CENTER);
         p.textFont('BPdotsSquareVF', { fontVariationSettings: `wght 600` });
-        p.textSize(isMobile ? 12 : 18);
-        p.text(`${activeInfoCard + 1} / ${projects.length}`, counterX + counterWidth/2, arrowY + arrowSize/2);
+        p.textSize(16); // Match lightbox text size
+        p.text(`${activeInfoCard + 1} / ${projects.length}`, counterX, arrowY + arrowSize / 2);
     }
 
     function renderArrowButton(x, y, size, direction, alpha, isMobile) {
-        // Button background
-        p.fill(40, 40, 40, alpha);
-        p.stroke(100, alpha);
-        p.strokeWeight(isMobile ? 2 : 1);
+        // Button background (match lightbox styling)
+        p.fill(23, 23, 23, 200 * (alpha / 255)); // Match lightbox background
+        p.stroke(230, alpha); // Match lightbox stroke
+        p.strokeWeight(2); // Match lightbox stroke weight
         p.rect(x, y, size, size);
 
         // Arrow symbol
         p.fill(230, alpha);
         p.noStroke();
 
-        const arrowPadding = size * 0.25;
         const arrowCenterX = x + size/2;
         const arrowCenterY = y + size/2;
-        const arrowWidth = size * 0.3;
+        const arrowWidth = size * 0.3; // Match lightbox proportions
         const arrowHeight = size * 0.4;
 
         if (direction === 'left') {
-            // Left-pointing triangle
+            // Left-pointing triangle (match lightbox arrow shape)
             p.triangle(
                 arrowCenterX - arrowWidth/2, arrowCenterY,
                 arrowCenterX + arrowWidth/2, arrowCenterY - arrowHeight/2,
                 arrowCenterX + arrowWidth/2, arrowCenterY + arrowHeight/2
             );
         } else {
-            // Right-pointing triangle
+            // Right-pointing triangle (match lightbox arrow shape)
             p.triangle(
                 arrowCenterX + arrowWidth/2, arrowCenterY,
                 arrowCenterX - arrowWidth/2, arrowCenterY - arrowHeight/2,

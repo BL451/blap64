@@ -1,5 +1,6 @@
 import { html } from "lit-html";
 import { findProjectBySlug } from "../Installations/project-details.js";
+import { findCollectionBySlug } from "../Photo/photo-collections.js";
 
 // Map routes to human-readable directory names and their actual paths
 const pathMap = {
@@ -37,6 +38,19 @@ function getBreadcrumbSegments(currentPath) {
         ];
     }
 
+    // Handle photo collection-specific paths
+    const collectionMatch = cleanPath.match(/^\/photo\/(.+)$/);
+    if (collectionMatch) {
+        const collectionSlug = collectionMatch[1];
+        const collection = findCollectionBySlug(collectionSlug);
+        return [
+            { name: '~', path: null },
+            { name: 'home', path: '/' },
+            { name: 'photo', path: '/photo' },
+            { name: collection ? collection.name : collectionSlug, path: cleanPath }
+        ];
+    }
+
     // Handle nested paths
     if (cleanPath === '/interactive/live') {
         return [
@@ -61,6 +75,14 @@ function getBreadcrumbSegments(currentPath) {
             { name: '~', path: null },
             { name: 'home', path: '/' },
             { name: 'interactive', path: '/interactive' }
+        ];
+    }
+
+    if (cleanPath === '/photo') {
+        return [
+            { name: '~', path: null },
+            { name: 'home', path: '/' },
+            { name: 'photo', path: '/photo' }
         ];
     }
 

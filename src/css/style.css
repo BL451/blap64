@@ -1,13 +1,4 @@
 /* I am the least experienced with organizing CSS styles so this file is currently a mess :) */
-@font-face {
-    font-family: "HomeVideo";
-    src: url("../assets/fonts/HomeVideo-BLG6G.ttf");
-}
-
-@font-face {
-    font-family: "HomeVideoBold";
-    src: url("../assets/fonts/HomeVideoBold-R90Dv.ttf");
-}
 
 @font-face {
     font-family: "BPdotsSquareVF";
@@ -89,15 +80,6 @@ nav {
     bottom: 5vmin;
 }
 
-button {
-    margin: 0;
-    padding: 2vmin;
-    font-family: "HomeVideo";
-    background: none;
-    border: none;
-    font-size: 4vmin;
-    text-align: center;
-}
 
 .vertical-center {
     padding: auto;

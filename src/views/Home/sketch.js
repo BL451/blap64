@@ -216,8 +216,9 @@ export const sketch = function (p, options = {}) {
     						}, ANIMATION_DELAY);
 							break;
 						case 1: // Second button - PHOTO
-							// Add photo route when available
-							console.log('Photo section coming soon!');
+							setTimeout(() => {
+								window.appRouter.navigate('/photo');
+							}, ANIMATION_DELAY);
 							break;
 						case 2: // Third button - ABOUT
     						setTimeout(() => {

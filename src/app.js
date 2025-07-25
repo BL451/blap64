@@ -8,12 +8,15 @@ import homeView from "./views/Home/home.js";
 import codeartView from "./views/CodeArt/codeart.js";
 import aboutView from "./views/About/about.js";
 import installationsView from "./views/Installations/installations.js";
+import photoView from "./views/Photo/photo.js";
 import oopsView from "./views/Oops/oops.js";
 
 const routes = [
     new Route("project", "/interactive/live/:project", installationsView),
     new Route("installations", "/interactive/live", installationsView),
     new Route("codeart", "/interactive", codeartView),
+    new Route("photo-collection", "/photo/:collection", photoView),
+    new Route("photo", "/photo", photoView),
     new Route("about", "/about", aboutView),
     new Route("oops", "/oops", oopsView),
     new Route("home", "/", homeView),
