@@ -160,7 +160,6 @@ export const photoCollections = [
             astro05,
             astro06,
             astro07,
-            astro08,
             astro09,
             astro10
         ]

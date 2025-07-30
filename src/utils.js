@@ -325,7 +325,7 @@ export class UIPlanetButton extends UIObj{
             // Try to get cached text data, fall back to calculation if not available
             let lines;
             let lineHeight;
-            
+
             // Check if we have access to the global textCache (from sketch.js)
             if (typeof window !== 'undefined' && window.textCache && window.textCache.has(this.textWriter.t)) {
                 const cached = window.textCache.get(this.textWriter.t);
@@ -673,5 +673,163 @@ export class TextWriter extends UIObj{
         } else {
             this.p5.text(t_render, this.p.x, this.p.y);
         }
+    }
+}
+
+export class UIWebButton extends UIObj{
+    constructor(p, x, y, radius, scale, project){
+        super(p, x, y, radius * 2, radius * 2);
+        this.radius = radius; // Used for physics calculations
+        this.scale = scale; // Used for visual size
+        this.project = project;
+        this.hoverAlpha = 0;
+        this.targetHoverAlpha = 0;
+        this.image = null;
+        this.imageLoaded = false;
+        
+        // Load project image
+        if (project.image) {
+            try {
+                // Use getMediaPath to handle imported assets properly
+                const imagePath = getMediaPath(project.image);
+                // Don't store the initial return value, wait for callback
+                p.loadImage(imagePath, (img) => {
+                    // Ensure we have a valid image with dimensions
+                    if (img && img.width > 0 && img.height > 0) {
+                        this.image = img; // Store the callback-provided image object
+                        this.imageLoaded = true;
+                    } else {
+                        console.error('Invalid image loaded for', project.name, '- no dimensions');
+                        this.imageLoaded = false;
+                    }
+                }, (err) => {
+                    console.error('Image load failed for', project.name, ':', err);
+                    this.imageLoaded = false;
+                });
+            } catch (err) {
+                console.error('Error calling loadImage for', project.name, ':', err);
+                this.imageLoaded = false;
+            }
+        }
+    }
+    
+    renderFallback(){
+        // Fallback: color based on position while image loads
+        const colorR = this.p5.map(this.p.x, 0, this.p5.width, 0, 255);
+        const colorG = this.p5.map(this.p.y, 0, this.p5.height, 0, 255);
+        const colorB = 255;
+        const alpha = 255 - this.hoverAlpha * 50;
+        
+        this.p5.fill(colorR, colorG, colorB, alpha);
+        this.p5.strokeWeight(5);
+        this.p5.stroke(240);
+        this.p5.square(this.p.x, this.p.y, this.scale);
+    }
+
+    contains(x, y){
+        // Check if point is inside the square using visual scale
+        const halfSize = this.scale * 0.5;
+        return x >= this.p.x - halfSize && x <= this.p.x + halfSize &&
+               y >= this.p.y - halfSize && y <= this.p.y + halfSize;
+    }
+
+    render(){
+        this.p5.push();
+        
+        const halfSize = this.scale / 2;
+        const cornerSize = this.scale * 0.15; // Corner bracket size
+        const hudAlpha = 120 + (this.hoverAlpha * 135); // HUD elements alpha
+        
+        if (this.imageLoaded && this.image) {
+            // Display project image with slight hover darkening
+            this.p5.tint(255, 255 - this.hoverAlpha * 30);
+            try {
+                this.p5.image(this.image, this.p.x - halfSize, this.p.y - halfSize, this.scale, this.scale);
+            } catch (err) {
+                console.error('Error rendering image for project', this.project.name, ':', err);
+                this.renderFallback();
+            }
+            this.p5.noTint();
+        } else {
+            this.renderFallback();
+        }
+        
+        // HUD Corner brackets (targeting system style)
+        this.p5.stroke(74, 144, 230, hudAlpha); // Blue theme for web experiences
+        this.p5.strokeWeight(2);
+        this.p5.strokeCap(this.p5.SQUARE);
+        this.p5.noFill();
+        
+        const corners = [
+            [-halfSize, -halfSize], // top-left
+            [halfSize, -halfSize],  // top-right
+            [halfSize, halfSize],   // bottom-right
+            [-halfSize, halfSize]   // bottom-left
+        ];
+        
+        corners.forEach(([offsetX, offsetY], index) => {
+            const x = this.p.x + offsetX;
+            const y = this.p.y + offsetY;
+            const xDir = index === 0 || index === 3 ? 1 : -1; // Left corners: right, Right corners: left
+            const yDir = index === 0 || index === 1 ? 1 : -1; // Top corners: down, Bottom corners: up
+            
+            // L-shaped brackets
+            this.p5.line(x, y, x + xDir * cornerSize, y);
+            this.p5.line(x, y, x, y + yDir * cornerSize);
+        });
+        
+        // Status indicator dots (sci-fi style)
+        if (this.hoverAlpha > 0.1) {
+            this.p5.fill(74, 144, 230, hudAlpha * 0.8);
+            this.p5.noStroke();
+            const dotSize = 3;
+            const dotSpacing = 8;
+            
+            // Status dots in top-right area
+            for (let i = 0; i < 3; i++) {
+                const dotX = this.p.x + halfSize - 15 - (i * dotSpacing);
+                const dotY = this.p.y - halfSize + 6;
+                this.p5.circle(dotX, dotY, dotSize);
+            }
+        }
+        
+        // Subtle scan line effect when hovered
+        if (this.hoverAlpha > 0.2) {
+            this.p5.stroke(74, 144, 230, hudAlpha * 0.3);
+            this.p5.strokeWeight(1);
+            const scanY = this.p.y - halfSize + (this.p5.millis() * 0.05) % this.scale;
+            this.p5.line(this.p.x - halfSize, scanY, this.p.x + halfSize, scanY);
+        }
+        
+        // Main border with enhanced styling
+        this.p5.stroke(74, 144, 230, hudAlpha * 0.6);
+        this.p5.strokeWeight(1);
+        this.p5.noFill();
+        this.p5.square(this.p.x, this.p.y, this.scale);
+        
+        this.p5.pop();
+        
+        // Project name with HUD styling
+        this.p5.push();
+        const textOpacity = 120 + (this.hoverAlpha * 135);
+        this.p5.fill(255, textOpacity);
+        this.p5.noStroke();
+        this.p5.textAlign(this.p5.CENTER, this.p5.CENTER);
+        const fontSize = this.p5.width < 768 ? 16 : 20;
+        this.p5.textSize(fontSize);
+        this.p5.text(this.project.name, this.p.x, this.p.y + halfSize + 25);
+        
+        // Status text when hovered
+        if (this.hoverAlpha > 0.3 && this.project.subtitle) {
+            this.p5.fill(74, 144, 230, hudAlpha * 0.7);
+            this.p5.textAlign(this.p5.CENTER, this.p5.CENTER);
+            this.p5.textSize(fontSize * 0.75); // Increased from 0.6 to 0.75
+            this.p5.text(this.project.subtitle, this.p.x, this.p.y + halfSize + 45);
+        }
+        
+        this.p5.pop();
+        
+        // Update hover animation
+        this.hoverAlpha = this.p5.lerp(this.hoverAlpha, this.targetHoverAlpha, 0.1);
     }
 }

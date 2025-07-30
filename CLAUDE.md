@@ -79,6 +79,7 @@ src/
 - **Mobile**: No hover states, direct touch interactions, swipe navigation
 - **Navigation**: Always provide clear back navigation, breadcrumb-style paths
 - **Consistency**: Match styling across similar UI elements (arrows, counters, etc.)
+- **Cursor Feedback**: Pointer cursor on all interactive elements (collection cards, gallery images, navigation arrows, UI buttons)
 
 ### Component Styling Standards
 When creating navigation elements, match existing patterns:
@@ -162,6 +163,39 @@ python3 optimize_photos.py  # Process new images from import folders
 - **Asset Loading**: Implement fade animations for perceived performance
 - **Mobile Performance**: Minimize graphics complexity for lower-end devices
 - **Browser Compatibility**: Test across different browsers and devices
+- **Breadcrumb Navigation**: When adding new compound routes (e.g., `/interactive/web`), always update `src/views/elements/breadcrumb-nav.js` to include the new path. Each segment should be independently clickable (e.g., `/interactive` and `/web` should both be navigable). This ensures proper navigation hierarchy and prevents broken breadcrumb links.
+
+### Physics and Visual Separation Pattern
+- **Independent Parameters**: When creating interactive UI elements with physics, separate physics calculations from visual presentation
+- **Radius vs Scale**: Use `radius` for collision detection and physics interactions, `scale` for visual rendering size
+- **Example**: UIWebButton class uses this pattern - radius for neighbor calculations and forces, scale for button display size
+
+### iframe Integration for Interactive Content
+- **Permissions Policy**: Always include comprehensive iframe permissions for p5.js sketches: `microphone; camera; autoplay; encrypted-media; fullscreen; geolocation; gyroscope; accelerometer; magnetometer; midi`
+- **Cross-Domain Content**: Expect integration of external creative coding platforms (OpenProcessing, CodePen, p5.js Editor)
+- **Interactive Media**: Plan for sketches requiring device inputs (microphone, webcam, sensors)
+
+### Manual Preference Overrides
+- **User Modifications**: When user manually adjusts code parameters (like text size, positioning), preserve those changes even when making related updates
+- **Explicit Reversion Requests**: Only change manually-set values when user explicitly asks to revert specific elements
+
+### Mobile Touch Scrolling Prevention
+- **Nuclear Viewport Locking**: For modal/lightbox overlays on mobile, comprehensive scroll prevention requires locking both HTML and body elements with `position: fixed`, saving/restoring scroll position, and using `stopImmediatePropagation()` with capture-phase event listeners on both window and document
+- **Event Prevention Pattern**: Use capture-phase listeners (`{ capture: true }`) and allow only iframe interactions while blocking all other touch events
+- **Complete Solution**: Lock HTML and body elements, prevent ALL touch events except on iframe, save scroll position for restoration
+
+### WebExperiences System Implementation
+- **Project Structure**: Projects support both local and external URLs with `type` field, thumbnails managed via Parcel imports with `url:` prefix
+- **UIWebButton HUD Styling**: Implements sci-fi aesthetic with corner brackets, status indicator dots, scan line effects, and customizable subtitle fields
+- **Connection Visualization**: Animated pulse dots traveling along connections with distance-based opacity, junction nodes for longer connections
+- **Asset Optimization**: Thumbnails optimized to 512px max dimension WebP format, originals stored in `thumbnails/originals/` (gitignored)
+- **Project Data Fields**: Each project includes `name`, `slug`, `year`, `description`, `subtitle`, `image`, `type`, and `url` fields for comprehensive metadata
+
+### HUD Visual Design Patterns
+- **Consistent Color Scheme**: Blue theme (74, 144, 230) for web experiences, white (255) for installations, maintains visual hierarchy across sections
+- **Corner Bracket System**: L-shaped targeting brackets at element corners, consistent sizing across UI components
+- **Status Indicators**: Small dots, crosses, and text overlays that appear on hover/interaction states
+- **Animation Timing**: Smooth fade transitions with appropriate easing, scan line effects at 0.05 speed multiplier for subtle movement
 
 ---
 

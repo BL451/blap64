@@ -1,6 +1,7 @@
 import { html } from "lit-html";
 import { findProjectBySlug } from "../Installations/project-details.js";
 import { findCollectionBySlug } from "../Photo/photo-collections.js";
+import { findProjectBySlug as findWebProjectBySlug } from "../WebExperiences/project-details.js";
 
 // Map routes to human-readable directory names and their actual paths
 const pathMap = {
@@ -38,6 +39,20 @@ function getBreadcrumbSegments(currentPath) {
         ];
     }
 
+    // Handle web project-specific paths
+    const webProjectMatch = cleanPath.match(/^\/interactive\/web\/(.+)$/);
+    if (webProjectMatch) {
+        const projectSlug = webProjectMatch[1];
+        const project = findWebProjectBySlug(projectSlug);
+        return [
+            { name: '~', path: null },
+            { name: 'home', path: '/' },
+            { name: 'interactive', path: '/interactive' },
+            { name: 'web', path: '/interactive/web' },
+            { name: project ? project.name : projectSlug, path: cleanPath }
+        ];
+    }
+
     // Handle photo collection-specific paths
     const collectionMatch = cleanPath.match(/^\/photo\/(.+)$/);
     if (collectionMatch) {
@@ -58,6 +73,15 @@ function getBreadcrumbSegments(currentPath) {
             { name: 'home', path: '/' },
             { name: 'interactive', path: '/interactive' },
             { name: 'live', path: '/interactive/live' }
+        ];
+    }
+
+    if (cleanPath === '/interactive/web') {
+        return [
+            { name: '~', path: null },
+            { name: 'home', path: '/' },
+            { name: 'interactive', path: '/interactive' },
+            { name: 'web', path: '/interactive/web' }
         ];
     }
 

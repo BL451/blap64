@@ -2,6 +2,7 @@ import { LitElement, html, css } from "lit";
 import { homeSketch } from "../Home/sketch.js";
 import { oopsSketch } from "../Oops/sketch.js";
 import { codeartSketch } from "../CodeArt/sketch.js";
+import { webexperiencesSketch } from "../WebExperiences/sketch.js";
 import { installationsSketch } from "../Installations/sketch.js";
 import { photoSketch } from "../Photo/sketch.js";
 
@@ -115,6 +116,8 @@ export class p5Element extends LitElement {
                 this.p5Instance = homeSketch(this.containerDiv, { skipAnimations: this.skipAnimations });
             } else if (this.sketch === "codeart") {
                 this.p5Instance = codeartSketch(this.containerDiv);
+            } else if (this.sketch === "webexperiences") {
+                this.p5Instance = webexperiencesSketch(this.containerDiv, this.options);
             } else if (this.sketch === "installations") {
                 this.p5Instance = installationsSketch(this.containerDiv, this.options);
             } else if (this.sketch === "photo") {

@@ -103,9 +103,9 @@ export const sketch = function (p) {
 						console.log('PHYSICAL ARTIFACTS COMING SOON');
 						break;
 					case 2: // Web art
-      						setTimeout(() => {
-     							window.appRouter.navigate('/about');
-      						}, ANIMATION_DELAY);
+  						setTimeout(() => {
+ 							window.appRouter.navigate('/interactive/web');
+  						}, ANIMATION_DELAY);
 						break;
 				}
 			}

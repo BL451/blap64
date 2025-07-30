@@ -136,3 +136,6 @@ dist
 # Photo asset directories - keep source files and import folders out of version control
 src/assets/photos/*/originals/
 src/assets/photos/*/import/
+
+# Interactive thumbnails - keep original files out of version control
+src/assets/interactive/web/thumbnails/originals/
