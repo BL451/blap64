@@ -183,7 +183,7 @@ export const sketch = function (p, options = {}) {
         }
 
         initializeLayout();
-        sols = daysSince('2024-08-14');
+        sols = daysSince('2011-07-22');
 
         // Add hash change listener
         hashChangeHandler = function(event) {
@@ -244,7 +244,7 @@ export const sketch = function (p, options = {}) {
             }
         }
 
-        // Render title 
+        // Render title
         const titleText = mode === 'collections' ? 'PHOTO' : (currentCollection ? currentCollection.name : 'GALLERY');
         renderTitle(titleText);
 
@@ -526,7 +526,7 @@ export const sketch = function (p, options = {}) {
 
             // Card overlay
             p.fill(30, 30, 35, (150 + card.hoverAlpha * 55));
-            
+
             // Use lower stroke opacity on mobile, normal hover behavior on desktop
             const strokeAlpha = mobile ? 100 : (100 + card.hoverAlpha * 155);
             p.stroke(230, strokeAlpha);
@@ -796,7 +796,7 @@ export const sketch = function (p, options = {}) {
     function renderTitle(title) {
         const titleY = mobile ? 20 : 30;
         const titleSize = mobile ? 20 : 32;
-        
+
         p.fill(255, 200);
         p.noStroke();
         p.textAlign(p.CENTER, p.TOP);
@@ -1096,7 +1096,7 @@ export const sketch = function (p, options = {}) {
     function getHoverTargets() {
         // Return hover check functions for cursor management
         const targets = [];
-        
+
         if (mode === 'collections') {
             // Add collection card hover checks
             collectionCards.forEach(card => {
@@ -1109,13 +1109,13 @@ export const sketch = function (p, options = {}) {
             const spacing = mobile ? 12 : 20;
             const startX = spacing;
             const startY = 120;
-            
+
             galleryImages.forEach((img, index) => {
                 const row = Math.floor(index / cols);
                 const col = index % cols;
                 const x = startX + col * (itemSize + spacing);
                 const y = startY + row * (itemSize + spacing);
-                
+
                 targets.push(() => isPointInRect(p.mouseX, p.mouseY - scrollY, x, y, itemSize, itemSize));
             });
         } else if (lightboxOpen && currentCollection && currentCollection.images.length > 1) {
@@ -1123,16 +1123,16 @@ export const sketch = function (p, options = {}) {
             const arrowSize = 35;
             const staticY = p.height - 70;
             const arrowSpacing = 80;
-            
+
             // Left arrow
             const leftX = p.width/2 - arrowSpacing - arrowSize/2;
             targets.push(() => isPointInRect(p.mouseX, p.mouseY, leftX, staticY - arrowSize/2, arrowSize, arrowSize));
-            
+
             // Right arrow
             const rightX = p.width/2 + arrowSpacing - arrowSize/2;
             targets.push(() => isPointInRect(p.mouseX, p.mouseY, rightX, staticY - arrowSize/2, arrowSize, arrowSize));
         }
-        
+
         return targets;
     }
 

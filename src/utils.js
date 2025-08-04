@@ -411,13 +411,15 @@ export class UIArcButton extends UIObj{
 }
 
 export class UITriangleButton extends UIObj{
-    constructor(p, x, y, w, h, sx, sy, z, text, textSize){
+    constructor(p, x, y, w, h, sx, sy, z, text, textSize, unhoveredColor = [230], hoveredColor = [230, 20, 20]){
         super(p, x, y, w, h);
         this.cs = p.createVector(sx, sy, z);
         this.top = p.createVector(this.p.x + this.s.x*p.cos(this.cs.z), this.p.y + this.s.y*p.sin(this.cs.z));
         this.left = p.createVector(this.p.x + this.s.x*p.cos(this.cs.z+2*p.PI/3), this.p.y + this.s.y*p.sin(this.cs.z+2*p.PI/3));
         this.right = p.createVector(this.p.x + this.s.x*p.cos(this.cs.z+4*p.PI/3), this.p.y + this.s.y*p.sin(this.cs.z+4*p.PI/3));
         this.textWriter = new TextWriter(p, x, y, undefined, undefined, text, textSize);
+        this.unhoveredColor = unhoveredColor;
+        this.hoveredColor = hoveredColor;
     }
 
     render(){
@@ -479,6 +481,10 @@ export class UITriangleButton extends UIObj{
     setTextOffset(offsetX, offsetY) {
         this.textWriter.p.x = this.p.x + offsetX;
         this.textWriter.p.y = this.p.y + offsetY;
+    }
+    
+    getColor(isHovered) {
+        return isHovered ? this.hoveredColor : this.unhoveredColor;
     }
 }
 
@@ -686,6 +692,8 @@ export class UIWebButton extends UIObj{
         this.targetHoverAlpha = 0;
         this.image = null;
         this.imageLoaded = false;
+        this.imageAlpha = 0;
+        this.targetImageAlpha = 0;
         
         // Load project image
         if (project.image) {
@@ -698,6 +706,7 @@ export class UIWebButton extends UIObj{
                     if (img && img.width > 0 && img.height > 0) {
                         this.image = img; // Store the callback-provided image object
                         this.imageLoaded = true;
+                        this.targetImageAlpha = 255; // Trigger fade-in animation
                     } else {
                         console.error('Invalid image loaded for', project.name, '- no dimensions');
                         this.imageLoaded = false;
@@ -713,16 +722,17 @@ export class UIWebButton extends UIObj{
         }
     }
     
-    renderFallback(){
+    renderFallback(overrideAlpha = null){
         // Fallback: color based on position while image loads
         const colorR = this.p5.map(this.p.x, 0, this.p5.width, 0, 255);
         const colorG = this.p5.map(this.p.y, 0, this.p5.height, 0, 255);
         const colorB = 255;
-        const alpha = 255 - this.hoverAlpha * 50;
+        const baseAlpha = 255 - this.hoverAlpha * 50;
+        const alpha = overrideAlpha !== null ? overrideAlpha : baseAlpha;
         
         this.p5.fill(colorR, colorG, colorB, alpha);
         this.p5.strokeWeight(5);
-        this.p5.stroke(240);
+        this.p5.stroke(240, alpha);
         this.p5.square(this.p.x, this.p.y, this.scale);
     }
 
@@ -740,18 +750,23 @@ export class UIWebButton extends UIObj{
         const cornerSize = this.scale * 0.15; // Corner bracket size
         const hudAlpha = 120 + (this.hoverAlpha * 135); // HUD elements alpha
         
-        if (this.imageLoaded && this.image) {
-            // Display project image with slight hover darkening
-            this.p5.tint(255, 255 - this.hoverAlpha * 30);
+        // Show fallback while image is loading or still fading in
+        if (!this.imageLoaded || !this.image || this.imageAlpha < 255) {
+            // Fade out fallback as image fades in
+            const fallbackAlpha = (this.imageLoaded && this.image) ? (255 - this.imageAlpha) : 255;
+            this.renderFallback(fallbackAlpha);
+        }
+        
+        // Show image with fade-in animation if loaded
+        if (this.imageLoaded && this.image && this.imageAlpha > 0) {
+            const imageOpacity = this.imageAlpha * (255 - this.hoverAlpha * 30) / 255;
+            this.p5.tint(255, imageOpacity);
             try {
                 this.p5.image(this.image, this.p.x - halfSize, this.p.y - halfSize, this.scale, this.scale);
             } catch (err) {
                 console.error('Error rendering image for project', this.project.name, ':', err);
-                this.renderFallback();
             }
             this.p5.noTint();
-        } else {
-            this.renderFallback();
         }
         
         // HUD Corner brackets (targeting system style)
@@ -831,5 +846,8 @@ export class UIWebButton extends UIObj{
         
         // Update hover animation
         this.hoverAlpha = this.p5.lerp(this.hoverAlpha, this.targetHoverAlpha, 0.1);
+        
+        // Update image fade-in animation (slower fade for better visibility)
+        this.imageAlpha = this.p5.lerp(this.imageAlpha, this.targetImageAlpha, 0.03);
     }
 }

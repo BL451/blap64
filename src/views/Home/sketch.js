@@ -33,7 +33,7 @@ export const sketch = function (p, options = {}) {
 		ui.push(new UICornerBoxButton(p, 0.25*p.width, 0.7*p.height, 0.26*short, 0.26*short, 0.01*p.width, 0.01*p.width, "INTERACTIVE\nMEDIA", s_font));
 		ui.push(new UIArcButton(p, 0.5*p.width, 0.7*p.height, 0.3*short, 0.3*short, 0.01*p.width, 0.01*p.width, "PHOTO", s_font));
 		ui.push(new UITriangleButton(p, 0.75*p.width, 0.35*p.height, 0.2*short, 0.2*short, 0.01*p.width, 0.01*p.width, -0.5*p.PI, "ABOUT", s_font));
-		ui.push(new UIHexButton(p, 0.75*p.width, 0.7*p.height, 0.3*short, 0.3*short, 0.01*p.width, 0.01*p.width, "COLLECT", s_font));
+		ui.push(new UIHexButton(p, 0.75*p.width, 0.7*p.height, 0.3*short, 0.3*short, 0.01*p.width, 0.01*p.width, "LINKS", s_font));
 
 		// Apply quadratic curve layout to UI elements
 		layoutUI();
@@ -148,11 +148,11 @@ export const sketch = function (p, options = {}) {
 	p.draw = function() {
 	    // deltaTime allows us to be framerate agnostic for animation speed
 		if (!mobile){
-            smoothX = smoothFollow(p.mouseX, smoothX, 0.003*p.deltaTime);
-            smoothY = smoothFollow(p.mouseY, smoothY, 0.003*p.deltaTime);
+            smoothX = p.constrain(smoothFollow(p.mouseX, smoothX, 0.003*p.deltaTime), 0, p.width);
+            smoothY = p.constrain(smoothFollow(p.mouseY, smoothY, 0.003*p.deltaTime), 0, p.height);
 		} else {
-            smoothX = p.width * (0.5 + 0.2 * p.cos(0.0007 * p.millis()));
-            smoothY = p.height * (0.75 + 0.2 * p.sin(0.0007 * p.millis()));
+            smoothX = p.width * 0.5 + 0.31 * short * p.cos(0.0006 * p.millis());
+            smoothY = p.height * 0.7 + 0.31 * short * p.sin(0.0006 * p.millis());
 		}
 		p.clear();
 		p.background(23);
@@ -225,6 +225,10 @@ export const sketch = function (p, options = {}) {
     							window.appRouter.navigate('/about');
     						}, ANIMATION_DELAY);
 							break;
+                        case 3: // Fourth button - LINKS
+                            setTimeout(() => {
+                                window.appRouter.navigate('/links');
+                            }, ANIMATION_DELAY);
 					}
 				}
                 return;

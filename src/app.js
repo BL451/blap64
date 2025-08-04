@@ -7,6 +7,7 @@ import { createBreadcrumbNav } from "./views/elements/breadcrumb-nav.js";
 import homeView from "./views/Home/home.js";
 import codeartView from "./views/CodeArt/codeart.js";
 import webexperiencesView from "./views/WebExperiences/webexperiences.js";
+import linksView from "./views/Links/links.js";
 import aboutView from "./views/About/about.js";
 import installationsView from "./views/Installations/installations.js";
 import photoView from "./views/Photo/photo.js";
@@ -17,6 +18,7 @@ const routes = [
     new Route("installations", "/interactive/live", installationsView),
     new Route("codeart", "/interactive", codeartView),
     new Route("webexperiences", "/interactive/web", webexperiencesView),
+    new Route("links", "/links", linksView),
     new Route("photo-collection", "/photo/:collection", photoView),
     new Route("photo", "/photo", photoView),
     new Route("about", "/about", aboutView),

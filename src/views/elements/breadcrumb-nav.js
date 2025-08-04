@@ -110,6 +110,14 @@ function getBreadcrumbSegments(currentPath) {
         ];
     }
 
+    if (cleanPath === '/links') {
+        return [
+            { name: '~', path: null },
+            { name: 'home', path: '/' },
+            { name: 'links', path: '/links' }
+        ];
+    }
+
     if (cleanPath === '/oops') {
         return [
             { name: '~', path: null },

@@ -34,8 +34,8 @@ export const sketch = function (p) {
             smoothX = smoothFollow(p.mouseX, smoothX, 0.003*p.deltaTime);
             smoothY = smoothFollow(p.mouseY, smoothY, 0.003*p.deltaTime);
         } else {
-            smoothX = p.width * (0.5 + 0.2 * p.cos(-p.PI/2 + 0.001 * p.millis()));
-            smoothY = p.height * (0.5 + 0.2 * p.sin(-p.PI / 2 + 0.001 * p.millis()));
+            smoothX = p.width*0.5 + 0.2 * short * p.cos(-p.PI/2 + 0.001 * p.millis());
+            smoothY = p.height*0.5 + 0.2 * short * p.sin(-p.PI / 2 + 0.001 * p.millis());
         }
 
         p.noFill();
@@ -47,11 +47,10 @@ export const sketch = function (p) {
             ui_element.cs.y = easeInCubic(p.map(d, 0, 0.5*p.width, 1, 0));
             //p.strokeWeight(1 + 0.015*short*easeInCubic(p.map(l, 0, 0.5*p.width, 1, 0, true)));
             p.noFill();
-            if (ui_element.contains(p.mouseX, p.mouseY)){
-                p.stroke(230, 20, 20);
-            } else {
-                p.stroke(230);
-            }
+
+            const isHovered = ui_element.contains(p.mouseX, p.mouseY);
+            const strokeColor = ui_element.getColor(isHovered);
+            p.stroke(...strokeColor);
             ui_element.renderTriangle();
 
             // Text rendering
@@ -59,11 +58,9 @@ export const sketch = function (p) {
             p.textFont('BPdotsSquareVF', {
                 fontVariationSettings: `wght ${p.map(d/p.width, 1, 0, 100, 900, true)}`
             });
-            if (ui_element.contains(p.mouseX, p.mouseY)){
-                p.fill(230, 20, 20);
-            } else {
-                p.fill(230);
-            }
+
+            const fillColor = ui_element.getColor(isHovered);
+            p.fill(...fillColor);
             ui_element.textWriter.renderSequentialRandom(p.map(d, 100, 0.5*p.width, 1, 0, true));
         });
         renderDecor();
@@ -117,10 +114,16 @@ export const sketch = function (p) {
     function layoutUI(){
         ui.length = 0;
         const s_font = mobile ? 18 : Math.max(0.022*p.width, 32);
+
+        // LIVE EXPERIENCES - default colors
         ui.push(new UITriangleButton(p, cx, cy - r, 0.1*short, 0.1*short, 0.01*p.width, 0.01*p.width, -0.5*p.PI, "LIVE\nEXPERIENCES", s_font));
         ui[0].setTextOffset(0, -0.9*r);
-        ui.push(new UITriangleButton(p, cx - r*p.cos(p.PI/6), cy + r*p.sin(p.PI/6), 0.1*short, 0.1*short, 0.01*p.width, 0.01*p.width, -0.5*p.PI, "PHYSICAL\nARTIFACTS", s_font));
+
+        // PHYSICAL ARTIFACTS - amber colors (old terminal style)
+        ui.push(new UITriangleButton(p, cx - r*p.cos(p.PI/6), cy + r*p.sin(p.PI/6), 0.1*short, 0.1*short, 0.01*p.width, 0.01*p.width, -0.5*p.PI, "PHYSICAL\nARTIFACTS\n(COMING SOON)", s_font, [230], [220, 160, 0]));
         ui[1].setTextOffset(-0.95*r*p.cos(p.PI/6), 1.15*r*p.sin(p.PI/6));
+
+        // WEB EXPERIENCES - default colors
         ui.push(new UITriangleButton(p, cx + r*p.cos(p.PI/6), cy + r*p.sin(p.PI/6), 0.1*short, 0.1*short, 0.01*p.width, 0.01*p.width, -0.5*p.PI, "WEB\nEXPERIENCES", s_font));
         ui[2].setTextOffset(0.95*r*p.cos(p.PI/6), 1.15*r*p.sin(p.PI/6));
     }

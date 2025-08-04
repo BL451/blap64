@@ -270,38 +270,38 @@ export const sketch = function (p, options = {}) {
 			const distance = p5.Vector.dist(button.p, neighbor.p);
 			const midX = (button.p.x + neighbor.p.x) / 2;
 			const midY = (button.p.y + neighbor.p.y) / 2;
-			
+
 			// Main connection line with distance-based opacity
 			const connectionAlpha = p.map(distance, 0, p.width * 0.5, 150, 30);
 			p.stroke(74, 144, 230, connectionAlpha);
 			p.strokeWeight(1);
 			p.line(button.p.x, button.p.y, neighbor.p.x, neighbor.p.y);
-			
+
 			// Data flow pulse effect
 			const pulseTime = p.millis() * 0.00075; // 25% of original speed (0.003 * 0.25)
 			const pulsePosition = (pulseTime + button.p.x * 0.01) % 1;
 			const pulseX = p.lerp(button.p.x, neighbor.p.x, pulsePosition);
 			const pulseY = p.lerp(button.p.y, neighbor.p.y, pulsePosition);
-			
+
 			// Animated pulse dot
 			p.fill(74, 144, 230, 200);
 			p.noStroke();
 			p.circle(pulseX, pulseY, 4);
-			
+
 			// Connection node at midpoint (sci-fi junction style)
 			if (distance > 100) { // Only show for longer connections
 				p.stroke(74, 144, 230, connectionAlpha * 0.8);
 				p.strokeWeight(1);
 				p.noFill();
 				const nodeSize = 6;
-				
+
 				// Diamond-shaped junction node
 				p.push();
 				p.translate(midX, midY);
 				p.rotate(p.PI / 4);
 				p.square(0, 0, nodeSize);
 				p.pop();
-				
+
 				// Small cross inside the diamond
 				p.line(midX - 2, midY, midX + 2, midY);
 				p.line(midX, midY - 2, midX, midY + 2);
