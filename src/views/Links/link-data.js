@@ -47,6 +47,6 @@ export const links = [
         title: "Email",
         url: "mailto:hello@blap64.xyz",
         icon: "MAIL", // Text icon for now
-        description: "Best way to reach out"
+        description: "Contact me!"
     },
 ];

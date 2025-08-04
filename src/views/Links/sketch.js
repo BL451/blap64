@@ -6,6 +6,11 @@ export const sketch = function (p, options = {}) {
     let linkButtons = [];
     let scrollOffset = 0;
     let targetScrollOffset = 0;
+    
+    // Drag detection
+    let mouseDownPos = { x: 0, y: 0 };
+    let isDragging = false;
+    let dragThreshold = 5; // pixels
 
     // Layout constants
     const MARGIN = 40;
@@ -59,7 +64,30 @@ export const sketch = function (p, options = {}) {
     p.mousePressed = function(event) {
         if (event && event.button !== 0) return;
 
-        handleLinkClick(p.mouseX, p.mouseY);
+        // Record mouse down position for drag detection
+        mouseDownPos.x = p.mouseX;
+        mouseDownPos.y = p.mouseY;
+        isDragging = false;
+    };
+
+    p.mouseDragged = function() {
+        // Check if mouse has moved beyond drag threshold
+        const distance = p.dist(p.mouseX, p.mouseY, mouseDownPos.x, mouseDownPos.y);
+        if (distance > dragThreshold) {
+            isDragging = true;
+        }
+    };
+
+    p.mouseReleased = function(event) {
+        if (event && event.button !== 0) return;
+
+        // Only handle link click if not dragging
+        if (!isDragging) {
+            handleLinkClick(p.mouseX, p.mouseY);
+        }
+        
+        // Reset drag state
+        isDragging = false;
     };
 
     function handleLinkClick(x, y) {
@@ -120,9 +148,24 @@ export const sketch = function (p, options = {}) {
             ROW_HEIGHT = 80; // Desktop keeps standard height
         }
 
+        // Sci-fi color palette
+        const colors = [
+
+            [255, 100, 130],  // Pink/Red
+            [255, 180, 50],   // Orange/Yellow
+            [255, 255, 100],   // Yellow
+            [100, 255, 150],  // Green
+            [50, 255, 255],   // Cyan
+            [74, 144, 230],   // Blue (original)
+            [180, 100, 255],  // Purple
+
+
+        ];
+
         links.forEach((link, index) => {
             const y = TITLE_BUFFER + (index * (ROW_HEIGHT + SPACING_BETWEEN_ROWS));
-            linkButtons.push(new LinkButton(p, startX, y, buttonWidth, ROW_HEIGHT, link));
+            const color = colors[index % colors.length];
+            linkButtons.push(new LinkButton(p, startX, y, buttonWidth, ROW_HEIGHT, link, color));
         });
     }
 
@@ -214,13 +257,14 @@ export const sketch = function (p, options = {}) {
 };
 
 class LinkButton {
-    constructor(p, x, y, width, height, link) {
+    constructor(p, x, y, width, height, link, color = [74, 144, 230]) {
         this.p5 = p;
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.link = link;
+        this.color = color;
         this.hoverAlpha = 0;
         this.targetHoverAlpha = 0;
     }
@@ -241,7 +285,7 @@ class LinkButton {
         this.p5.push();
 
         // Main container
-        this.p5.stroke(74, 144, 230, alpha);
+        this.p5.stroke(this.color[0], this.color[1], this.color[2], alpha);
         this.p5.strokeWeight(1);
         this.p5.fill(23, 23, 23, 50 + glowAlpha);
         this.p5.rect(this.x, this.y, this.width, this.height);
@@ -252,13 +296,13 @@ class LinkButton {
         const iconY = this.y + (this.height - iconSize) / 2;
 
         // Icon border
-        this.p5.stroke(74, 144, 230, alpha);
+        this.p5.stroke(this.color[0], this.color[1], this.color[2], alpha);
         this.p5.fill(23, 23, 23, 30 + glowAlpha);
         this.p5.rect(iconX, iconY, iconSize, iconSize);
 
         // Corner brackets on icon
         const bracketSize = 8;
-        this.p5.stroke(74, 144, 230, alpha * 1.2);
+        this.p5.stroke(this.color[0], this.color[1], this.color[2], alpha * 1.2);
         this.p5.strokeWeight(2);
         this.p5.noFill();
 
@@ -279,7 +323,7 @@ class LinkButton {
         this.p5.line(iconX + iconSize, iconY + iconSize, iconX + iconSize, iconY + iconSize - bracketSize);
 
         // Icon text (placeholder) - adjust size for smaller icons
-        this.p5.fill(74, 144, 230, alpha * 1.5);
+        this.p5.fill(this.color[0], this.color[1], this.color[2], alpha * 1.5);
         this.p5.noStroke();
         this.p5.textAlign(this.p5.CENTER, this.p5.CENTER);
         this.p5.textSize(Math.min(12, iconSize * 0.25));

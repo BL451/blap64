@@ -6,9 +6,27 @@ export default (props) => html`
             <h1>Benjamin Lappalainen</h1>
             <h3>(he/him)</h3>
             <p class="main-paragraph">
-                I am a Toronto-based creative technologist, educator, and multidisciplinary artist creating interactive installations that blur the boundaries between digital and physical experience. My work explores how emerging technologies can foster new forms of human connection and creative expression, often incorporating audio-reactive visuals, computer vision, AI, and algorithmic processes into innovative interaction design.
+                <br>
+                Benjamin Lappalainen is a Toronto-based creative technologist, educator, and multidisciplinary artist. He creates interactive installations that incorporate computer vision, AI, and algorithmic processes, with work exhibited at InterAccess, Northern Contemporary Gallery, and Long Winter Arts & Music Festival. His educational practice includes leading workshops and mentorship programs that bridge technical skill-building with experimental arts practices.
                 <br><br>
-                As an educator, I lead workshops and mentorship programs for diverse communities that bridge technical skill-building with experimental arts practices and community engagement. My current research focuses on developing open source software for social impact, creating accessible tools for creative coding and interactive media while investigating how technology can amplify rather than replace human creativity. Through my work with organizations like InterAccess Gallery, Long Winter Music & Arts Festival, and UKAI Projects, I support artists in developing technically sophisticated work that remains deeply human-centered.
+                As XR Development Lead with UKAI Projects, Benjamin collaborates with artists and organizations to execute research, exhibitions, immersive and interactive installations, publishing, and workshops. UKAI Projects imagines and produces "culture for what's coming", most recently working with the Accton Arts Foundation in Hsinchu, Taiwan for research into arts policy, delivering workshops and immersive experiences, and cultural exchange.
+                <br><br>
+                Benjamin holds a Bachelor of Applied Science in Engineering Science from the University of Toronto. His current research focuses on developing open source software for creative coding and interactive media, creating accessible tools that support artist communities in realizing technically ambitious projects.
+                <br><br>
+            </p>
+
+            <h2>Artist Statement</h2>
+            <p class="main-paragraph">
+                I make interactive art that asks: <strong>How can we take back control of our relationship with technology?</strong> My installations use AI, computer vision, and code to create experiences that blend digital and physical worlds, often inspired by science fiction's way of imagining different futures.
+                <br><br>
+                Most tech is designed to be invisible and frictionless so you're not supposed to think about how it works. I do the opposite. I expose the gears and show you the human choices behind the algorithms. My work deliberately asks something of you rather than making everything easy and comfortable. You have to negotiate with the technology, which makes visible the power dynamics usually hidden in smooth interfaces.
+                <br><br>
+                Science fiction shapes how I think and work. Like good sci-fi, my art imagines possible futures, but ones where people understand technology well enough to make real choices about it. I'm interested in pulling back the curtain on how things are made, because understanding the process helps you make better decisions about the platforms and tools that increasingly run your life.
+                <br><br>
+                <strong>Things don't have to be the way they are.</strong> The feeling that we're powerless against big tech is mostly a mental block. Real change starts with individuals who refuse to accept that the current system is inevitable.
+                <br><br>
+                I see my work as both art and education. Through installations, workshops, and open source projects, I try to give people the tools and knowledge they need to participate in shaping our technological future instead of just consuming whatever gets built for them.
+                <br><br>
             </p>
         </div>
         <div class="about-cv">
@@ -79,9 +97,10 @@ export default (props) => html`
             <div class="cv-section">
                 <h2>Independent Projects</h2>
                 <p class="main-paragraph">
-                    <strong>2025</strong> - <a href="https://blap64.substack.com/" target="_blank" rel="noopener">"Code Art Corner" weekly newsletter</a><br>
+                    <strong>2025</strong> - <a href="https://blap64.substack.com/" target="_blank" rel="noopener">"Code Art Corner" educational newsletter</a><br>
                     <strong>2024</strong> - <a href="https://editor.p5js.org/blapcode/collections/ZbpMINM3u" target="_blank" rel="noopener">Genuary Generative Art Prompt Series</a><br>
                     <strong>2024</strong> - <a href="https://youtu.be/AohJn0CFkYY" target="_blank" rel="noopener">Cipher Fault</a><br>
+                    <strong>2023-Present</strong> - <a href="https://openprocessing.org/user/424615/?o=40&view=sketches" target="_blank" rel="noopener">Open Source Code Art Sketches</a><br>
                     <strong>2023-Present</strong> - "Stoat" Discord Bot
                 </p>
             </div>
@@ -96,7 +115,9 @@ export default (props) => html`
             <div class="cv-section">
                 <h2>Residencies</h2>
                 <p class="main-paragraph">
+                    <strong>2025</strong> - <a href="https://aafoundation.tw/" target="_blank" rel="noopener">Artsite AAF Hsinchu</a> - Accton Arts Foundation (Hsinchu, Taiwan)<br>
                     <strong>2024</strong> - Aberrant AI - AI through the lens of Horror - UKAI Projects
+                    <br><br>
                 </p>
             </div>
         </div>

@@ -81,7 +81,7 @@ export const sketch = function (p, options = {}) {
 		}
 
 		// Calculate days since project start (different from installations)
-		sols = daysSince('2024-09-15');
+		sols = daysSince('2019-09-05');
 	};
 
 	p.draw = function() {
