@@ -1,10 +1,14 @@
 import { html } from "lit-html";
+import profileImage from 'url:../../assets/about/2025-07-27_BL.webp';
 
 export default (props) => html`
     <div class="about-container">
         <div class="about-bio">
-            <h1>Benjamin Lappalainen</h1>
-            <h3>(he/him)</h3>
+            <h1 class="about-header">Benjamin Lappalainen</h1>
+            <h3 class="about-header">(he/him)</h3>
+            <div class="profile-image-container">
+                <img src="${profileImage}" alt="Benjamin Lappalainen" class="profile-image">
+            </div>
             <p class="main-paragraph">
                 <br>
                 Benjamin Lappalainen is a Toronto-based creative technologist, educator, and multidisciplinary artist. He creates interactive installations that incorporate computer vision, AI, and algorithmic processes, with work exhibited at InterAccess, Northern Contemporary Gallery, and Long Winter Arts & Music Festival. His educational practice includes leading workshops and mentorship programs that bridge technical skill-building with experimental arts practices.
@@ -30,7 +34,7 @@ export default (props) => html`
             </p>
         </div>
         <div class="about-cv">
-            <h1>Curriculum Vitae</h1>
+            <h1 class="about-header">Curriculum Vitae</h1>
 
             <div class="cv-section">
                 <h2>Education & Training</h2>

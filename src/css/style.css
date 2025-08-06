@@ -27,6 +27,80 @@ body {
     height: 100%;
 }
 
+.about-container::after {
+    content: '';
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 10vh;
+    background: linear-gradient(to top, rgba(23, 23, 23, 1) 0%, rgba(23, 23, 23, 0) 100%);
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.about-header {
+    text-align: left;
+}
+
+@media (max-width: 768px) {
+    .about-header {
+        text-align: center;
+    }
+}
+
+.profile-image-container {
+    width: 50%;
+    margin: 0 auto 0 auto;
+    position: relative;
+    display: block;
+}
+
+.profile-image {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.profile-image-container::before,
+.profile-image-container::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #8b0000;
+}
+
+.profile-image-container::before {
+    top: -6px;
+    left: -6px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.profile-image-container::after {
+    bottom: -6px;
+    right: -6px;
+    border-left: none;
+    border-top: none;
+}
+
+.cv-section h2 {
+    border-bottom: 2px solid #2c5aa0;
+    padding-bottom: 0.5rem;
+    position: relative;
+    padding-left: 1.2em;
+}
+
+.cv-section h2::before {
+    content: '▶';
+    color: #8b0000;
+    font-size: 0.7em;
+    position: absolute;
+    left: 0;
+    top: 0.3em;
+}
+
 
 a {
     margin: 0;

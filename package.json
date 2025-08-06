@@ -9,7 +9,7 @@
         "lit": "^3.2.1",
         "p5": "^2.0.3",
         "p5.sound": "^0.2.0",
-        "parcel": "^2.13.3"
+        "parcel": "^2.15.4"
     },
     "scripts": {
         "dev": "parcel index.html --port 4321",
