@@ -307,6 +307,11 @@ h3 {
     align-items: center;
 }
 
+/* Increase z-index when lightbox is active */
+body.lightbox-active .breadcrumb-nav {
+    z-index: 99999;
+}
+
 .breadcrumb-text {
     font-family: inherit;
     color: inherit;
@@ -397,6 +402,14 @@ h3 {
     /* Ensure proper scrolling behavior */
     overscroll-behavior: contain;
     box-sizing: border-box;
+    /* Smooth opacity transition */
+    opacity: 1;
+    transition: opacity 300ms ease-in-out;
+}
+
+.photo-gallery-container.lightbox-hidden {
+    opacity: 0;
+    pointer-events: none;
 }
 
 .photo-gallery-grid {

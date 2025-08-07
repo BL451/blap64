@@ -482,7 +482,7 @@ export class UITriangleButton extends UIObj{
         this.textWriter.p.x = this.p.x + offsetX;
         this.textWriter.p.y = this.p.y + offsetY;
     }
-    
+
     getColor(isHovered) {
         return isHovered ? this.hoveredColor : this.unhoveredColor;
     }
@@ -572,6 +572,11 @@ export class TextWriter extends UIObj{
         this.weight = weight;
         this.alphabet = "~!@#$%&*_+=/<>?";
         this.progress = 0;
+    }
+
+    render(){
+        this.p5.textSize(this.size);
+        this.p5.text(this.t, this.p.x, this.p.y, this.s.x);
     }
 
     renderRandom(progress=undefined){
@@ -694,7 +699,7 @@ export class UIWebButton extends UIObj{
         this.imageLoaded = false;
         this.imageAlpha = 0;
         this.targetImageAlpha = 0;
-        
+
         // Load project image
         if (project.image) {
             try {
@@ -721,7 +726,7 @@ export class UIWebButton extends UIObj{
             }
         }
     }
-    
+
     renderFallback(overrideAlpha = null){
         // Fallback: color based on position while image loads
         const colorR = this.p5.map(this.p.x, 0, this.p5.width, 0, 255);
@@ -729,7 +734,7 @@ export class UIWebButton extends UIObj{
         const colorB = 255;
         const baseAlpha = 255 - this.hoverAlpha * 50;
         const alpha = overrideAlpha !== null ? overrideAlpha : baseAlpha;
-        
+
         this.p5.fill(colorR, colorG, colorB, alpha);
         this.p5.strokeWeight(5);
         this.p5.stroke(240, alpha);
@@ -745,18 +750,18 @@ export class UIWebButton extends UIObj{
 
     render(){
         this.p5.push();
-        
+
         const halfSize = this.scale / 2;
         const cornerSize = this.scale * 0.15; // Corner bracket size
         const hudAlpha = 120 + (this.hoverAlpha * 135); // HUD elements alpha
-        
+
         // Show fallback while image is loading or still fading in
         if (!this.imageLoaded || !this.image || this.imageAlpha < 255) {
             // Fade out fallback as image fades in
             const fallbackAlpha = (this.imageLoaded && this.image) ? (255 - this.imageAlpha) : 255;
             this.renderFallback(fallbackAlpha);
         }
-        
+
         // Show image with fade-in animation if loaded
         if (this.imageLoaded && this.image && this.imageAlpha > 0) {
             const imageOpacity = this.imageAlpha * (255 - this.hoverAlpha * 30) / 255;
@@ -768,38 +773,38 @@ export class UIWebButton extends UIObj{
             }
             this.p5.noTint();
         }
-        
+
         // HUD Corner brackets (targeting system style)
         this.p5.stroke(74, 144, 230, hudAlpha); // Blue theme for web experiences
         this.p5.strokeWeight(2);
         this.p5.strokeCap(this.p5.SQUARE);
         this.p5.noFill();
-        
+
         const corners = [
             [-halfSize, -halfSize], // top-left
             [halfSize, -halfSize],  // top-right
             [halfSize, halfSize],   // bottom-right
             [-halfSize, halfSize]   // bottom-left
         ];
-        
+
         corners.forEach(([offsetX, offsetY], index) => {
             const x = this.p.x + offsetX;
             const y = this.p.y + offsetY;
             const xDir = index === 0 || index === 3 ? 1 : -1; // Left corners: right, Right corners: left
             const yDir = index === 0 || index === 1 ? 1 : -1; // Top corners: down, Bottom corners: up
-            
+
             // L-shaped brackets
             this.p5.line(x, y, x + xDir * cornerSize, y);
             this.p5.line(x, y, x, y + yDir * cornerSize);
         });
-        
+
         // Status indicator dots (sci-fi style)
         if (this.hoverAlpha > 0.1) {
             this.p5.fill(74, 144, 230, hudAlpha * 0.8);
             this.p5.noStroke();
             const dotSize = 3;
             const dotSpacing = 8;
-            
+
             // Status dots in top-right area
             for (let i = 0; i < 3; i++) {
                 const dotX = this.p.x + halfSize - 15 - (i * dotSpacing);
@@ -807,7 +812,7 @@ export class UIWebButton extends UIObj{
                 this.p5.circle(dotX, dotY, dotSize);
             }
         }
-        
+
         // Subtle scan line effect when hovered
         if (this.hoverAlpha > 0.2) {
             this.p5.stroke(74, 144, 230, hudAlpha * 0.3);
@@ -815,15 +820,15 @@ export class UIWebButton extends UIObj{
             const scanY = this.p.y - halfSize + (this.p5.millis() * 0.05) % this.scale;
             this.p5.line(this.p.x - halfSize, scanY, this.p.x + halfSize, scanY);
         }
-        
+
         // Main border with enhanced styling
         this.p5.stroke(74, 144, 230, hudAlpha * 0.6);
         this.p5.strokeWeight(1);
         this.p5.noFill();
         this.p5.square(this.p.x, this.p.y, this.scale);
-        
+
         this.p5.pop();
-        
+
         // Project name with HUD styling
         this.p5.push();
         const textOpacity = 120 + (this.hoverAlpha * 135);
@@ -833,7 +838,7 @@ export class UIWebButton extends UIObj{
         const fontSize = this.p5.width < 768 ? 16 : 20;
         this.p5.textSize(fontSize);
         this.p5.text(this.project.name, this.p.x, this.p.y + halfSize + 25);
-        
+
         // Status text when hovered
         if (this.hoverAlpha > 0.3 && this.project.subtitle) {
             this.p5.fill(74, 144, 230, hudAlpha * 0.7);
@@ -841,12 +846,12 @@ export class UIWebButton extends UIObj{
             this.p5.textSize(fontSize * 0.75); // Increased from 0.6 to 0.75
             this.p5.text(this.project.subtitle, this.p.x, this.p.y + halfSize + 45);
         }
-        
+
         this.p5.pop();
-        
+
         // Update hover animation
         this.hoverAlpha = this.p5.lerp(this.hoverAlpha, this.targetHoverAlpha, 0.1);
-        
+
         // Update image fade-in animation (slower fade for better visibility)
         this.imageAlpha = this.p5.lerp(this.imageAlpha, this.targetImageAlpha, 0.03);
     }

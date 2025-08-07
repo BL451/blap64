@@ -36,6 +36,11 @@ export const sketch = function (p, options = {}) {
     // Hash change handler
     let hashChangeHandler = null;
 
+    // Gallery event handlers
+    let touchStartHandler = null;
+    let touchMoveHandler = null;
+    let handleGalleryInteraction = null;
+
     // HUD data
     let sols = 0;
 
@@ -66,6 +71,14 @@ export const sketch = function (p, options = {}) {
         if (hashChangeHandler) {
             window.removeEventListener('hashchange', hashChangeHandler);
             hashChangeHandler = null;
+        }
+
+        // Clean up gallery event listeners
+        if (handleGalleryInteraction) {
+            document.removeEventListener('click', handleGalleryInteraction);
+            document.removeEventListener('touchend', handleGalleryInteraction);
+            document.removeEventListener('touchstart', touchStartHandler);
+            document.removeEventListener('touchmove', touchMoveHandler);
         }
 
         // Clean up global reference
@@ -126,16 +139,73 @@ export const sketch = function (p, options = {}) {
         // Add methods for HTML gallery integration
         p.openLightbox = openLightbox;
 
-        // Add event delegation for gallery image clicks
-        document.addEventListener('click', (event) => {
+        // Track touch movement to distinguish taps from scrolls
+        let touchStartY = null;
+        let touchStartTime = null;
+        let wasTouchMoved = false;
+
+        touchStartHandler = (event) => {
             if (event.target.classList.contains('photo-gallery-image')) {
+                touchStartY = event.touches[0].clientY;
+                touchStartTime = Date.now();
+                wasTouchMoved = false;
+            }
+        };
+
+        touchMoveHandler = (event) => {
+            if (event.target.classList.contains('photo-gallery-image') && touchStartY !== null) {
+                const currentY = event.touches[0].clientY;
+                const deltaY = Math.abs(currentY - touchStartY);
+                
+                // If touch moved more than 10px, consider it a scroll
+                if (deltaY > 10) {
+                    wasTouchMoved = true;
+                }
+            }
+        };
+
+        document.addEventListener('touchstart', touchStartHandler);
+        document.addEventListener('touchmove', touchMoveHandler);
+
+        // Add event delegation for gallery image clicks and touches
+        handleGalleryInteraction = (event) => {
+            if (event.target.classList.contains('photo-gallery-image')) {
+                // Prevent gallery interactions when lightbox is open
+                if (lightboxOpen) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    event.stopImmediatePropagation();
+                    return;
+                }
+
+                // For touch events, ignore if it was a scroll gesture
+                if (event.type === 'touchend') {
+                    const touchDuration = Date.now() - touchStartTime;
+                    
+                    // Ignore if touch moved too much (scroll) or took too long
+                    if (wasTouchMoved || touchDuration > 500) {
+                        touchStartY = null;
+                        touchStartTime = null;
+                        wasTouchMoved = false;
+                        return;
+                    }
+                }
+                
                 const index = parseInt(event.target.getAttribute('data-lightbox-index'));
                 if (!isNaN(index) && mode === 'gallery') {
                     console.log('Opening lightbox for image', index);
                     openLightbox(index);
                 }
+
+                // Reset touch tracking
+                touchStartY = null;
+                touchStartTime = null;
+                wasTouchMoved = false;
             }
-        });
+        };
+
+        document.addEventListener('click', handleGalleryInteraction);
+        document.addEventListener('touchend', handleGalleryInteraction);
 
         // Add hash change listener
         hashChangeHandler = function(event) {
@@ -726,8 +796,11 @@ export const sketch = function (p, options = {}) {
         // Hide HTML gallery when lightbox opens
         const galleryContainer = document.querySelector('.photo-gallery-container');
         if (galleryContainer) {
-            galleryContainer.style.display = 'none';
+            galleryContainer.classList.add('lightbox-hidden');
         }
+
+        // Add class to body for CSS targeting
+        document.body.classList.add('lightbox-active');
     }
 
     function closeLightbox() {
@@ -737,11 +810,14 @@ export const sketch = function (p, options = {}) {
         needsRedraw = true;
         p.loop();
 
-        // Show HTML gallery when lightbox closes
+        // Show HTML gallery with smooth transition (no delay needed with opacity)
         const galleryContainer = document.querySelector('.photo-gallery-container');
         if (galleryContainer) {
-            galleryContainer.style.display = 'block';
+            galleryContainer.classList.remove('lightbox-hidden');
         }
+
+        // Remove class from body
+        document.body.classList.remove('lightbox-active');
     }
 
     function loadImage(imagePath) {

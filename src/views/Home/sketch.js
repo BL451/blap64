@@ -180,7 +180,7 @@ export const sketch = function (p, options = {}) {
             } else {
                 p.fill(230, ui_opacity);
             }
-            ui_element.textWriter.renderSequentialRandom(p.map(d, 100, 0.5*p.width, 1, 0, true));
+            ui_element.textWriter.renderSequentialRandom(p.map(d, 100, mobile ? p.width : 0.5*p.width, 1, 0, true));
         });
         p.noFill();
         p.stroke(230);
@@ -191,7 +191,13 @@ export const sketch = function (p, options = {}) {
         p.textFont('BPdotsSquareVF', {
             fontVariationSettings: `wght 900`
         });
-        animation_manager.execute(p);
+        if (animation_manager.t > 8250){
+            intro_texts[0].renderTransition(p.map(intro_texts[0].dist(smoothX, smoothY), 100, 250, 0, 1, true), "Benjamin Lappalainen", "BLAP64");
+            intro_texts[1].render();
+            intro_texts[2].render();
+        } else {
+            animation_manager.execute(p);
+        }
 
         // Update cursor based on hover state
         updateCursor(p, p.mouseX, p.mouseY, ui);
@@ -201,6 +207,19 @@ export const sketch = function (p, options = {}) {
 	    if (event && event.button !== 0) {
             return;
         }
+
+        // Skip intro animations if they're still running
+        if (ui_opacity < 128 && !skipAnimations) {
+            skipAnimations = true;
+            // Set final states immediately
+            intro_texts[0].t = "BLAP64";
+            intro_texts[1].t = "I play many roles:";
+            intro_texts[2].t = "CREATIVE TECHNOLOGIST\nEDUCATOR\nARTIST\nand more...";
+            ui_opacity = 255;
+            animation_manager.t = 999999;
+            return;
+        }
+
 	    if (ui_opacity < 128){
             return;
 		}
@@ -236,6 +255,21 @@ export const sketch = function (p, options = {}) {
         });
 	}
 
+    p.touchStarted = function(event) {
+        // Skip intro animations if they're still running (touch support)
+        if (ui_opacity < 128 && !skipAnimations) {
+            skipAnimations = true;
+            // Set final states immediately
+            intro_texts[0].t = "BLAP64";
+            intro_texts[1].t = "I play many roles:";
+            intro_texts[2].t = "CREATIVE TECHNOLOGIST\nEDUCATOR\nARTIST\nand more...";
+            ui_opacity = 255;
+            animation_manager.t = 999999;
+            return false;
+        }
+        return false;
+    }
+
 	// Enhanced windowResized function that automatically updates all UI elements
 	// Maintains proportional positioning and sizing based on new canvas dimensions
 	// Preserves animation states when not skipping animations
@@ -256,7 +290,7 @@ export const sketch = function (p, options = {}) {
         // Clear and recreate UI elements with new proportional positions
         // UI elements: corner box, arc, and triangle buttons at 25%, 50%, 75% width
         ui.length = 0;
-        const s_font = Math.max(0.022*p.width, 32);
+        const s_font = mobile ? 14 : Math.max(0.022*p.width, 32);
         ui.push(new UICornerBoxButton(p, 0.25*p.width, 0.7*p.height, 0.26*short, 0.26*short, 0.01*p.width, 0.01*p.width, "INTERACTIVE\nMEDIA", s_font));
 		ui.push(new UIArcButton(p, 0.5*p.width, 0.7*p.height, 0.3*short, 0.3*short, 0.01*p.width, 0.01*p.width, "PHOTO", s_font));
 		ui.push(new UITriangleButton(p, 0.75*p.width, 0.35*p.height, 0.2*short, 0.2*short, 0.01*p.width, 0.01*p.width, -0.5*p.PI, "ABOUT", s_font));
