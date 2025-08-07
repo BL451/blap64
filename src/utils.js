@@ -18,7 +18,7 @@ export const easeInCubic = (x) => {
 };
 
 export const getFontSizes = (w, h) => {
-    if (w < 1000 && mobileCheck()){
+    if (widthCheck(w) && mobileCheck()){
         return { "small": 16, "medium": 24, "large": 48};
     } else {
         return { "small": 24, "medium": 32, "large": 64};
@@ -26,7 +26,7 @@ export const getFontSizes = (w, h) => {
 }
 
 export const widthCheck = (w) => {
-    if (w < 1000){
+    if (w < 768){
         return true;
     }
     return false;

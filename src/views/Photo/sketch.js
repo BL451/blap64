@@ -315,6 +315,12 @@ export const sketch = function (p, options = {}) {
 
     p.mousePressed = function mousePressed(event) {
         if (event && event.button !== 0) return;
+        
+        // Block all interactions if help popup is open
+        if (window.helpPopupOpen) {
+            return;
+        }
+        
         needsRedraw = true;
         p.loop();
     };
@@ -325,6 +331,11 @@ export const sketch = function (p, options = {}) {
     };
 
     p.mouseReleased = function mouseReleased(event) {
+        // Block all interactions if help popup is open
+        if (window.helpPopupOpen) {
+            return;
+        }
+
         // Handle lightbox clicks
         if (lightboxOpen) {
             handleLightboxClick();
@@ -344,12 +355,22 @@ export const sketch = function (p, options = {}) {
     };
 
     p.touchStarted = function touchStarted(event) {
+        // Block all interactions if help popup is open
+        if (window.helpPopupOpen) {
+            return false;
+        }
+        
         needsRedraw = true;
         p.loop();
         return false;
     };
 
     p.touchEnded = function touchEnded(event) {
+        // Block all interactions if help popup is open
+        if (window.helpPopupOpen) {
+            return false;
+        }
+
         // Handle lightbox clicks
         if (lightboxOpen) {
             handleLightboxClick();
@@ -801,6 +822,18 @@ export const sketch = function (p, options = {}) {
 
         // Add class to body for CSS targeting
         document.body.classList.add('lightbox-active');
+
+        // Hide help button when lightbox opens
+        const helpContainer = document.getElementById("help-container");
+        if (helpContainer) {
+            helpContainer.style.display = 'none';
+        }
+
+        // Update theme color for iOS status bar to match dimmed overlay
+        const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+        if (themeColorMeta) {
+            themeColorMeta.content = '#000000'; // Dark color to match overlay
+        }
     }
 
     function closeLightbox() {
@@ -818,6 +851,18 @@ export const sketch = function (p, options = {}) {
 
         // Remove class from body
         document.body.classList.remove('lightbox-active');
+
+        // Show help button when lightbox closes
+        const helpContainer = document.getElementById("help-container");
+        if (helpContainer) {
+            helpContainer.style.display = 'block';
+        }
+
+        // Restore original theme color for iOS status bar
+        const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+        if (themeColorMeta) {
+            themeColorMeta.content = '#171717'; // Back to original dark theme
+        }
     }
 
     function loadImage(imagePath) {

@@ -197,6 +197,21 @@ python3 optimize_photos.py  # Process new images from import folders
 - **Status Indicators**: Small dots, crosses, and text overlays that appear on hover/interaction states
 - **Animation Timing**: Smooth fade transitions with appropriate easing, scan line effects at 0.05 speed multiplier for subtle movement
 
+### Modal Overlay System & Mobile Integration
+- **Help Button Hiding**: Help button is hidden on both desktop and mobile when any modal overlay is active (infoCards, lightboxes, help popup) to prevent UI conflicts and maintain focus on overlay content
+- **Breadcrumb Navigation**: Hidden only on mobile when infoCards are open (to save screen space), visible on desktop
+- **Global Flag Pattern**: Use `window.helpPopupOpen` flag for cross-component communication when p5.js bypasses CSS pointer-events
+- **iOS Theme Color Integration**: Dynamically update `meta[name="theme-color"]` to `#000000` when overlays open, restore to `#171717` when closed. Immediate changes work better than delayed transitions due to iOS's native fade effect
+- **Rendering Order**: HUD decorations and titles must render before overlay backgrounds to be properly dimmed by semi-transparent overlays
+- **Unified Animation Timing**: All modal overlays use 300ms transition duration for consistent user experience
+- **Close Button Positioning**: Web Experiences uses centered close button below iframe on mobile, top-right corner on desktop. Adjust click boundaries and iframe height accordingly
+- **Theme Color Cleanup**: Always restore original theme color in cleanup functions in case sketch destruction occurs while overlay is active
+
+### p5.js Event Handling Limitations
+- **CSS Pointer Events**: `pointer-events: none` doesn't work with p5.js canvases - use global flag approach instead
+- **Touch Event Bleeding**: Mobile touches can bleed through overlays to elements behind - implement comprehensive touch tracking and scroll detection
+- **Event Bypassing**: p5.js event handlers bypass standard DOM event bubbling, requiring manual coordination with HTML elements
+
 ---
 
 *This document should be updated whenever significant architectural changes are made to the project.*

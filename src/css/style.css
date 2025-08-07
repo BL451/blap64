@@ -334,7 +334,7 @@ body.lightbox-active .breadcrumb-nav {
 }
 
 /* Mobile styles */
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
     html, body {
         overflow: auto;
         height: auto;
@@ -388,7 +388,7 @@ body.lightbox-active .breadcrumb-nav {
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: 100%;
     padding: 120px 10px 0 10px;
     overflow-y: auto;
     overflow-x: hidden;
@@ -455,7 +455,7 @@ body.lightbox-active .breadcrumb-nav {
 }
 
 /* Mobile photo gallery styles */
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
     .photo-gallery-container {
         padding: 120px 0 0 0;
         padding-top: 60px;
@@ -467,7 +467,7 @@ body.lightbox-active .breadcrumb-nav {
         justify-content: center;
         gap: 5px;
         padding: 0;
-        padding-bottom: 140px;
+        padding-bottom: 60px;
         width: 100%;
         max-width: 1200px;
         margin: 0 -1px;
@@ -484,4 +484,251 @@ body.lightbox-active .breadcrumb-nav {
         border-color: rgba(100, 100, 100, 0.5);
         opacity: 0.8;
     }
+}
+
+/* Help Button Styles */
+.help-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9998;
+    /* Force square by setting width to match total height */
+    width: fit-content;
+    min-width: 2.4vmin;
+    padding: 10px;
+    background: rgba(23, 23, 23, 0.6);
+    border: 1px solid #4a90e2;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
+    font-family: "BPdotsSquareVF";
+    font-weight: 600;
+    font-size: 2.4vmin;
+    line-height: 1;
+}
+
+.help-button:hover {
+    background: rgba(74, 144, 230, 0.2);
+    border-color: #74a0e6;
+    transform: scale(1.05);
+}
+
+.help-button-icon {
+    color: #4a90e2;
+    transition: color 0.3s ease;
+}
+
+.help-button:hover .help-button-icon {
+    color: #74a0e6;
+}
+
+/* Help Popup Overlay */
+.help-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0);
+    z-index: 99998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.help-overlay-open {
+    background: rgba(0, 0, 0, 0.8);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* Help Popup */
+.help-popup {
+    background: #171717;
+    border: 2px solid #404040;
+    border-radius: 0px;
+    width: 90%;
+    max-width: 768px;
+    max-height: 80vh;
+    overflow: hidden;
+    transform: scale(0.8) translateY(20px);
+    transition: transform 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.help-popup-open {
+    transform: scale(1) translateY(0);
+}
+
+.help-popup-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #404040;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(74, 144, 230, 0.1);
+}
+
+.help-popup-header h2 {
+    margin: 0;
+    font-family: "BPdotsSquareVF";
+    font-weight: 800;
+    font-size: 24px;
+    color: #fafafa;
+}
+
+.help-popup-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #b0b0b0;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.help-popup-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fafafa;
+}
+
+.help-popup-content {
+    padding: 24px;
+    max-height: 60vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.help-popup-content::-webkit-scrollbar {
+    display: none;
+}
+
+.faq-item {
+    margin-bottom: 24px;
+}
+
+.faq-item:last-child {
+    margin-bottom: 0;
+}
+
+.faq-question {
+    font-family: "BPdotsSquareVF";
+    font-weight: 700;
+    font-size: 16px;
+    color: #4a90e2;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.faq-answer {
+    font-family: "ZxGamut";
+    font-weight: 400;
+    font-size: 14px;
+    color: #d0d0d0;
+    line-height: 1.6;
+    padding-left: 12px;
+    border-left: 2px solid rgba(74, 144, 230, 0.3);
+}
+
+.faq-answer a {
+    font-family: inherit;
+    font-weight: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    color: #4a90e2;
+    text-decoration: underline;
+    display: inline;
+    width: auto;
+    text-align: inherit;
+    position: static;
+    margin: 0;
+    padding: 0;
+}
+
+.faq-answer a:visited {
+    color: #f5be07;
+}
+
+.faq-answer a:hover {
+    color: #74a0e6;
+    text-decoration: none;
+}
+
+/* Mobile styles for help button */
+@media (max-width: 768px) {
+    .help-button {
+        bottom: 8px;
+        right: 8px;
+        /* Force square by setting width to match total height */
+        width: fit-content;
+        min-width: 4vmin;
+        padding: 8px;
+        font-size: 4vmin;
+    }
+
+    .help-popup {
+        width: 95%;
+        margin: 0 8px;
+    }
+
+    .help-popup-header {
+        padding: 16px 20px;
+    }
+
+    .help-popup-header h2 {
+        font-size: 20px;
+    }
+
+    .help-popup-content {
+        padding: 20px;
+    }
+
+    .faq-question {
+        font-size: 15px;
+    }
+
+    .faq-answer {
+        font-size: 13px;
+    }
+
+    .faq-answer a {
+        font-size: inherit;
+    }
+}
+
+/* Prevent body scroll and block all interactions when help popup is open */
+body.help-active {
+    overflow: hidden;
+}
+
+body.help-active #app,
+body.help-active #breadcrumb-container,
+body.help-active canvas,
+body.help-active p5-element {
+    pointer-events: none;
+}
+
+/* Re-enable pointer events for help elements */
+body.help-active #help-container,
+body.help-active .help-button,
+body.help-active .help-overlay,
+body.help-active .help-popup {
+    pointer-events: auto;
 }

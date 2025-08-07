@@ -71,6 +71,12 @@ export const sketch = function (p, options = {}) {
         infoCardAlpha = 0;
         expandedMediaAlpha = 0;
 
+        // Restore original theme color in case cleanup happens while infoCard is open
+        const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+        if (themeColorMeta) {
+            themeColorMeta.content = '#171717';
+        }
+
         // Re-enable browser swipe navigation
         document.body.style.overscrollBehavior = '';
         document.body.style.touchAction = '';
@@ -283,7 +289,7 @@ export const sketch = function (p, options = {}) {
         // Update info card animation
         if (infoCardAnimating) {
             const elapsed = p.millis() - infoCardAnimationStart;
-            const progress = p.constrain(elapsed / 250, 0, 1);
+            const progress = p.constrain(elapsed / 300, 0, 1);
             infoCardAlpha = p.lerp(infoCardAlpha, targetAlpha, progress);
 
             if (progress >= 1) {
@@ -350,6 +356,11 @@ export const sketch = function (p, options = {}) {
 
     p.mousePressed = function (event) {
         if (event && event.button !== 0) {
+            return;
+        }
+        
+        // Block all interactions if help popup is open
+        if (window.helpPopupOpen) {
             return;
         }
         const ANIMATION_DELAY = 500;
@@ -533,6 +544,10 @@ export const sketch = function (p, options = {}) {
     }
 
     p.mouseReleased = function () {
+        // Block all interactions if help popup is open
+        if (window.helpPopupOpen) {
+            return;
+        }
         if (galleryDragging) {
             const dragDistance = Math.abs(p.mouseX - galleryDragStartX);
             galleryDragging = false;
@@ -658,6 +673,18 @@ export const sketch = function (p, options = {}) {
                 breadcrumbContainer.style.display = 'none';
             }
         }
+        
+        // Hide help button on both mobile and desktop when infoCard opens
+        const helpContainer = document.getElementById("help-container");
+        if (helpContainer) {
+            helpContainer.style.display = 'none';
+        }
+
+        // Update theme color for iOS status bar to match dimmed overlay
+        const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+        if (themeColorMeta) {
+            themeColorMeta.content = '#000000'; // Dark color to match overlay
+        }
 
         // Update breadcrumb to show current project
         const project = projects[index];
@@ -723,6 +750,18 @@ export const sketch = function (p, options = {}) {
             if (breadcrumbContainer) {
                 breadcrumbContainer.style.display = 'block';
             }
+        }
+        
+        // Show help button on both mobile and desktop when infoCard closes
+        const helpContainer = document.getElementById("help-container");
+        if (helpContainer) {
+            helpContainer.style.display = 'block';
+        }
+
+        // Restore original theme color for iOS status bar
+        const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+        if (themeColorMeta) {
+            themeColorMeta.content = '#171717'; // Back to original dark theme
         }
 
 

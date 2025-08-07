@@ -3,6 +3,7 @@ import Route from "./router/Route.js";
 import { mobileCheck } from "./utils.js";
 import { render } from "lit";
 import { createBreadcrumbNav } from "./views/elements/breadcrumb-nav.js";
+import { createHelpButton } from "./views/elements/help-button.js";
 
 import homeView from "./views/Home/home.js";
 import codeartView from "./views/CodeArt/codeart.js";
@@ -38,6 +39,12 @@ if (breadcrumbContainer) {
     const initialPath = rawPath && rawPath !== '' ?
         (rawPath.startsWith('/') ? rawPath : '/' + rawPath) : '/';
     render(createBreadcrumbNav(initialPath), breadcrumbContainer);
+}
+
+// Initialize help button
+const helpContainer = document.getElementById("help-container");
+if (helpContainer) {
+    render(createHelpButton(), helpContainer);
 }
 
 // Listen for custom navigation events from p5 sketches

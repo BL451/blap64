@@ -208,6 +208,11 @@ export const sketch = function (p, options = {}) {
             return;
         }
 
+        // Block all interactions if help popup is open
+        if (window.helpPopupOpen) {
+            return;
+        }
+
         // Skip intro animations if they're still running
         if (ui_opacity < 128 && !skipAnimations) {
             skipAnimations = true;
@@ -256,6 +261,11 @@ export const sketch = function (p, options = {}) {
 	}
 
     p.touchStarted = function(event) {
+        // Block all interactions if help popup is open
+        if (window.helpPopupOpen) {
+            return false;
+        }
+
         // Skip intro animations if they're still running (touch support)
         if (ui_opacity < 128 && !skipAnimations) {
             skipAnimations = true;

@@ -138,7 +138,7 @@ export const sketch = function (p, options = {}) {
 		// Update info card animation
 		if (infoCardAnimating) {
 			const elapsed = p.millis() - infoCardAnimationStart;
-			const progress = p.constrain(elapsed / 250, 0, 1);
+			const progress = p.constrain(elapsed / 300, 0, 1);
 			infoCardAlpha = p.lerp(infoCardAlpha, targetAlpha, progress);
 
 			if (progress >= 1) {
@@ -158,13 +158,13 @@ export const sketch = function (p, options = {}) {
 		// Update cursor
 		updateCursor(p, p.mouseX, p.mouseY, ...webButtons, getCloseButtonHoverCheck());
 
-		// Render active info card
+		// Render HUD decorations and title (before info card so they get dimmed)
+		renderHUDDecorations();
+
+		// Render active info card (on top of everything)
 		if (activeInfoCard !== null || infoCardAlpha > 0) {
 			renderInfoCard(projects[activeInfoCard]);
 		}
-
-		// Render HUD decorations and title
-		renderHUDDecorations();
 	};
 
 	// Resize throttling
@@ -192,18 +192,23 @@ export const sketch = function (p, options = {}) {
 
 	p.mousePressed = function(event) {
 		if (event && event.button !== 0) return;
+		
+		// Block all interactions if help popup is open
+		if (window.helpPopupOpen) {
+			return;
+		}
 
 		// Check if clicking on close button when info card is open
 		if (activeInfoCard !== null) {
 			const isMobile = widthCheck(p.width);
 			const cardWidth = isMobile ? p.width * 0.95 : p.width * 0.9;
-			const cardHeight = isMobile ? p.height * 0.9 : p.height * 0.85;
+			const cardHeight = isMobile ? p.height * 0.82 : p.height * 0.85; // Match new mobile height
 			const cardX = (p.width - cardWidth) / 2;
 			const cardY = (p.height - cardHeight) / 2;
 
 			const closeButtonSize = isMobile ? 44 : 30;
-			const closeButtonX = cardX + cardWidth - closeButtonSize + 5;
-			const closeButtonY = cardY - closeButtonSize - 5;
+			const closeButtonX = isMobile ? (p.width - closeButtonSize) / 2 : cardX + cardWidth - closeButtonSize + 5; // Center on mobile
+			const closeButtonY = isMobile ? cardY + cardHeight + 15 : cardY - closeButtonSize - 5; // Below iframe on mobile
 
 			if (p.mouseX >= closeButtonX && p.mouseX <= closeButtonX + closeButtonSize &&
 				p.mouseY >= closeButtonY && p.mouseY <= closeButtonY + closeButtonSize) {
@@ -211,9 +216,12 @@ export const sketch = function (p, options = {}) {
 				return;
 			}
 
-			// Check if clicking outside the card
-			if (p.mouseX < cardX || p.mouseX > cardX + cardWidth ||
-				p.mouseY < cardY || p.mouseY > cardY + cardHeight) {
+			// Check if clicking outside the card (account for mobile close button position)
+			const clickOutside = isMobile ?
+				(p.mouseX < cardX || p.mouseX > cardX + cardWidth || p.mouseY < cardY || p.mouseY > cardY + cardHeight + 60) :
+				(p.mouseX < cardX || p.mouseX > cardX + cardWidth || p.mouseY < cardY || p.mouseY > cardY + cardHeight);
+			
+			if (clickOutside) {
 				closeInfoCard();
 				return;
 			}
@@ -315,6 +323,12 @@ export const sketch = function (p, options = {}) {
 		infoCardAnimationStart = p.millis();
 		infoCardAnimating = true;
 
+		// Update theme color for iOS status bar to match dimmed overlay
+		const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+		if (themeColorMeta) {
+			themeColorMeta.content = '#000000'; // Dark color to match overlay
+		}
+
 		// Nuclear option: completely lock the viewport
 		const html = document.documentElement;
 		const body = document.body;
@@ -382,6 +396,12 @@ export const sketch = function (p, options = {}) {
 				breadcrumbContainer.style.display = 'none';
 			}
 		}
+		
+		// Hide help button on both mobile and desktop when infoCard opens
+		const helpContainer = document.getElementById("help-container");
+		if (helpContainer) {
+			helpContainer.style.display = 'none';
+		}
 
 		// Update breadcrumb to show current project
 		const project = projects[index];
@@ -396,6 +416,12 @@ export const sketch = function (p, options = {}) {
 		targetAlpha = 0;
 		infoCardAnimationStart = p.millis();
 		infoCardAnimating = true;
+
+		// Restore original theme color for iOS status bar
+		const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+		if (themeColorMeta) {
+			themeColorMeta.content = '#171717'; // Back to original dark theme
+		}
 
 		// Unload and hide iframe when closing
 		if (currentIframe) {
@@ -455,6 +481,12 @@ export const sketch = function (p, options = {}) {
 				breadcrumbContainer.style.display = 'block';
 			}
 		}
+		
+		// Show help button on both mobile and desktop when infoCard closes
+		const helpContainer = document.getElementById("help-container");
+		if (helpContainer) {
+				helpContainer.style.display = 'block';
+		}
 
 		// Update URL back to main web experiences page
 		if (window.location.hash.includes('/interactive/web/') && window.location.hash !== '#/interactive/web') {
@@ -472,13 +504,13 @@ export const sketch = function (p, options = {}) {
 			if (activeInfoCard !== null) {
 				const isMobile = widthCheck(p.width);
 				const cardWidth = isMobile ? p.width * 0.95 : p.width * 0.9;
-				const cardHeight = isMobile ? p.height * 0.9 : p.height * 0.85;
+				const cardHeight = isMobile ? p.height * 0.82 : p.height * 0.85; // Match new mobile height
 				const cardX = (p.width - cardWidth) / 2;
 				const cardY = (p.height - cardHeight) / 2;
 
 				const closeButtonSize = isMobile ? 44 : 30;
-				const closeButtonX = cardX + cardWidth - closeButtonSize + 5;
-				const closeButtonY = cardY - closeButtonSize - 5;
+				const closeButtonX = isMobile ? (p.width - closeButtonSize) / 2 : cardX + cardWidth - closeButtonSize + 5; // Center on mobile
+				const closeButtonY = isMobile ? cardY + cardHeight + 15 : cardY - closeButtonSize - 5; // Below iframe on mobile
 
 				return mouseX >= closeButtonX && mouseX <= closeButtonX + closeButtonSize &&
 					   mouseY >= closeButtonY && mouseY <= closeButtonY + closeButtonSize;
@@ -496,7 +528,7 @@ export const sketch = function (p, options = {}) {
 
 		const isMobile = widthCheck(p.width);
 		const cardWidth = isMobile ? p.width * 0.95 : p.width * 0.9;
-		const cardHeight = isMobile ? p.height * 0.9 : p.height * 0.85;
+		const cardHeight = isMobile ? p.height * 0.82 : p.height * 0.85; // Reduced mobile height
 		const cardX = (p.width - cardWidth) / 2;
 		const cardY = (p.height - cardHeight) / 2;
 
@@ -505,15 +537,16 @@ export const sketch = function (p, options = {}) {
 		p.noStroke();
 		p.rect(0, 0, p.width, p.height);
 
-		// Close button - positioned outside the iframe area
+		// Close button positioning
 		const closeButtonSize = isMobile ? 44 : 30;
-		const closeButtonX = cardX + cardWidth - closeButtonSize + 5;
-		const closeButtonY = cardY - closeButtonSize - 5;
+		const closeButtonX = isMobile ? (p.width - closeButtonSize) / 2 : cardX + cardWidth - closeButtonSize + 5; // Center on mobile
+		const closeButtonY = isMobile ? cardY + cardHeight + 15 : cardY - closeButtonSize - 5; // Below iframe on mobile
 		renderCloseButton(closeButtonX, closeButtonY, closeButtonSize, infoCardAlpha);
 
-		// Create fullscreen iframe lightbox
-		const padding = 0; // No padding for fullscreen effect
-		createOrUpdateIframe(project, cardX + padding, cardY + padding, cardWidth - 2 * padding, cardHeight - 2 * padding);
+		// Create iframe - adjust height on mobile to leave space for close button
+		const padding = 0;
+		const iframeHeight = isMobile ? cardHeight - 10 : cardHeight - 2 * padding; // Slightly less height on mobile
+		createOrUpdateIframe(project, cardX + padding, cardY + padding, cardWidth - 2 * padding, iframeHeight);
 
 		p.pop(); // Restore previous rectMode
 	}
@@ -535,7 +568,7 @@ export const sketch = function (p, options = {}) {
 			currentIframe = document.createElement('iframe');
 			currentIframe.src = url;
 			currentIframe.style.border = '2px solid #4A90E6';
-			currentIframe.style.borderRadius = '8px';
+			currentIframe.style.borderRadius = '0px'; // Remove rounded corners
 			currentIframe.style.backgroundColor = '#000';
 			currentIframe.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.5)';
 			// Add permissions for p5.js sketches that use microphone, camera, etc.
@@ -609,6 +642,12 @@ export const sketch = function (p, options = {}) {
 			currentIframe.src = 'about:blank'; // Unload content before removal
 			currentIframe.remove();
 			currentIframe = null;
+		}
+
+		// Restore original theme color in case cleanup happens while infoCard is open
+		const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+		if (themeColorMeta) {
+			themeColorMeta.content = '#171717';
 		}
 
 		// Re-enable browser scroll behavior and swipe navigation

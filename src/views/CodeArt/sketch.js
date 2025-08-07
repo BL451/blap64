@@ -84,6 +84,11 @@ export const sketch = function (p) {
         if (event && event.button !== 0) {
             return;
         }
+        
+        // Block all interactions if help popup is open
+        if (window.helpPopupOpen) {
+            return;
+        }
         const ANIMATION_DELAY = 500;
         ui.forEach((ui_element, index) => {
 		if (ui_element.contains(p.mouseX, p.mouseY)){
