@@ -54,12 +54,18 @@ body {
     margin: 0 auto 0 auto;
     position: relative;
     display: block;
+    aspect-ratio: 1024 / 1280;
 }
 
 .profile-image {
     width: 100%;
     height: auto;
     display: block;
+    opacity: 0;
+    transition: opacity 400ms ease-in-out;
+}
+.profile-image.loaded {
+    opacity: 1;
 }
 
 .profile-image-container::before,
@@ -368,5 +374,101 @@ h3 {
         margin: 2vmin 0 0 0;
         width: 100%;
         font-size: 11px;
+    }
+}
+
+/* Photo Gallery Styles */
+.photo-gallery-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    padding: 120px 10px 0 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 1;
+    pointer-events: auto;
+    background: transparent;
+    /* Enable momentum scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
+    /* Prevent p5.js from capturing touch events */
+    touch-action: pan-y;
+    /* Ensure proper scrolling behavior */
+    overscroll-behavior: contain;
+    box-sizing: border-box;
+}
+
+.photo-gallery-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 0;
+    padding-bottom: 30px;
+    width: calc(100% - 40px);
+    max-width: 1600px;
+    margin: 0 20px 0 20px;
+}
+
+.photo-gallery-item {
+    width: calc(25% - 15px);
+    position: relative;
+    aspect-ratio: 1;
+    cursor: pointer;
+}
+
+.photo-gallery-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 1px solid rgba(100, 100, 100, 0.5);
+    background-color: rgba(40, 40, 45, 1);
+    opacity: 0;
+    transition: opacity 400ms ease-in-out, border-color 0.2s ease;
+    pointer-events: auto;
+    /* Prevent image dragging on mobile */
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+.photo-gallery-image.loaded {
+    opacity: 0.8;
+}
+
+.photo-gallery-image:hover {
+    border-color: rgba(74, 144, 230, 0.8);
+    opacity: 1;
+}
+
+/* Mobile photo gallery styles */
+@media (max-width: 1024px) {
+    .photo-gallery-container {
+        padding: 120px 0 0 0;
+        padding-top: 60px;
+    }
+
+    .photo-gallery-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 5px;
+        padding: 0;
+        padding-bottom: 140px;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 -1px;
+    }
+
+    .photo-gallery-item {
+        width: calc(50% - 15px);
+        position: relative;
+        aspect-ratio: 1;
+        cursor: pointer;
+    }
+
+    .photo-gallery-image:hover {
+        border-color: rgba(100, 100, 100, 0.5);
+        opacity: 0.8;
     }
 }

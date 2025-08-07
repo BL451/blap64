@@ -15,23 +15,11 @@ export const sketch = function (p, options = {}) {
     // Collection cards for landing page
     let collectionCards = [];
 
-    // Gallery state
-    let galleryImages = [];
-    let galleryGrid = [];
-    let scrollY = 0;
-    let targetScrollY = 0;
-    let scrolling = false;
-
-    // Gallery graphics caching
-    let galleryGraphics = null;
-    let galleryGraphicsReady = false;
-    let galleryLoadingProgress = 0;
-    let galleryNeedsRedraw = false;
-
-    // Fade-in animations
-    let galleryFadeAlpha = 0;
-    let galleryFadeTarget = 0;
-    let galleryFadeStart = 0;
+    // Loop optimization
+    let needsRedraw = true;
+    let animating = false;
+    let lastMouseX = 0;
+    let lastMouseY = 0;
 
     // Lightbox state
     let lightboxOpen = false;
@@ -40,30 +28,20 @@ export const sketch = function (p, options = {}) {
     let targetLightboxAlpha = 0;
     let lightboxAnimating = false;
     let lightboxAnimationStart = 0;
+    let lightboxImageLoadStart = 0;
 
     // Loaded media tracking
     let loadedImages = new Map();
-    let imageLoadQueue = [];
-
-    // Touch/drag tracking for mobile
-    let touchStartY = 0;
-    let touchStartTime = 0;
-    let isDragging = false;
-    let dragThreshold = 10; // pixels
-    let touchTimeThreshold = 200; // milliseconds
 
     // Hash change handler
     let hashChangeHandler = null;
-
-    // Touch event prevention handlers
-    let preventDefaultTouch = null;
 
     // HUD data
     let sols = 0;
 
     function updateFadeAnimations() {
-        const fadeSpeed = 0.05;
         const fadeDuration = 400; // milliseconds
+        let hasActiveAnimation = false;
 
         // Update collection card hero fade animations
         if (mode === 'collections') {
@@ -72,42 +50,28 @@ export const sketch = function (p, options = {}) {
                     const elapsed = p.millis() - card.heroFadeStart;
                     const progress = p.constrain(elapsed / fadeDuration, 0, 1);
                     card.heroFadeAlpha = p.lerp(0, card.heroFadeTarget, progress);
+                    hasActiveAnimation = true;
+                    needsRedraw = true;
                 }
             });
         }
 
-        // Update gallery fade animation
-        if (mode === 'gallery' && galleryFadeTarget > galleryFadeAlpha) {
-            const elapsed = p.millis() - galleryFadeStart;
-            const progress = p.constrain(elapsed / fadeDuration, 0, 1);
-            galleryFadeAlpha = p.lerp(0, galleryFadeTarget, progress);
-        }
+        return hasActiveAnimation;
     }
 
     // Cleanup method
     p.cleanupSketch = function() {
         loadedImages.clear();
-        imageLoadQueue = [];
 
         if (hashChangeHandler) {
             window.removeEventListener('hashchange', hashChangeHandler);
             hashChangeHandler = null;
         }
 
-        // Clean up touch event listeners
-        if (preventDefaultTouch) {
-            document.removeEventListener('touchstart', preventDefaultTouch);
-            document.removeEventListener('touchmove', preventDefaultTouch);
-            document.removeEventListener('touchend', preventDefaultTouch);
-            preventDefaultTouch = null;
+        // Clean up global reference
+        if (window.photoSketchInstance === p) {
+            window.photoSketchInstance = null;
         }
-
-        // Clean up gallery graphics
-        if (galleryGraphics) {
-            galleryGraphics.remove();
-            galleryGraphics = null;
-        }
-        galleryGraphicsReady = false;
     };
 
     function initializeLayout() {
@@ -117,14 +81,10 @@ export const sketch = function (p, options = {}) {
 
         if (mode === 'collections') {
             setupCollectionCards();
-        } else if (mode === 'gallery') {
-            // Mark gallery for redraw since layout changed
-            galleryNeedsRedraw = true;
-            galleryGraphicsReady = false;
-            setupGalleryGrid();
         }
 
         layoutInitialized = true;
+        needsRedraw = true;
     }
 
     p.setup = async function setup() {
@@ -145,38 +105,13 @@ export const sketch = function (p, options = {}) {
         let loading_div = bg.shadowRoot.getElementById("p5_loading");
         if (loading_div) loading_div.remove();
 
-        // Add CSS to prevent default touch behaviors on mobile
-        const canvas = bg.shadowRoot.querySelector('canvas');
-        if (canvas) {
-            canvas.style.touchAction = 'none';
-            canvas.style.userSelect = 'none';
-            canvas.style.webkitUserSelect = 'none';
-            canvas.style.webkitTouchCallout = 'none';
-        }
-
-        // Also apply to the container
-        if (bg) {
-            bg.style.touchAction = 'none';
-            bg.style.overscrollBehavior = 'none';
-        }
-
-        // Add global touch event prevention for the canvas area
-        preventDefaultTouch = (e) => {
-            if (canvas && canvas.contains(e.target)) {
-                e.preventDefault();
-            }
-        };
-
-        document.addEventListener('touchstart', preventDefaultTouch, { passive: false });
-        document.addEventListener('touchmove', preventDefaultTouch, { passive: false });
-        document.addEventListener('touchend', preventDefaultTouch, { passive: false });
 
         // Determine mode based on options
         if (options && options.collection) {
             mode = 'gallery';
             currentCollection = findCollectionBySlug(options.collection);
             if (!currentCollection) {
-                mode = 'collections'; // Fallback if collection not found
+                mode = 'collections';
             }
         } else {
             mode = 'collections';
@@ -184,6 +119,23 @@ export const sketch = function (p, options = {}) {
 
         initializeLayout();
         sols = daysSince('2011-07-22');
+
+        // Set up global reference for HTML gallery integration
+        window.photoSketchInstance = p;
+
+        // Add methods for HTML gallery integration
+        p.openLightbox = openLightbox;
+
+        // Add event delegation for gallery image clicks
+        document.addEventListener('click', (event) => {
+            if (event.target.classList.contains('photo-gallery-image')) {
+                const index = parseInt(event.target.getAttribute('data-lightbox-index'));
+                if (!isNaN(index) && mode === 'gallery') {
+                    console.log('Opening lightbox for image', index);
+                    openLightbox(index);
+                }
+            }
+        });
 
         // Add hash change listener
         hashChangeHandler = function(event) {
@@ -209,9 +161,14 @@ export const sketch = function (p, options = {}) {
             }
         };
         window.addEventListener('hashchange', hashChangeHandler);
+
+        // Force initial draw
+        needsRedraw = true;
+        p.loop();
     };
 
     p.draw = function draw() {
+        // Always draw background and decorations - we need to see them!
         p.background(23);
         frameCount++;
 
@@ -222,11 +179,9 @@ export const sketch = function (p, options = {}) {
         // Render based on current mode
         if (mode === 'collections') {
             renderCollectionsPage();
-        } else if (mode === 'gallery') {
-            renderGalleryPage();
         }
 
-        // Render HUD decorations
+        // Always render HUD decorations
         renderHUDDecorations();
 
         // Update lightbox animation
@@ -244,12 +199,9 @@ export const sketch = function (p, options = {}) {
             }
         }
 
-        // Render title
+        // Always render title
         const titleText = mode === 'collections' ? 'PHOTO' : (currentCollection ? currentCollection.name : 'GALLERY');
         renderTitle(titleText);
-
-        // Update fade animations
-        updateFadeAnimations();
 
         // Render lightbox if open (on top of everything including title)
         if (lightboxOpen || lightboxAlpha > 0) {
@@ -258,136 +210,88 @@ export const sketch = function (p, options = {}) {
 
         // Update cursor
         updateCursor(p, p.mouseX, p.mouseY, ...getHoverTargets());
+
+        // Check if we need to keep looping
+        const mouseMoving = p.mouseX !== lastMouseX || p.mouseY !== lastMouseY;
+        const hasActiveAnimations = updateFadeAnimations();
+
+        // Check if we're waiting for a lightbox image to load
+        const waitingForLightboxImage = lightboxOpen && currentCollection &&
+            lightboxImageIndex < currentCollection.images.length &&
+            (!loadedImages.get(currentCollection.images[lightboxImageIndex]) ||
+             !loadedImages.get(currentCollection.images[lightboxImageIndex]).loaded);
+
+        animating = lightboxAnimating || hasActiveAnimations || waitingForLightboxImage;
+
+        // Update tracking variables
+        lastMouseX = p.mouseX;
+        lastMouseY = p.mouseY;
+        needsRedraw = false;
+
+        // Only pause loop after a few frames and if nothing is happening
+        // Don't pause on mobile if we're in collections mode (for background images)
+        // Don't pause if we're waiting for a lightbox image to load
+        if (!animating && !mouseMoving && frameCount > 10 && !(mobile && mode === 'collections')) {
+            p.noLoop();
+        }
     };
 
     p.windowResized = function windowResized() {
         const s = getViewportSize();
         p.resizeCanvas(s.width, s.height);
         initializeLayout();
+        p.loop(); // Ensure we redraw after resize
     };
 
     p.mousePressed = function mousePressed(event) {
         if (event && event.button !== 0) return;
-
-        // Track touch start for mobile drag detection
-        touchStartY = p.mouseY;
-        touchStartTime = p.millis();
-        isDragging = false;
+        needsRedraw = true;
+        p.loop();
     };
 
     p.mouseDragged = function mouseDragged(event) {
-        // Check if this is a drag gesture (mobile scroll)
-        const dragDistance = Math.abs(p.mouseY - touchStartY);
-
-        if (dragDistance > dragThreshold) {
-            isDragging = true;
-
-            // Handle scrolling in gallery mode
-            if (mode === 'gallery' && !lightboxOpen) {
-                const dragDelta = p.mouseY - p.pmouseY;
-                targetScrollY += dragDelta * 2; // Amplify drag for smoother scrolling
-                const maxScroll = getMaxScrollDistance();
-                targetScrollY = p.constrain(targetScrollY, -maxScroll, 0);
-            }
-        }
+        needsRedraw = true;
+        p.loop();
     };
 
     p.mouseReleased = function mouseReleased(event) {
-        const touchDuration = p.millis() - touchStartTime;
-        const dragDistance = Math.abs(p.mouseY - touchStartY);
-
-        // Only handle clicks if it was a quick tap without significant drag
-        if (!isDragging && dragDistance < dragThreshold && touchDuration < touchTimeThreshold) {
-            // Handle lightbox clicks
-            if (lightboxOpen) {
-                handleLightboxClick();
-                return;
-            }
-
-            if (mode === 'collections') {
-                handleCollectionsClick();
-            } else if (mode === 'gallery') {
-                handleGalleryClick();
-            }
+        // Handle lightbox clicks
+        if (lightboxOpen) {
+            handleLightboxClick();
+            return;
         }
 
-        // Reset drag tracking
-        isDragging = false;
-    };
-
-    p.mouseWheel = function mouseWheel(event) {
-        if (mode === 'gallery' && !lightboxOpen) {
-            targetScrollY -= event.delta * 2;
-            const maxScroll = getMaxScrollDistance();
-            targetScrollY = p.constrain(targetScrollY, -maxScroll, 0);
-            return false;
+        if (mode === 'collections') {
+            handleCollectionsClick();
         }
+
+        needsRedraw = true;
+        p.loop();
     };
 
-    // Touch event handlers for better mobile support
+    p.mouseMoved = function mouseMoved(event) {
+        if (p._loop === false) p.loop();
+    };
+
     p.touchStarted = function touchStarted(event) {
-        // Use the same logic as mousePressed
-        touchStartY = p.mouseY;
-        touchStartTime = p.millis();
-        isDragging = false;
-
-        // Prevent default touch behavior to avoid conflicts
-        if (event && event.preventDefault) {
-            event.preventDefault();
-        }
-        return false;
-    };
-
-    p.touchMoved = function touchMoved(event) {
-        // Use the same logic as mouseDragged
-        const dragDistance = Math.abs(p.mouseY - touchStartY);
-
-        if (dragDistance > dragThreshold) {
-            isDragging = true;
-
-            // Handle scrolling in gallery mode
-            if (mode === 'gallery' && !lightboxOpen) {
-                const dragDelta = p.mouseY - p.pmouseY;
-                targetScrollY += dragDelta * 2;
-                const maxScroll = getMaxScrollDistance();
-                targetScrollY = p.constrain(targetScrollY, -maxScroll, 0);
-            }
-        }
-
-        // Prevent default touch scrolling behavior
-        if (event && event.preventDefault) {
-            event.preventDefault();
-        }
+        needsRedraw = true;
+        p.loop();
         return false;
     };
 
     p.touchEnded = function touchEnded(event) {
-        // Use the same logic as mouseReleased
-        const touchDuration = p.millis() - touchStartTime;
-        const dragDistance = Math.abs(p.mouseY - touchStartY);
-
-        // Only handle clicks if it was a quick tap without significant drag
-        if (!isDragging && dragDistance < dragThreshold && touchDuration < touchTimeThreshold) {
-            // Handle lightbox clicks
-            if (lightboxOpen) {
-                handleLightboxClick();
-                return false;
-            }
-
-            if (mode === 'collections') {
-                handleCollectionsClick();
-            } else if (mode === 'gallery') {
-                handleGalleryClick();
-            }
+        // Handle lightbox clicks
+        if (lightboxOpen) {
+            handleLightboxClick();
+            return false;
         }
 
-        // Reset drag tracking
-        isDragging = false;
-
-        // Prevent default touch behavior
-        if (event && event.preventDefault) {
-            event.preventDefault();
+        if (mode === 'collections') {
+            handleCollectionsClick();
         }
+
+        needsRedraw = true;
+        p.loop();
         return false;
     };
 
@@ -427,72 +331,7 @@ export const sketch = function (p, options = {}) {
         });
     }
 
-    function setupGalleryGrid() {
-        if (!currentCollection) return;
 
-        galleryImages = currentCollection.images.map((imagePath, index) => ({
-            path: imagePath,
-            index,
-            loaded: false,
-            hoverAlpha: 0,
-            targetHoverAlpha: 0
-        }));
-
-        // Reset loading state
-        galleryLoadingProgress = 0;
-        galleryGraphicsReady = false;
-
-        // Reset fade state
-        galleryFadeAlpha = 0;
-        galleryFadeTarget = 0;
-        galleryFadeStart = 0;
-
-        // Clean up previous graphics if exists
-        if (galleryGraphics) {
-            galleryGraphics.remove();
-            galleryGraphics = null;
-        }
-
-        // Start loading images
-        galleryImages.forEach(img => loadImage(img.path, true)); // Pass gallery flag
-
-        // If images are already loaded, update progress immediately
-        updateGalleryLoadingProgress();
-    }
-
-    function getGridColumns() {
-        return mobile ? 2 : 4;
-    }
-
-    function getGridItemSize() {
-        const cols = getGridColumns();
-        const spacing = mobile ? 12 : 20; // Reduced spacing on mobile
-        const totalSpacing = spacing * (cols + 1);
-        return (p.width - totalSpacing) / cols;
-    }
-
-    function getMaxScrollDistance() {
-        if (!currentCollection || galleryImages.length === 0) return 0;
-
-        const cols = getGridColumns();
-        const itemSize = getGridItemSize();
-        const spacing = mobile ? 12 : 20; // Reduced spacing on mobile
-        const startY = 120; // Leave space for title
-
-        // Calculate total content height
-        const rows = Math.ceil(galleryImages.length / cols);
-        const contentHeight = startY + rows * (itemSize + spacing) + spacing;
-
-        // Add extra buffer at bottom for comfortable viewing
-        const bottomBuffer = 50;
-        const totalContentHeight = contentHeight + bottomBuffer;
-
-        // Calculate how much we need to scroll to see all content
-        const viewportHeight = p.height;
-        const maxScroll = Math.max(0, totalContentHeight - viewportHeight);
-
-        return maxScroll;
-    }
 
     function renderCollectionsPage() {
         // Collection cards
@@ -580,134 +419,9 @@ export const sketch = function (p, options = {}) {
         });
     }
 
-    function renderGalleryPage() {
-        if (!currentCollection) return;
 
-        // Update scroll
-        if (!scrolling) {
-            scrollY = p.lerp(scrollY, targetScrollY, 0.1);
-        }
 
-        // Title
-        renderGalleryTitle();
 
-        // Show loading state if gallery isn't ready
-        if (!galleryGraphicsReady) {
-            renderGalleryLoading();
-            return;
-        }
-
-        // Render cached gallery graphics
-        if (galleryGraphics) {
-            p.push();
-            p.tint(255, galleryFadeAlpha);
-            p.translate(0, scrollY);
-            p.image(galleryGraphics, 0, 0);
-            p.pop();
-
-            // Render hover effects on top
-            renderGalleryHoverEffects();
-        }
-    }
-
-    function renderGalleryLoading() {
-        const centerX = p.width / 2;
-        const centerY = p.height / 2;
-
-        // Loading background
-        p.fill(23, 23, 23, 200);
-        p.noStroke();
-        p.rect(0, 120, p.width, p.height - 120);
-
-        // Loading text
-        p.fill(230, 180);
-        p.noStroke();
-        p.textAlign(p.CENTER, p.CENTER);
-        p.textFont('BPdotsSquareVF', { fontVariationSettings: `wght 900` });
-        p.textSize(mobile ? 16 : 20);
-        p.text('LOADING GALLERY...', centerX, centerY - 40);
-
-        // Progress bar
-        const barWidth = mobile ? 200 : 300;
-        const barHeight = 4;
-        const barX = centerX - barWidth / 2;
-        const barY = centerY - 10;
-
-        // Progress bar background
-        p.fill(50, 50, 55);
-        p.rect(barX, barY, barWidth, barHeight);
-
-        // Progress bar fill
-        const fillWidth = barWidth * galleryLoadingProgress;
-        p.fill(74, 144, 230);
-        p.rect(barX, barY, fillWidth, barHeight);
-
-        // Progress percentage
-        p.textSize(mobile ? 12 : 14);
-        p.fill(150);
-        const percentage = Math.round(galleryLoadingProgress * 100);
-        p.text(`${percentage}%`, centerX, centerY + 20);
-
-        // Loading dots animation
-        const dotCount = 3;
-        const dotSpacing = 8;
-        const totalDotsWidth = (dotCount - 1) * dotSpacing;
-        const dotsStartX = centerX - totalDotsWidth / 2;
-        const animFrame = Math.floor(p.millis() / 300) % (dotCount + 1);
-
-        p.fill(100);
-        for (let i = 0; i < dotCount; i++) {
-            const alpha = i === animFrame ? 255 : 100;
-            p.fill(100, alpha);
-            p.circle(dotsStartX + i * dotSpacing, centerY + 45, 3);
-        }
-    }
-
-    function renderGalleryHoverEffects() {
-        if (!galleryGraphics) return;
-
-        const cols = getGridColumns();
-        const itemSize = getGridItemSize();
-        const spacing = mobile ? 12 : 20; // Reduced spacing on mobile
-        const startX = spacing;
-        const startY = 120;
-
-        // Check for hover effects
-        galleryImages.forEach((img, index) => {
-            const row = Math.floor(index / cols);
-            const col = index % cols;
-            const x = startX + col * (itemSize + spacing);
-            const y = startY + row * (itemSize + spacing);
-
-            // Only update hover state on desktop (not mobile)
-            if (!mobile) {
-                const isHovered = isPointInRect(p.mouseX, p.mouseY - scrollY, x, y, itemSize, itemSize);
-                img.targetHoverAlpha = isHovered ? 100 : 0;
-                // Smooth fade animation - faster fade in, slower fade out
-                img.hoverAlpha = p.lerp(img.hoverAlpha, img.targetHoverAlpha, isHovered ? 0.2 : 0.1);
-            } else {
-                // On mobile, keep hover state at 0
-                img.targetHoverAlpha = 0;
-                img.hoverAlpha = 0;
-            }
-
-            // Render hover overlay if there's any alpha
-            if (img.hoverAlpha > 0) {
-                p.push();
-                p.translate(0, scrollY);
-                p.fill(74, 144, 230, img.hoverAlpha);
-                p.noStroke();
-                p.rect(x, y, itemSize, itemSize);
-                p.pop();
-            }
-        });
-    }
-
-    function renderGalleryTitle() {
-        if (!currentCollection) return;
-
-        // Title will be rendered on top at the end of draw loop
-    }
 
     function renderLightbox() {
         if (!currentCollection || lightboxImageIndex >= currentCollection.images.length) return;
@@ -720,6 +434,7 @@ export const sketch = function (p, options = {}) {
         const imagePath = currentCollection.images[lightboxImageIndex];
         const loadedImg = loadedImages.get(imagePath);
 
+        // Render image if loaded
         if (loadedImg && loadedImg.loaded) {
             // Calculate image size to fit screen
             const maxWidth = p.width * 0.9;
@@ -743,53 +458,94 @@ export const sketch = function (p, options = {}) {
             p.tint(255, lightboxAlpha);
             p.image(loadedImg.element, imgX, imgY, imgWidth, imgHeight);
             p.pop();
+        } else {
+            // Load image if not already loaded
+            loadImage(imagePath);
 
-            // Navigation elements with static positioning (bottom of screen)
-            const staticY = p.height - 70; // Fixed position from bottom (moved closer)
+            // Start timing if not already started for this image
+            if (lightboxImageLoadStart === 0) {
+                lightboxImageLoadStart = p.millis();
+            }
 
-            // Image counter (centered)
+            // Only show loading indicator after 1 second
+            const loadingTime = p.millis() - lightboxImageLoadStart;
+            if (loadingTime > 1000) {
+                // Show elegant loading indicator
+                const centerX = p.width / 2;
+                const centerY = p.height / 2;
+
+                // Animated loading dots
+                const dotCount = 3;
+                const dotSpacing = 20;
+                const dotRadius = 4;
+                const animSpeed = 0.003;
+                const totalWidth = (dotCount - 1) * dotSpacing;
+                const startX = centerX - totalWidth / 2;
+
+                p.noStroke();
+                for (let i = 0; i < dotCount; i++) {
+                    const phase = (p.millis() * animSpeed + i * 0.5) % (Math.PI * 2);
+                    const alpha = (Math.sin(phase) + 1) * 0.5; // Oscillate between 0 and 1
+                    const dotAlpha = (100 + alpha * 155) * (lightboxAlpha / 255);
+
+                    p.fill(230, dotAlpha);
+                    p.circle(startX + i * dotSpacing, centerY, dotRadius * 2);
+                }
+
+                // Loading text
+                p.fill(230, 120 * (lightboxAlpha / 255));
+                p.textAlign(p.CENTER, p.CENTER);
+                p.textFont('BPdotsSquareVF', { fontVariationSettings: `wght 600` });
+                p.textSize(14);
+                p.text('LOADING', centerX, centerY + 30);
+            }
+        }
+
+        // Always render UI elements (counter and arrows) - this prevents flickering
+        const staticY = p.height - 70;
+
+        // Image counter (centered)
+        p.fill(230, lightboxAlpha);
+        p.noStroke();
+        p.textAlign(p.CENTER, p.CENTER);
+        p.textFont('BPdotsSquareVF', { fontVariationSettings: `wght 600` });
+        p.textSize(16);
+        p.text(`${lightboxImageIndex + 1} / ${currentCollection.images.length}`, p.width/2, staticY);
+
+        // Navigation arrows with static position and wrapping
+        if (currentCollection.images.length > 1) {
+            const arrowSize = 35;
+            const arrowSpacing = 80;
+
+            // Left arrow
+            const leftX = p.width/2 - arrowSpacing - arrowSize/2;
+            p.fill(23, 23, 23, 200 * (lightboxAlpha / 255));
+            p.stroke(230, lightboxAlpha);
+            p.strokeWeight(2);
+            p.rect(leftX, staticY - arrowSize/2, arrowSize, arrowSize);
+
             p.fill(230, lightboxAlpha);
             p.noStroke();
-            p.textAlign(p.CENTER, p.CENTER);
-            p.textFont('BPdotsSquareVF', { fontVariationSettings: `wght 600` });
-            p.textSize(16);
-            p.text(`${lightboxImageIndex + 1} / ${currentCollection.images.length}`, p.width/2, staticY);
+            p.triangle(
+                leftX + arrowSize * 0.3, staticY,
+                leftX + arrowSize * 0.7, staticY - arrowSize * 0.2,
+                leftX + arrowSize * 0.7, staticY + arrowSize * 0.2
+            );
 
-            // Navigation arrows with static position and wrapping (always show if multiple images)
-            if (currentCollection.images.length > 1) {
-                const arrowSize = 35;
-                const arrowSpacing = 80; // Distance from center
+            // Right arrow
+            const rightX = p.width/2 + arrowSpacing - arrowSize/2;
+            p.fill(23, 23, 23, 200 * (lightboxAlpha / 255));
+            p.stroke(230, lightboxAlpha);
+            p.strokeWeight(2);
+            p.rect(rightX, staticY - arrowSize/2, arrowSize, arrowSize);
 
-                // Left arrow (always shown with wrapping)
-                const leftX = p.width/2 - arrowSpacing - arrowSize/2;
-                p.fill(23, 23, 23, 200 * (lightboxAlpha / 255));
-                p.stroke(230, lightboxAlpha);
-                p.strokeWeight(2);
-                p.rect(leftX, staticY - arrowSize/2, arrowSize, arrowSize);
-
-                p.fill(230, lightboxAlpha);
-                p.noStroke();
-                p.triangle(
-                    leftX + arrowSize * 0.3, staticY,
-                    leftX + arrowSize * 0.7, staticY - arrowSize * 0.2,
-                    leftX + arrowSize * 0.7, staticY + arrowSize * 0.2
-                );
-
-                // Right arrow (always shown with wrapping)
-                const rightX = p.width/2 + arrowSpacing - arrowSize/2;
-                p.fill(23, 23, 23, 200 * (lightboxAlpha / 255));
-                p.stroke(230, lightboxAlpha);
-                p.strokeWeight(2);
-                p.rect(rightX, staticY - arrowSize/2, arrowSize, arrowSize);
-
-                p.fill(230, lightboxAlpha);
-                p.noStroke();
-                p.triangle(
-                    rightX + arrowSize * 0.7, staticY,
-                    rightX + arrowSize * 0.3, staticY - arrowSize * 0.2,
-                    rightX + arrowSize * 0.3, staticY + arrowSize * 0.2
-                );
-            }
+            p.fill(230, lightboxAlpha);
+            p.noStroke();
+            p.triangle(
+                rightX + arrowSize * 0.7, staticY,
+                rightX + arrowSize * 0.3, staticY - arrowSize * 0.2,
+                rightX + arrowSize * 0.3, staticY + arrowSize * 0.2
+            );
         }
     }
 
@@ -895,25 +651,6 @@ export const sketch = function (p, options = {}) {
         });
     }
 
-    function handleGalleryClick() {
-        // Check gallery images
-        const cols = getGridColumns();
-        const itemSize = getGridItemSize();
-        const spacing = mobile ? 12 : 20; // Reduced spacing on mobile
-        const startX = spacing;
-        const startY = 120;
-
-        galleryImages.forEach((img, index) => {
-            const row = Math.floor(index / cols);
-            const col = index % cols;
-            const x = startX + col * (itemSize + spacing);
-            const y = startY + row * (itemSize + spacing);
-
-            if (isPointInRect(p.mouseX, p.mouseY - scrollY, x, y, itemSize, itemSize)) {
-                openLightbox(index);
-            }
-        });
-    }
 
     function handleLightboxClick() {
         if (!currentCollection) return;
@@ -944,19 +681,27 @@ export const sketch = function (p, options = {}) {
                 const staticY = p.height - 70;
                 const arrowSpacing = 80;
 
-                // Left arrow (with wrapping)
+                // Left arrow
                 const leftX = p.width/2 - arrowSpacing - arrowSize/2;
                 if (isPointInRect(p.mouseX, p.mouseY, leftX, staticY - arrowSize/2, arrowSize, arrowSize)) {
-                    // Wrap to last image if at first image, otherwise go to previous
                     lightboxImageIndex = lightboxImageIndex === 0 ? currentCollection.images.length - 1 : lightboxImageIndex - 1;
+                    lightboxImageLoadStart = 0; // Reset loading timer for new image
+                    needsRedraw = true;
+                    lightboxAnimating = true; // Force animation state
+                    lightboxAnimationStart = p.millis(); // Reset animation timer
+                    p.loop(); // Force redraw immediately
                     return;
                 }
 
-                // Right arrow (with wrapping)
+                // Right arrow
                 const rightX = p.width/2 + arrowSpacing - arrowSize/2;
                 if (isPointInRect(p.mouseX, p.mouseY, rightX, staticY - arrowSize/2, arrowSize, arrowSize)) {
-                    // Wrap to first image if at last image, otherwise go to next
                     lightboxImageIndex = lightboxImageIndex === currentCollection.images.length - 1 ? 0 : lightboxImageIndex + 1;
+                    lightboxImageLoadStart = 0; // Reset loading timer for new image
+                    needsRedraw = true;
+                    lightboxAnimating = true; // Force animation state
+                    lightboxAnimationStart = p.millis(); // Reset animation timer
+                    p.loop(); // Force redraw immediately
                     return;
                 }
             }
@@ -971,18 +716,35 @@ export const sketch = function (p, options = {}) {
     function openLightbox(imageIndex) {
         lightboxOpen = true;
         lightboxImageIndex = imageIndex;
+        lightboxImageLoadStart = 0; // Reset loading timer for initial image
         targetLightboxAlpha = 255;
         lightboxAnimationStart = p.millis();
         lightboxAnimating = true;
+        needsRedraw = true;
+        p.loop();
+
+        // Hide HTML gallery when lightbox opens
+        const galleryContainer = document.querySelector('.photo-gallery-container');
+        if (galleryContainer) {
+            galleryContainer.style.display = 'none';
+        }
     }
 
     function closeLightbox() {
         targetLightboxAlpha = 0;
         lightboxAnimationStart = p.millis();
         lightboxAnimating = true;
+        needsRedraw = true;
+        p.loop();
+
+        // Show HTML gallery when lightbox closes
+        const galleryContainer = document.querySelector('.photo-gallery-container');
+        if (galleryContainer) {
+            galleryContainer.style.display = 'block';
+        }
     }
 
-    function loadImage(imagePath, isGalleryImage = false) {
+    function loadImage(imagePath) {
         if (loadedImages.has(imagePath)) return;
 
         loadedImages.set(imagePath, { element: null, loaded: false });
@@ -991,7 +753,7 @@ export const sketch = function (p, options = {}) {
             loadedImages.set(imagePath, { element: img, loaded: true });
 
             // Trigger hero fade animation for collection cards
-            if (!isGalleryImage && mode === 'collections') {
+            if (mode === 'collections') {
                 collectionCards.forEach(card => {
                     if (card.collection.heroImage === imagePath) {
                         card.heroFadeTarget = 255;
@@ -1000,98 +762,23 @@ export const sketch = function (p, options = {}) {
                 });
             }
 
-            // Update gallery loading progress if this is a gallery image
-            if (isGalleryImage && mode === 'gallery' && currentCollection) {
-                updateGalleryLoadingProgress();
+            // Force redraw when image loads (important for lightbox images)
+            needsRedraw = true;
+            if (p._loop === false) {
+                p.loop();
             }
         }, (err) => {
             console.warn('Failed to load image:', imagePath, err);
 
-            // Still update progress even on error
-            if (isGalleryImage && mode === 'gallery' && currentCollection) {
-                updateGalleryLoadingProgress();
+            // Even on error, force a redraw to update the loading state
+            needsRedraw = true;
+            if (p._loop === false) {
+                p.loop();
             }
         });
     }
 
-    function updateGalleryLoadingProgress() {
-        if (!currentCollection) return;
 
-        const loadedCount = currentCollection.images.filter(imgPath => {
-            const loadedImg = loadedImages.get(imgPath);
-            return loadedImg && loadedImg.loaded;
-        }).length;
-
-        galleryLoadingProgress = loadedCount / currentCollection.images.length;
-
-        // If all images are loaded and we need to redraw, create the graphics
-        if (galleryLoadingProgress >= 1.0 && !galleryGraphicsReady) {
-            createGalleryGraphics();
-        }
-    }
-
-    function createGalleryGraphics() {
-        if (!currentCollection || galleryGraphicsReady) return;
-
-        const cols = getGridColumns();
-        const itemSize = getGridItemSize();
-        const spacing = mobile ? 12 : 20; // Reduced spacing on mobile
-        const startX = spacing;
-        const startY = 120; // Leave space for title
-
-        // Calculate total height needed
-        const rows = Math.ceil(galleryImages.length / cols);
-        const totalHeight = startY + rows * (itemSize + spacing) + spacing;
-
-        // Create graphics buffer
-        if (galleryGraphics) {
-            galleryGraphics.remove();
-        }
-        galleryGraphics = p.createGraphics(p.width, totalHeight);
-
-        // Render all images to the graphics buffer
-        galleryImages.forEach((img, index) => {
-            const loadedImg = loadedImages.get(img.path);
-            if (loadedImg && loadedImg.loaded) {
-                const row = Math.floor(index / cols);
-                const col = index % cols;
-                const x = startX + col * (itemSize + spacing);
-                const y = startY + row * (itemSize + spacing);
-
-                // Draw placeholder/container
-                galleryGraphics.fill(40, 40, 45);
-                galleryGraphics.stroke(100, 100);
-                galleryGraphics.strokeWeight(1);
-                galleryGraphics.rect(x, y, itemSize, itemSize);
-
-                // Draw image
-                galleryGraphics.push();
-                galleryGraphics.tint(255, 200);
-
-                // Crop to square
-                const imgSize = Math.min(loadedImg.element.width, loadedImg.element.height);
-                const cropX = (loadedImg.element.width - imgSize) / 2;
-                const cropY = (loadedImg.element.height - imgSize) / 2;
-
-                galleryGraphics.image(loadedImg.element, x, y, itemSize, itemSize, cropX, cropY, imgSize, imgSize);
-                galleryGraphics.pop();
-            }
-        });
-
-        galleryGraphicsReady = true;
-        galleryNeedsRedraw = false;
-
-        // Trigger fade-in animation
-        galleryFadeTarget = 255;
-        galleryFadeStart = p.millis();
-
-        console.log('Gallery graphics created successfully', {
-            width: p.width,
-            height: totalHeight,
-            rows: rows,
-            maxScroll: getMaxScrollDistance()
-        });
-    }
 
     function getHoverTargets() {
         // Return hover check functions for cursor management
@@ -1101,22 +788,6 @@ export const sketch = function (p, options = {}) {
             // Add collection card hover checks
             collectionCards.forEach(card => {
                 targets.push(() => isPointInRect(p.mouseX, p.mouseY, card.x, card.y, card.width, card.height));
-            });
-        } else if (mode === 'gallery' && !lightboxOpen) {
-            // Add gallery item hover checks
-            const cols = getGridColumns();
-            const itemSize = getGridItemSize();
-            const spacing = mobile ? 12 : 20;
-            const startX = spacing;
-            const startY = 120;
-
-            galleryImages.forEach((img, index) => {
-                const row = Math.floor(index / cols);
-                const col = index % cols;
-                const x = startX + col * (itemSize + spacing);
-                const y = startY + row * (itemSize + spacing);
-
-                targets.push(() => isPointInRect(p.mouseX, p.mouseY - scrollY, x, y, itemSize, itemSize));
             });
         } else if (lightboxOpen && currentCollection && currentCollection.images.length > 1) {
             // Add lightbox navigation arrow hover checks

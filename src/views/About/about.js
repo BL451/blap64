@@ -7,7 +7,7 @@ export default (props) => html`
             <h1 class="about-header">Benjamin Lappalainen</h1>
             <h3 class="about-header">(he/him)</h3>
             <div class="profile-image-container">
-                <img src="${profileImage}" alt="Benjamin Lappalainen" class="profile-image">
+                <img src="${profileImage}" alt="Benjamin Lappalainen" class="profile-image" onload="this.classList.add('loaded')">
             </div>
             <p class="main-paragraph">
                 <br>
