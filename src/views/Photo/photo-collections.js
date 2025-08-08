@@ -1,5 +1,11 @@
 // Portrait collection media imports
 import portraitHero from 'url:../../assets/photos/portrait/hero.webp';
+
+// Optimized hero thumbnails (768x768 for fast loading)
+import portraitHeroThumb from 'url:../../assets/photos/hero-thumbs/portrait-hero.webp';
+import performanceHeroThumb from 'url:../../assets/photos/hero-thumbs/performance-hero.webp';
+import aberrantHeroThumb from 'url:../../assets/photos/hero-thumbs/aberrant-hero.webp';
+import astroHeroThumb from 'url:../../assets/photos/hero-thumbs/astro-hero.webp';
 import portrait01 from 'url:../../assets/photos/portrait/portrait-01.webp';
 import portrait02 from 'url:../../assets/photos/portrait/portrait-02.webp';
 import portrait03 from 'url:../../assets/photos/portrait/portrait-03.webp';
@@ -75,6 +81,7 @@ export const photoCollections = [
         slug: 'portrait',
         description: 'Subjects in controlled and natural environments',
         heroImage: portraitHero,
+        heroImageThumb: portraitHeroThumb,
         images: [
             portraitHero, // Hero image as first gallery item
             portrait01,
@@ -108,6 +115,7 @@ export const photoCollections = [
         slug: 'aberrant',
         description: 'Experimental and conceptual photographic explorations',
         heroImage: aberrantHero,
+        heroImageThumb: aberrantHeroThumb,
         images: [
             aberrantHero, // Hero image as first gallery item
             aberrant13,
@@ -131,6 +139,7 @@ export const photoCollections = [
         slug: 'performance',
         description: 'Concerts, live events, and artistic performances',
         heroImage: performanceHero,
+        heroImageThumb: performanceHeroThumb,
         images: [
             performanceHero, // Hero image as first gallery item
             performance09,
@@ -151,6 +160,7 @@ export const photoCollections = [
         slug: 'astro',
         description: 'Celestial objects and astronomical phenomena',
         heroImage: astroHero,
+        heroImageThumb: astroHeroThumb,
         images: [
             astroHero, // Hero image as first gallery item
             astro01,

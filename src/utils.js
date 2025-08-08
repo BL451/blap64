@@ -32,6 +32,14 @@ export const widthCheck = (w) => {
     return false;
 };
 
+export const isDesktopOnly = () => {
+    // Returns true only for desktop devices (excludes tablets and phones)
+    const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+    const isTablet = /iPad/i.test(navigator.userAgent) ||
+                    (/Android/i.test(navigator.userAgent) && !/Chrome/i.test(navigator.userAgent));
+    return !(isMobile || isTablet);
+};
+
 // Media utilities
 export const getMediaPath = (mediaItem) => {
     if (typeof mediaItem === 'string') {
@@ -736,7 +744,7 @@ export class UIWebButton extends UIObj{
         const alpha = overrideAlpha !== null ? overrideAlpha : baseAlpha;
 
         this.p5.fill(colorR, colorG, colorB, alpha);
-        this.p5.strokeWeight(5);
+        this.p5.strokeWeight(1);
         this.p5.stroke(240, alpha);
         this.p5.square(this.p.x, this.p.y, this.scale);
     }

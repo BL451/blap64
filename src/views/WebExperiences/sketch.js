@@ -11,6 +11,8 @@ export const sketch = function (p, options = {}) {
 	let infoCardAnimationStart = 0;
 	let infoCardAnimating = false;
 	let targetAlpha = 0;
+    let t = 0;
+    const PHYSICS_FRAMES = 60 * 8;
 
 	p.setup = async function() {
 		const s = getViewportSize();
@@ -86,7 +88,7 @@ export const sketch = function (p, options = {}) {
 
 	p.draw = function() {
 		p.background(22);
-
+        t++;
 		// Calculate nearest neighbors for each button
 		for (let i = 0; i < webButtons.length; i++) {
 			findNearestNeighbors(webButtons[i], webButtons, numNeighbors);
@@ -100,33 +102,33 @@ export const sketch = function (p, options = {}) {
 		// Update and display buttons
 		for (let i = 0; i < webButtons.length; i++) {
 			let b1 = webButtons[i];
+			if (t < PHYSICS_FRAMES){
+                // Center attraction
+    			let toCenter = p.createVector(p.width/2, p.height/2).sub(b1.p);
+    			toCenter.setMag(0.01 * (PHYSICS_FRAMES - t)/PHYSICS_FRAMES);
+    			applyForce(b1, toCenter);
 
-			// Center attraction
-			let toCenter = p.createVector(p.width/2, p.height/2).sub(b1.p);
-			toCenter.setMag(0.01);
-			applyForce(b1, toCenter);
+    			// Inter-button forces
+    			for (let j = 0; j < webButtons.length; j++) {
+    				if (i === j) continue;
+    				let b2 = webButtons[j];
+    				let dir = p5.Vector.sub(b2.p, b1.p);
+    				let distance = dir.mag();
+    				let minDist = b1.radius + b2.radius;
 
-			// Inter-button forces
-			for (let j = 0; j < webButtons.length; j++) {
-				if (i === j) continue;
-				let b2 = webButtons[j];
-				let dir = p5.Vector.sub(b2.p, b1.p);
-				let distance = dir.mag();
-				let minDist = b1.radius + b2.radius;
+    				if (distance < 0.1) continue;
 
-				if (distance < 0.1) continue;
-
-				if (distance < minDist) {
-					let overlap = minDist - distance;
-					let force = dir.copy().normalize().mult(-0.01 * overlap);
-					applyForce(b1, force);
-				} else {
-					let attract = dir.copy().normalize().mult(0.01);
-					applyForce(b1, attract);
-				}
+    				if (distance < minDist) {
+    					let overlap = minDist - distance;
+    					let force = dir.copy().normalize().mult(-0.01 * overlap * (PHYSICS_FRAMES - t)/PHYSICS_FRAMES);
+    					applyForce(b1, force);
+    				} else {
+    					let attract = dir.copy().normalize().mult(0.01 * (PHYSICS_FRAMES - t)/PHYSICS_FRAMES);
+    					applyForce(b1, attract);
+    				}
+    			}
+    			updateButton(b1);
 			}
-
-			updateButton(b1);
 
 			// Check hover state
 			const isHovered = b1.contains(p.mouseX, p.mouseY);
@@ -180,7 +182,7 @@ export const sketch = function (p, options = {}) {
 			const s = getViewportSize();
 			p.resizeCanvas(s.width, s.height);
 			mobile = widthCheck(s.width);
-
+            t = 0;
 			// Reposition buttons that might be off-screen
 			for (let button of webButtons) {
 				button.p.x = p.constrain(button.p.x, button.radius, p.width - button.radius);
@@ -192,7 +194,7 @@ export const sketch = function (p, options = {}) {
 
 	p.mousePressed = function(event) {
 		if (event && event.button !== 0) return;
-		
+
 		// Block all interactions if help popup is open
 		if (window.helpPopupOpen) {
 			return;
@@ -220,7 +222,7 @@ export const sketch = function (p, options = {}) {
 			const clickOutside = isMobile ?
 				(p.mouseX < cardX || p.mouseX > cardX + cardWidth || p.mouseY < cardY || p.mouseY > cardY + cardHeight + 60) :
 				(p.mouseX < cardX || p.mouseX > cardX + cardWidth || p.mouseY < cardY || p.mouseY > cardY + cardHeight);
-			
+
 			if (clickOutside) {
 				closeInfoCard();
 				return;
@@ -396,7 +398,7 @@ export const sketch = function (p, options = {}) {
 				breadcrumbContainer.style.display = 'none';
 			}
 		}
-		
+
 		// Hide help button on both mobile and desktop when infoCard opens
 		const helpContainer = document.getElementById("help-container");
 		if (helpContainer) {
@@ -481,7 +483,7 @@ export const sketch = function (p, options = {}) {
 				breadcrumbContainer.style.display = 'block';
 			}
 		}
-		
+
 		// Show help button on both mobile and desktop when infoCard closes
 		const helpContainer = document.getElementById("help-container");
 		if (helpContainer) {

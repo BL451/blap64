@@ -83,6 +83,17 @@ import theReaderVideoThumb from 'url:../../assets/interactive/live/the-reader/th
 import wePlayVideoThumb from 'url:../../assets/interactive/live/we-play/thumbnails/IMG_7210_optimized_thumb.jpg';
 import lw131VideoThumb from 'url:../../assets/interactive/live/lw-13-1/thumbnails/LW13-1_comp_optimized_thumb.jpg';
 
+// Preview thumbnails (256x256 optimized for fast hover loading)
+import sketchingFlockPreview from 'url:../../assets/interactive/live/preview-thumbs/sketching-flock.webp';
+import wePlayPreview from 'url:../../assets/interactive/live/preview-thumbs/we-play.webp';
+import blindSpotsPreview from 'url:../../assets/interactive/live/preview-thumbs/blind-spots.webp';
+import theReaderPreview from 'url:../../assets/interactive/live/preview-thumbs/the-reader.webp';
+import longWinter131Preview from 'url:../../assets/interactive/live/preview-thumbs/long-winter-13-1.webp';
+import gameSetMatchPreview from 'url:../../assets/interactive/live/preview-thumbs/game-set-match.webp';
+import liveCodingPreview from 'url:../../assets/interactive/live/preview-thumbs/live-coding.webp';
+import birdConductorPreview from 'url:../../assets/interactive/live/preview-thumbs/bird-conductor.webp';
+import surveillYourselfPreview from 'url:../../assets/interactive/live/preview-thumbs/surveil-yourself.webp';
+
 export const projects = [
     {
         name: "Sketching Flock",
@@ -101,7 +112,8 @@ export const projects = [
         thumbnails: {
             [sketchingFlockVideo1]: sketchingFlockVideo1Thumb,
             [sketchingFlockVideo2]: sketchingFlockVideo2Thumb
-        }
+        },
+        previewThumbnail: sketchingFlockPreview
     },
     {
         name: "We Play In The World They Make",
@@ -119,7 +131,8 @@ export const projects = [
         ],
         thumbnails: {
             [wePlayVideo]: wePlayVideoThumb
-        }
+        },
+        previewThumbnail: wePlayPreview
     },
     {
         name: "Blind Spots",
@@ -136,7 +149,8 @@ export const projects = [
         thumbnails: {
             [blindSpotsVideo1]: blindSpotsVideo1Thumb,
             [blindSpotsVideo2]: blindSpotsVideo2Thumb
-        }
+        },
+        previewThumbnail: blindSpotsPreview
     },
     {
         name: "The Reader",
@@ -152,7 +166,8 @@ export const projects = [
         ],
         thumbnails: {
             [theReaderVideo]: theReaderVideoThumb
-        }
+        },
+        previewThumbnail: theReaderPreview
     },
     {
         name: "Long Winter 13.1",
@@ -172,7 +187,8 @@ export const projects = [
         ],
         thumbnails: {
             [lw131Video]: lw131VideoThumb
-        }
+        },
+        previewThumbnail: longWinter131Preview
     },
     {
         name: "Game, Set, Match",
@@ -192,7 +208,8 @@ export const projects = [
             [gameSetMatchVideo1]: gameSetMatchVideo1Thumb,
             [gameSetMatchVideo2]: gameSetMatchVideo2Thumb,
             [gameSetMatchVideo3]: gameSetMatchVideo3Thumb
-        }
+        },
+        previewThumbnail: gameSetMatchPreview
     },
     {
         name: "Live Coding",
@@ -200,7 +217,7 @@ export const projects = [
         type: "Live Visual Performance",
         location: "Toronto, Canada",
         year: "2024",
-        description: "Live Coding is a real-time performance where code creation becomes the primary medium, generating evolving visuals through progressive algorithmic iteration. Using JavaScript and p5.js within the P5LIVE environment, the performance created abstract animations that responded to live DJ sets through repetition, trigonometric compositions, and frameBuffer manipulations. The work positions programming as performative practice, exploring the intersection of computational improvisation and musical collaboration.\n\nPerformed on May 18th, 2024 and March 2nd, 2024 at Open HDMI events at InterAccess (Toronto, Canada).\n\nThis performance utilized the P5LIVE live coding environment by Ted Davis, JavaScript with p5.js creative coding library, and real-time audio input for responsive visual generation.",
+        description: "Live Coding is a real-time performance where code creation becomes the primary medium, generating evolving visuals through progressive algorithmic iteration. Using JavaScript and p5.js within the P5LIVE environment, the performance created abstract animations that responded to live DJ sets through repetition, trigonometric compositions, and framebuffer manipulations. The work positions programming as performative practice, exploring the intersection of computational improvisation and musical collaboration.\n\nPerformed on May 18th, 2024 and March 2nd, 2024 at Open HDMI events at InterAccess (Toronto, Canada).\n\nThis performance utilized the P5LIVE live coding environment by Ted Davis, JavaScript with p5.js creative coding library, and real-time audio input for responsive visual generation.",
         images: [
             liveCodingVideo2,
             liveCodingVideo3,
@@ -216,7 +233,8 @@ export const projects = [
             [liveCodingVideo3]: liveCodingVideo3Thumb,
             [liveCodingVideo4]: liveCodingVideo4Thumb,
             [liveCodingVideo5]: liveCodingVideo5Thumb
-        }
+        },
+        previewThumbnail: liveCodingPreview
     },
     {
         name: "Bird Conductor",
@@ -233,7 +251,8 @@ export const projects = [
         ],
         thumbnails: {
             [birdConductorVideo]: birdConductorVideoThumb
-        }
+        },
+        previewThumbnail: birdConductorPreview
     },
     {
         name: "Surveil Yourself",
@@ -255,7 +274,8 @@ export const projects = [
             [surveillYourselfVideo1]: surveillYourselfVideo1Thumb,
             [surveillYourselfVideo2]: surveillYourselfVideo2Thumb,
             [surveillYourselfVideo3]: surveillYourselfVideo3Thumb
-        }
+        },
+        previewThumbnail: surveillYourselfPreview
     },
 ];
 

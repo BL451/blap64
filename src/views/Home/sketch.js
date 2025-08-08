@@ -39,6 +39,8 @@ export const sketch = function (p, options = {}) {
 		layoutUI();
 		smoothX = p.width/2;
 		smoothY = p.height/2;
+        p.mouseX = smoothX;
+        p.mouseY = smoothY;
 		p.textFont('BPdotsSquareVF', {
             fontVariationSettings: `wght 900`
         });

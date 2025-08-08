@@ -402,8 +402,9 @@ export const sketch = function (p, options = {}) {
             const x = startX + col * (cardSize + spacing);
             const y = startY + row * (cardSize + spacing);
 
-            // Check if hero image is already loaded
-            const heroLoaded = loadedImages.has(collection.heroImage) && loadedImages.get(collection.heroImage).loaded;
+            // Check if hero image is already loaded (use optimized thumbnail for cards)
+            const heroImageSrc = collection.heroImageThumb || collection.heroImage;
+            const heroLoaded = loadedImages.has(heroImageSrc) && loadedImages.get(heroImageSrc).loaded;
 
             collectionCards.push({
                 collection,
@@ -414,11 +415,12 @@ export const sketch = function (p, options = {}) {
                 targetHoverAlpha: mobile ? 1 : 0,
                 heroFadeAlpha: heroLoaded ? 255 : 0,
                 heroFadeTarget: heroLoaded ? 255 : 0,
-                heroFadeStart: heroLoaded ? 0 : p.millis()
+                heroFadeStart: heroLoaded ? 0 : p.millis(),
+                heroImageSrc: heroImageSrc
             });
 
-            // Load hero image for this collection
-            loadImage(collection.heroImage);
+            // Load optimized hero thumbnail for this collection
+            loadImage(heroImageSrc);
         });
     }
 
@@ -439,8 +441,8 @@ export const sketch = function (p, options = {}) {
                 card.hoverAlpha = 1;
             }
 
-            // Hero image background
-            const loadedHeroImg = loadedImages.get(card.collection.heroImage);
+            // Hero image background (use optimized thumbnail for cards)
+            const loadedHeroImg = loadedImages.get(card.heroImageSrc);
             if (loadedHeroImg && loadedHeroImg.loaded) {
                 p.push();
                 p.tint(255, (180 + card.hoverAlpha * 75) * (card.heroFadeAlpha / 255)); // Fade + transparency
@@ -876,7 +878,7 @@ export const sketch = function (p, options = {}) {
             // Trigger hero fade animation for collection cards
             if (mode === 'collections') {
                 collectionCards.forEach(card => {
-                    if (card.collection.heroImage === imagePath) {
+                    if (card.heroImageSrc === imagePath) {
                         card.heroFadeTarget = 255;
                         card.heroFadeStart = p.millis();
                     }

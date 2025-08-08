@@ -1,4 +1,4 @@
-import { getViewportSize, UIPlanetButton, smoothFollow, loadGoogleFontSet, widthCheck, updateCursor, getMediaPath, isVideoFile, calculateCropDimensions, daysSince, radialToCartesian } from "../../utils";
+import { getViewportSize, UIPlanetButton, smoothFollow, loadGoogleFontSet, widthCheck, updateCursor, getMediaPath, isVideoFile, calculateCropDimensions, daysSince, radialToCartesian, isDesktopOnly } from "../../utils";
 import { projects, findProjectBySlug, getProjectIndexBySlug } from "./project-details";
 
 export const sketch = function (p, options = {}) {
@@ -37,7 +37,7 @@ export const sketch = function (p, options = {}) {
     let currentPreviewIndex = 0;
     let previewStartTime = 0;
     let previewDuration = 2000; // 2 seconds per preview
-    
+
     // Text calculation cache for performance
     let textCache = new Map();
 
@@ -223,11 +223,15 @@ export const sketch = function (p, options = {}) {
         // Calculate days since project start
         sols = daysSince('2024-08-14');
         window.addEventListener('hashchange', hashChangeHandler);
+        smoothX = p.width / 2;
+        smoothY = p.height * 0.94;
+        p.mouseX = smoothX;
+        p.mouseY = smoothY;
     };
 
     p.draw = function draw() {
         p.background(23);
-        frameCount++;
+
 
         // Handle smooth cursor movement - mobile vs desktop
         if (mobile && planetButtons && planetButtons.length > 0) {
@@ -337,7 +341,7 @@ export const sketch = function (p, options = {}) {
         if (expandedMediaIndex !== null || expandedMediaAlpha > 0) {
             renderExpandedMedia();
         }
-        
+
     };
 
     p.windowResized = function windowResized() {
@@ -358,7 +362,7 @@ export const sketch = function (p, options = {}) {
         if (event && event.button !== 0) {
             return;
         }
-        
+
         // Block all interactions if help popup is open
         if (window.helpPopupOpen) {
             return;
@@ -673,7 +677,7 @@ export const sketch = function (p, options = {}) {
                 breadcrumbContainer.style.display = 'none';
             }
         }
-        
+
         // Hide help button on both mobile and desktop when infoCard opens
         const helpContainer = document.getElementById("help-container");
         if (helpContainer) {
@@ -751,7 +755,7 @@ export const sketch = function (p, options = {}) {
                 breadcrumbContainer.style.display = 'block';
             }
         }
-        
+
         // Show help button on both mobile and desktop when infoCard closes
         const helpContainer = document.getElementById("help-container");
         if (helpContainer) {
@@ -848,23 +852,23 @@ export const sketch = function (p, options = {}) {
     }
 
 
-    
+
     function preCalculateTextData() {
         textCache.clear();
-        
+
         const textOffsetX = mobile ? 25 : 40;
         const textSize = mobile ? 14 : 18;
-        
+
         // Set text size for accurate width calculations
         p.textSize(textSize);
-        
+
         projects.forEach((project, index) => {
             // Calculate text wrapping
             const maxChars = 16;
             const words = project.name.split(' ');
             let lines = [];
             let currentLine = '';
-            
+
             for (const word of words) {
                 if ((currentLine + word).length > maxChars && currentLine.length > 0) {
                     lines.push(currentLine.trim());
@@ -876,18 +880,18 @@ export const sketch = function (p, options = {}) {
             if (currentLine.length > 0) {
                 lines.push(currentLine.trim());
             }
-            
+
             // Calculate dimensions
             const lineHeight = textSize * 1.2;
             const totalHeight = lines.length * lineHeight;
-            
+
             // Get maximum line width
             let maxWidth = 0;
             lines.forEach(line => {
                 const lineWidth = p.textWidth(line);
                 if (lineWidth > maxWidth) maxWidth = lineWidth;
             });
-            
+
             // Store in cache
             textCache.set(project.name, {
                 lines,
@@ -898,7 +902,7 @@ export const sketch = function (p, options = {}) {
                 lineHeight
             });
         });
-        
+
         // Expose cache globally for UIPlanetButton access
         window.textCache = textCache;
     }
@@ -910,10 +914,10 @@ export const sketch = function (p, options = {}) {
             // Fallback - should not happen if cache is properly initialized
             return false;
         }
-        
+
         const textX = planetButton.p.x + cached.textOffsetX;
         const textY = planetButton.p.y;
-        
+
         // Define text bounding rectangle using cached values
         const textBounds = {
             x: textX,
@@ -929,7 +933,7 @@ export const sketch = function (p, options = {}) {
 
     function setupRadialLayout() {
         planetButtons = [];
-        
+
         // Pre-calculate all text data for performance
         preCalculateTextData();
 
@@ -982,7 +986,7 @@ export const sketch = function (p, options = {}) {
         }
 
         p.pop();
-        
+
         // Render planet buttons with integrated text rendering
         planetButtons.forEach((planetButton, index) => {
             const project = projects[index];
@@ -1194,6 +1198,22 @@ export const sketch = function (p, options = {}) {
 
 
     function loadPreviewMedia(planetButton, project) {
+        if (project && project.previewThumbnail) {
+            // Use optimized 256x256 preview thumbnail for fast loading
+            p.loadImage(project.previewThumbnail, (img) => {
+                planetButton.previewMedia = img;
+            }, (err) => {
+                console.warn('Failed to load preview thumbnail:', err);
+                // Fallback to original logic if preview thumbnail fails
+                loadPreviewMediaFallback(planetButton, project);
+            });
+        } else {
+            // Fallback for projects without preview thumbnails
+            loadPreviewMediaFallback(planetButton, project);
+        }
+    }
+
+    function loadPreviewMediaFallback(planetButton, project) {
         if (project && project.images && project.images.length > 0) {
             const firstMedia = project.images[0];
             const pathString = getMediaPath(firstMedia);
@@ -1469,9 +1489,9 @@ export const sketch = function (p, options = {}) {
             if (!loadedMedia.has(pathString)) {
                 const isVideo = isVideoFile(pathString);
 
-                // Strict mobile handling - NEVER load video elements on mobile
-                const isMobileCheck = widthCheck(p.width);
-                if (isMobileCheck && isVideo) {
+                // Desktop-only video handling - NEVER load video elements on mobile or tablets
+                const isDesktop = isDesktopOnly();
+                if (!isDesktop && isVideo) {
                     if (project.thumbnails && project.thumbnails[mediaItem]) {
                         // Lazy load thumbnail only when needed
                         loadedMedia.set(pathString, { element: null, type: 'video-thumbnail-lazy', videoSrc: pathString, thumbnailPath: project.thumbnails[mediaItem], loaded: false });
@@ -1500,10 +1520,10 @@ export const sketch = function (p, options = {}) {
     }
 
     function loadVideoElement(pathString) {
-        // Only create video elements on desktop
-        const isMobileCheck = widthCheck(p.width);
-        if (isMobileCheck) {
-            console.warn('Attempted to load video on mobile - this should not happen');
+        // Only create video elements on desktop (not tablets or mobile)
+        const isDesktop = isDesktopOnly();
+        if (!isDesktop) {
+            console.warn('Attempted to load video on mobile/tablet - this should not happen');
             return;
         }
 
