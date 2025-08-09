@@ -36,6 +36,7 @@ src/
 
 ### Key Technical Patterns
 - **Custom SPA Router**: Hash-based routing with parameter support (`#!/route`)
+- **Social Media Redirects**: Static HTML redirect pages for Instagram-compatible URLs
 - **p5.js Integration**: Custom `<p5-element>` web component for sketch embedding
 - **Component System**: Custom UI classes (UICornerBoxButton, UIPlanetButton, etc.)
 - **Animation Manager**: Time-based animation sequencing with easing
@@ -165,6 +166,37 @@ python3 optimize_photos.py  # Process new images from import folders
 - **Browser Compatibility**: Test across different browsers and devices
 - **Breadcrumb Navigation**: When adding new compound routes (e.g., `/interactive/web`), always update `src/views/elements/breadcrumb-nav.js` to include the new path. Each segment should be independently clickable (e.g., `/interactive` and `/web` should both be navigable). This ensures proper navigation hierarchy and prevents broken breadcrumb links.
 
+### Asset Optimization Systems
+
+#### Live Experiences Preview Thumbnails (256x256)
+- **Location**: `src/assets/interactive/live/preview-thumbs/`
+- **Script**: `src/assets/interactive/live/optimize_preview_thumbs.py`
+- **Usage**: Optimized thumbnails for hover previews on planet buttons
+- **Integration**: Referenced via `previewThumbnail` property in `project-details.js`
+- **Performance**: Reduces loading time from 100KB+ to 1.8-25.6KB per preview
+- **Format**: WebP, 256x256 center-cropped squares, 85% quality
+
+#### Photo Collection Hero Thumbnails (768x768)  
+- **Location**: `src/assets/photos/hero-thumbs/`
+- **Script**: `src/assets/photos/optimize_hero_thumbs.py`
+- **Usage**: Optimized hero images for photo collection overview cards
+- **Integration**: Referenced via `heroImageThumb` property in `photo-collections.js`
+- **Performance**: 71.3% file size reduction (108-876KB → 50.6-243.3KB)
+- **Format**: WebP, 768x768 center-cropped squares, 90% quality
+- **Note**: Original `heroImage` preserved for gallery viewing
+
+#### Video Loading Strategy
+- **Desktop Only**: Moving video previews and autoplaying gallery videos
+- **Mobile/Tablet**: Static thumbnails only (prevents background audio issues on iPadOS)  
+- **Detection**: Uses `isDesktopOnly()` function in `utils.js` for proper device detection
+- **Implementation**: Video elements only created on true desktop devices
+
+### OpenGraph Integration
+- **File Location**: `public/og-image.webp` (1200x630, 25KB)
+- **Build Integration**: Added to `package.json` predeploy script with `cp public/og-image.webp ./dist`
+- **Meta Tags**: Complete OpenGraph implementation with dimensions and alt text
+- **Deployment**: File copied to root during build for `https://blap64.xyz/og-image.webp` access
+
 ### Physics and Visual Separation Pattern
 - **Independent Parameters**: When creating interactive UI elements with physics, separate physics calculations from visual presentation
 - **Radius vs Scale**: Use `radius` for collision detection and physics interactions, `scale` for visual rendering size
@@ -206,6 +238,20 @@ python3 optimize_photos.py  # Process new images from import folders
 - **Unified Animation Timing**: All modal overlays use 300ms transition duration for consistent user experience
 - **Close Button Positioning**: Web Experiences uses centered close button below iframe on mobile, top-right corner on desktop. Adjust click boundaries and iframe height accordingly
 - **Theme Color Cleanup**: Always restore original theme color in cleanup functions in case sketch destruction occurs while overlay is active
+
+### Social Media Redirect System
+- **Purpose**: Static HTML redirect pages solve Instagram's URL encoding issues with hashbang routes (# character gets encoded)
+- **Structure**: For each SPA route like `/#/links`, create corresponding directory with `index.html` at `/links/index.html`
+- **Template Requirements**: Each redirect page must include:
+  - `<meta name="theme-color" content="#171717">` to match site theme and prevent white flash
+  - `<meta http-equiv="refresh" content="0; url=https://blap64.xyz/#/[ROUTE]">` for instant redirect
+  - `<script>window.location.href = "https://blap64.xyz/#/[ROUTE]";</script>` as JavaScript fallback
+  - CSS styling: `body { background-color: #171717; color: #fff; font-family: sans-serif; margin: 0; padding: 20px; }`
+  - Manual fallback link for users with JavaScript disabled
+- **Current Implementation**: Redirect pages exist for `/links`, `/about`, `/interactive`, `/interactive/web`, `/interactive/live`, and `/photo`
+- **Deployment**: Redirect directories are automatically copied to `dist/` during build process via updated `predeploy` script (`cp -r links about interactive photo dist/`)
+- **Development Note**: Redirects only work after deployment or when serving built `dist/` folder - not during `npm run dev`
+- **New Route Protocol**: When adding new routes to the SPA, ALWAYS create corresponding redirect pages using the established template pattern
 
 ### p5.js Event Handling Limitations
 - **CSS Pointer Events**: `pointer-events: none` doesn't work with p5.js canvases - use global flag approach instead

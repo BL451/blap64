@@ -13,7 +13,7 @@
     },
     "scripts": {
         "dev": "parcel index.html --port 4321",
-        "predeploy": "rm -rf dist && parcel build index.html --public-url https://blap64.xyz && cp CNAME ./dist",
+        "predeploy": "rm -rf dist && parcel build index.html --public-url https://blap64.xyz && cp CNAME ./dist && cp public/og-image.webp ./dist && cp -r links about interactive photo dist/",
         "deploy": "gh-pages -d dist"
     },
     "devDependencies": {

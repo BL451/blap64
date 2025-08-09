@@ -19,7 +19,7 @@ export const faqConfig = [
         answer: "The dynamic pages on this site are constructed using a creative coding library called <a href=\"https://p5js.org\" target=\"_blank\">p5.js</a>. I'm a big advocate for this library and teach people how to make art with it, as well as teach programming using it as a starting point. Otherwise, the site was built in HTML, CSS, and vanilla JavaScript. <a href=\"https://parceljs.org/\">Parcel</a> is the bundler, and the site is deployed to <a href=\"https://pages.github.com/\">GitHub Pages</a> so that my only expense is the domain."
     },
     {
-        question: "This is a bit much for me.",
+        question: "\"This is a bit much for me.\"",
         answer: "If you don't like it, it's not for you. <br><br> However, a 'brutalist' version of the site will be available soon with the same content in a utilitarian package."
     }
 ];
