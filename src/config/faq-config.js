@@ -4,11 +4,7 @@
 export const faqConfig = [
     {
         question: "Navigation",
-        answer: "Click on the desired 'path' in the bottom left corner to navigate back to a previous view."
-    },
-    {
-        question: "Web Presence",
-        answer: "Like what you see on this website? <a href=mailto:hello@blap64.xyz>Email me</a> and let's discuss what I can build for you."
+        answer: "Click on the desired 'path' in the bottom left corner to navigate back to a previous view.<br><br>Orange exclamation mark button (left of the one you just clicked) for contact info & services."
     },
     {
         question: "Lore",

@@ -173,8 +173,7 @@ export const sketch = function (p, options = {}) {
         p.background(23);
         p.textAlign(p.CENTER, p.CENTER);
         p.strokeCap(p.PROJECT);
-        await loadGoogleFontSet('../../assets/fonts/BPdotsSquareVF.ttf');
-        await loadGoogleFontSet('../../assets/fonts/ZxGamut.ttf');
+        // Fonts already loaded via CSS
         p.textFont('BPdotsSquareVF', {
             fontVariationSettings: `wght 900`
         });
@@ -364,7 +363,7 @@ export const sketch = function (p, options = {}) {
         }
 
         // Block all interactions if help popup is open
-        if (window.helpPopupOpen) {
+        if (window.helpPopupOpen || window.contactPopupOpen) {
             return;
         }
         const ANIMATION_DELAY = 500;
@@ -549,7 +548,7 @@ export const sketch = function (p, options = {}) {
 
     p.mouseReleased = function () {
         // Block all interactions if help popup is open
-        if (window.helpPopupOpen) {
+        if (window.helpPopupOpen || window.contactPopupOpen) {
             return;
         }
         if (galleryDragging) {
@@ -678,10 +677,14 @@ export const sketch = function (p, options = {}) {
             }
         }
 
-        // Hide help button on both mobile and desktop when infoCard opens
+        // Hide help and contact buttons on both mobile and desktop when infoCard opens
         const helpContainer = document.getElementById("help-container");
+        const contactContainer = document.getElementById("contact-container");
         if (helpContainer) {
             helpContainer.style.display = 'none';
+        }
+        if (contactContainer) {
+            contactContainer.style.display = 'none';
         }
 
         // Update theme color for iOS status bar to match dimmed overlay
@@ -756,10 +759,14 @@ export const sketch = function (p, options = {}) {
             }
         }
 
-        // Show help button on both mobile and desktop when infoCard closes
+        // Show help and contact buttons on both mobile and desktop when infoCard closes
         const helpContainer = document.getElementById("help-container");
+        const contactContainer = document.getElementById("contact-container");
         if (helpContainer) {
             helpContainer.style.display = 'block';
+        }
+        if (contactContainer) {
+            contactContainer.style.display = 'block';
         }
 
         // Restore original theme color for iOS status bar

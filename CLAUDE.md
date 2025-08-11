@@ -190,6 +190,7 @@ python3 optimize_photos.py  # Process new images from import folders
 - **Mobile/Tablet**: Static thumbnails only (prevents background audio issues on iPadOS)  
 - **Detection**: Uses `isDesktopOnly()` function in `utils.js` for proper device detection
 - **Implementation**: Video elements only created on true desktop devices
+- **iPadOS Detection**: Modern iPads (iOS 13+) report user agent as "Macintosh" instead of "iPad" - must check for `navigator.maxTouchPoints > 1` to properly detect touch-capable devices and prevent video autoplay
 
 ### OpenGraph Integration
 - **File Location**: `public/og-image.webp` (1200x630, 25KB)
@@ -232,7 +233,7 @@ python3 optimize_photos.py  # Process new images from import folders
 ### Modal Overlay System & Mobile Integration
 - **Help Button Hiding**: Help button is hidden on both desktop and mobile when any modal overlay is active (infoCards, lightboxes, help popup) to prevent UI conflicts and maintain focus on overlay content
 - **Breadcrumb Navigation**: Hidden only on mobile when infoCards are open (to save screen space), visible on desktop
-- **Global Flag Pattern**: Use `window.helpPopupOpen` flag for cross-component communication when p5.js bypasses CSS pointer-events
+- **Global Flag Pattern**: Use `window.helpPopupOpen` and `window.contactPopupOpen` flags for cross-component communication when p5.js bypasses CSS pointer-events. All p5.js interaction checks should include both flags: `if (window.helpPopupOpen || window.contactPopupOpen) return;`
 - **iOS Theme Color Integration**: Dynamically update `meta[name="theme-color"]` to `#000000` when overlays open, restore to `#171717` when closed. Immediate changes work better than delayed transitions due to iOS's native fade effect
 - **Rendering Order**: HUD decorations and titles must render before overlay backgrounds to be properly dimmed by semi-transparent overlays
 - **Unified Animation Timing**: All modal overlays use 300ms transition duration for consistent user experience

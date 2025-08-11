@@ -86,7 +86,7 @@ export const sketch = function (p) {
         }
         
         // Block all interactions if help popup is open
-        if (window.helpPopupOpen) {
+        if (window.helpPopupOpen || window.contactPopupOpen) {
             return;
         }
         const ANIMATION_DELAY = 500;

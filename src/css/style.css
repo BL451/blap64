@@ -263,6 +263,8 @@ h3 {
 .about-bio {
     flex: 1;
     padding: 3% 0% 3% 3%;
+    padding-bottom: max(3%, env(keyboard-inset-height, 0px));
+    padding-bottom: max(3%, 80px); /* Fallback for browsers without env() support */
     overflow-y: auto;
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
@@ -275,6 +277,8 @@ h3 {
 .about-cv {
     flex: 1.5;
     padding: 3% 3% 3% 5%;
+    padding-bottom: max(3%, env(keyboard-inset-height, 0px));
+    padding-bottom: max(3%, 80px); /* Fallback for browsers without env() support */
     overflow-y: auto;
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
@@ -353,12 +357,20 @@ body.lightbox-active .breadcrumb-nav {
         overflow: visible;
     }
 
-    .about-bio, .about-cv {
+    .about-bio {
         flex: none;
-        padding: 5% 5%;
+        padding: 5% 5% 2% 5%; /* Reduced bottom padding between sections on mobile */
         overflow: visible;
     }
 
+    .about-cv {
+        flex: none;
+        padding: 5% 5% 20% 5%; /* Keep extra bottom padding for mobile browser UI */
+        overflow: visible;
+    }
+}
+
+@media (max-width: 768px) {
     h1 {
         font-size: 5vmin;
         margin: 0 0 0 0;
@@ -499,9 +511,8 @@ body.lightbox-active .breadcrumb-nav {
     background: rgba(23, 23, 23, 0.6);
     border: 1px solid #4a90e2;
     border-radius: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    place-items: center;
     cursor: pointer;
     user-select: none;
     transition: all 0.3s ease;
@@ -521,6 +532,11 @@ body.lightbox-active .breadcrumb-nav {
 .help-button-icon {
     color: #4a90e2;
     transition: color 0.3s ease;
+    text-align: center;
+    line-height: 1;
+    display: block;
+    width: 100%;
+    transform: translate(1px, 1px);
 }
 
 .help-button:hover .help-button-icon {
@@ -671,6 +687,213 @@ body.lightbox-active .breadcrumb-nav {
     text-decoration: none;
 }
 
+/* Contact Button Styles */
+.contact-button {
+    position: fixed;
+    bottom: 20px;
+    right: 80px; /* Position to the left of help button */
+    z-index: 9998;
+    /* Force square by setting width to match total height */
+    width: fit-content;
+    min-width: 2.4vmin;
+    padding: 10px;
+    background: rgba(23, 23, 23, 0.6);
+    border: 1px solid #d2691e;
+    border-radius: 0;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
+    font-family: "BPdotsSquareVF";
+    font-weight: 600;
+    font-size: 2.4vmin;
+    line-height: 1;
+}
+
+.contact-button:hover {
+    background: rgba(210, 105, 30, 0.2);
+    border-color: #f5be07;
+    transform: scale(1.05);
+}
+
+.contact-button-icon {
+    color: #d2691e;
+    transition: color 0.3s ease;
+    text-align: center;
+    line-height: 1;
+    display: block;
+    width: 100%;
+    transform: translate(1px, 1px);
+}
+
+.contact-button:hover .contact-button-icon {
+    color: #f5be07;
+}
+
+/* Contact Popup Overlay */
+.contact-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0);
+    z-index: 99999; /* Higher than help popup */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.contact-overlay-open {
+    background: rgba(0, 0, 0, 0.8);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* Contact Popup */
+.contact-popup {
+    background: #171717;
+    border: 2px solid #404040;
+    border-radius: 0px;
+    width: 90%;
+    max-width: 768px;
+    max-height: 80vh;
+    overflow: hidden;
+    transform: scale(0.8) translateY(20px);
+    transition: transform 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.contact-popup-open {
+    transform: scale(1) translateY(0);
+}
+
+.contact-popup-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #404040;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(210, 105, 30, 0.1);
+}
+
+.contact-popup-header h2 {
+    margin: 0;
+    font-family: "BPdotsSquareVF";
+    font-weight: 800;
+    font-size: 24px;
+    color: #fafafa;
+}
+
+.contact-popup-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #b0b0b0;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.contact-popup-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fafafa;
+}
+
+.contact-popup-content {
+    padding: 24px;
+    max-height: 60vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.contact-popup-content::-webkit-scrollbar {
+    display: none;
+}
+
+.contact-section {
+    margin-bottom: 32px;
+}
+
+.contact-section:last-child {
+    margin-bottom: 0;
+}
+
+.contact-section-title {
+    font-family: "BPdotsSquareVF";
+    font-weight: 700;
+    font-size: 18px;
+    color: #d2691e;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.contact-section-content {
+    font-family: "ZxGamut";
+    font-weight: 400;
+    font-size: 14px;
+    color: #d0d0d0;
+    line-height: 1.6;
+    padding-left: 12px;
+    border-left: 2px solid rgba(210, 105, 30, 0.3);
+}
+
+.contact-section-content h3 {
+    font-family: "BPdotsSquareVF";
+    font-weight: 600;
+    font-size: 16px;
+    color: #f5be07;
+    margin: 16px 0 8px 0;
+    line-height: 1.4;
+}
+
+.contact-section-content h3:first-child {
+    margin-top: 0;
+}
+
+.contact-section-content p {
+    margin: 12px 0;
+    line-height: 1.6;
+}
+
+.contact-section-content a {
+    font-family: inherit;
+    font-weight: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    color: #d2691e;
+    text-decoration: underline;
+    display: inline;
+    width: auto;
+    text-align: inherit;
+    position: static;
+    margin: 0;
+    padding: 0;
+}
+
+.contact-section-content a:visited {
+    color: #f5be07;
+}
+
+.contact-section-content a:hover {
+    color: #ff8c00;
+    text-decoration: none;
+}
+
 /* Mobile styles for help button */
 @media (max-width: 768px) {
     .help-button {
@@ -711,6 +934,49 @@ body.lightbox-active .breadcrumb-nav {
     .faq-answer a {
         font-size: inherit;
     }
+
+    .contact-button {
+        bottom: 8px;
+        right: 55px; /* Closer to help button on mobile */
+        /* Force square by setting width to match total height */
+        width: fit-content;
+        min-width: 4vmin;
+        padding: 8px;
+        font-size: 4vmin;
+    }
+
+    .contact-popup {
+        width: 95%;
+        margin: 0 8px;
+    }
+
+    .contact-popup-header {
+        padding: 16px 20px;
+    }
+
+    .contact-popup-header h2 {
+        font-size: 20px;
+    }
+
+    .contact-popup-content {
+        padding: 20px;
+    }
+
+    .contact-section-title {
+        font-size: 16px;
+    }
+
+    .contact-section-content {
+        font-size: 13px;
+    }
+
+    .contact-section-content h3 {
+        font-size: 14px;
+    }
+
+    .contact-section-content a {
+        font-size: inherit;
+    }
 }
 
 /* Prevent body scroll and block all interactions when help popup is open */
@@ -725,10 +991,37 @@ body.help-active p5-element {
     pointer-events: none;
 }
 
-/* Re-enable pointer events for help elements */
-body.help-active #help-container,
+/* Hide buttons when modal overlays are active */
 body.help-active .help-button,
+body.help-active .contact-button {
+    opacity: 0.3;
+}
+
+body.contact-active .help-button,
+body.contact-active .contact-button {
+    opacity: 0.3;
+}
+
+/* Re-enable pointer events for help elements */
 body.help-active .help-overlay,
 body.help-active .help-popup {
+    pointer-events: auto;
+}
+
+/* Prevent body scroll and block all interactions when contact popup is open */
+body.contact-active {
+    overflow: hidden;
+}
+
+body.contact-active #app,
+body.contact-active #breadcrumb-container,
+body.contact-active canvas,
+body.contact-active p5-element {
+    pointer-events: none;
+}
+
+/* Re-enable pointer events for contact elements */
+body.contact-active .contact-overlay,
+body.contact-active .contact-popup {
     pointer-events: auto;
 }

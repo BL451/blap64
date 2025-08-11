@@ -28,7 +28,7 @@ export const sketch = function (p, options = {}) {
         p.background(23);
         p.strokeCap(p.PROJECT);
 
-        await loadGoogleFontSet('../../assets/fonts/BPdotsSquareVF.ttf');
+        // Font already loaded via CSS
         p.textFont('BPdotsSquareVF', {
             fontVariationSettings: `wght 600`
         });

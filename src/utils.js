@@ -34,10 +34,15 @@ export const widthCheck = (w) => {
 
 export const isDesktopOnly = () => {
     // Returns true only for desktop devices (excludes tablets and phones)
-    const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
-    const isTablet = /iPad/i.test(navigator.userAgent) ||
-                    (/Android/i.test(navigator.userAgent) && !/Chrome/i.test(navigator.userAgent));
-    return !(isMobile || isTablet);
+    const userAgent = navigator.userAgent;
+    
+    // Modern iPad detection - iOS 13+ iPads may report as desktop Safari
+    const isIpadOS = /Macintosh/i.test(userAgent) && navigator.maxTouchPoints > 1;
+    const isTraditionalMobile = /iPhone|iPad|Android/i.test(userAgent);
+    const isTablet = /iPad/i.test(userAgent) || isIpadOS ||
+                    (/Android/i.test(userAgent) && !/Chrome/i.test(userAgent));
+    
+    return !(isTraditionalMobile || isTablet);
 };
 
 // Media utilities

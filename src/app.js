@@ -4,6 +4,7 @@ import { mobileCheck } from "./utils.js";
 import { render } from "lit";
 import { createBreadcrumbNav } from "./views/elements/breadcrumb-nav.js";
 import { createHelpButton } from "./views/elements/help-button.js";
+import { createContactButton } from "./views/elements/contact-button.js";
 
 import homeView from "./views/Home/home.js";
 import codeartView from "./views/CodeArt/codeart.js";
@@ -39,6 +40,12 @@ if (breadcrumbContainer) {
     const initialPath = rawPath && rawPath !== '' ?
         (rawPath.startsWith('/') ? rawPath : '/' + rawPath) : '/';
     render(createBreadcrumbNav(initialPath), breadcrumbContainer);
+}
+
+// Initialize contact button
+const contactContainer = document.getElementById("contact-container");
+if (contactContainer) {
+    render(createContactButton(), contactContainer);
 }
 
 // Initialize help button

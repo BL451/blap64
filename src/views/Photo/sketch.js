@@ -106,9 +106,7 @@ export const sketch = function (p, options = {}) {
         const s = getViewportSize();
         p.createCanvas(s.width, s.height);
 
-        // Initialize fonts
-        await loadGoogleFontSet('../../assets/fonts/BPdotsSquareVF.ttf');
-        await loadGoogleFontSet('../../assets/fonts/ZxGamut.ttf');
+        // Fonts already loaded via CSS
         p.textFont('BPdotsSquareVF', {
             fontVariationSettings: `wght 900`
         });
@@ -317,7 +315,7 @@ export const sketch = function (p, options = {}) {
         if (event && event.button !== 0) return;
         
         // Block all interactions if help popup is open
-        if (window.helpPopupOpen) {
+        if (window.helpPopupOpen || window.contactPopupOpen) {
             return;
         }
         
@@ -332,7 +330,7 @@ export const sketch = function (p, options = {}) {
 
     p.mouseReleased = function mouseReleased(event) {
         // Block all interactions if help popup is open
-        if (window.helpPopupOpen) {
+        if (window.helpPopupOpen || window.contactPopupOpen) {
             return;
         }
 
@@ -825,10 +823,14 @@ export const sketch = function (p, options = {}) {
         // Add class to body for CSS targeting
         document.body.classList.add('lightbox-active');
 
-        // Hide help button when lightbox opens
+        // Hide help and contact buttons when lightbox opens
         const helpContainer = document.getElementById("help-container");
+        const contactContainer = document.getElementById("contact-container");
         if (helpContainer) {
             helpContainer.style.display = 'none';
+        }
+        if (contactContainer) {
+            contactContainer.style.display = 'none';
         }
 
         // Update theme color for iOS status bar to match dimmed overlay
@@ -854,10 +856,14 @@ export const sketch = function (p, options = {}) {
         // Remove class from body
         document.body.classList.remove('lightbox-active');
 
-        // Show help button when lightbox closes
+        // Show help and contact buttons when lightbox closes
         const helpContainer = document.getElementById("help-container");
+        const contactContainer = document.getElementById("contact-container");
         if (helpContainer) {
             helpContainer.style.display = 'block';
+        }
+        if (contactContainer) {
+            contactContainer.style.display = 'block';
         }
 
         // Restore original theme color for iOS status bar

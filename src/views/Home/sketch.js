@@ -26,7 +26,7 @@ export const sketch = function (p, options = {}) {
 		p.stroke(230);
 		p.strokeWeight(4);
 		p.strokeCap(p.PROJECT);
-		await loadGoogleFontSet('../../assets/fonts/BPdotsSquareVF.ttf');
+		// Font already loaded via CSS
 		p.textAlign(p.CENTER, p.CENTER);
 		short = p.min(p.width, p.height);
 		const s_font = mobile ? 14 : Math.max(0.022*p.width, 32);
@@ -211,7 +211,7 @@ export const sketch = function (p, options = {}) {
         }
 
         // Block all interactions if help popup is open
-        if (window.helpPopupOpen) {
+        if (window.helpPopupOpen || window.contactPopupOpen) {
             return;
         }
 

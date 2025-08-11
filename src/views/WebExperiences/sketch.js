@@ -52,7 +52,7 @@ export const sketch = function (p, options = {}) {
 		document.addEventListener('click', enableHighPerformance, { once: true });
 		document.addEventListener('keydown', enableHighPerformance, { once: true });
 
-		await loadGoogleFontSet('../../assets/fonts/BPdotsSquareVF.ttf');
+		// Font already loaded via CSS
 		p.textFont('BPdotsSquareVF', {
 			fontVariationSettings: `wght 900`
 		});
@@ -196,7 +196,7 @@ export const sketch = function (p, options = {}) {
 		if (event && event.button !== 0) return;
 
 		// Block all interactions if help popup is open
-		if (window.helpPopupOpen) {
+		if (window.helpPopupOpen || window.contactPopupOpen) {
 			return;
 		}
 
@@ -399,10 +399,14 @@ export const sketch = function (p, options = {}) {
 			}
 		}
 
-		// Hide help button on both mobile and desktop when infoCard opens
+		// Hide help and contact buttons on both mobile and desktop when infoCard opens
 		const helpContainer = document.getElementById("help-container");
+		const contactContainer = document.getElementById("contact-container");
 		if (helpContainer) {
 			helpContainer.style.display = 'none';
+		}
+		if (contactContainer) {
+			contactContainer.style.display = 'none';
 		}
 
 		// Update breadcrumb to show current project
@@ -484,10 +488,14 @@ export const sketch = function (p, options = {}) {
 			}
 		}
 
-		// Show help button on both mobile and desktop when infoCard closes
+		// Show help and contact buttons on both mobile and desktop when infoCard closes
 		const helpContainer = document.getElementById("help-container");
+		const contactContainer = document.getElementById("contact-container");
 		if (helpContainer) {
 				helpContainer.style.display = 'block';
+		}
+		if (contactContainer) {
+				contactContainer.style.display = 'block';
 		}
 
 		// Update URL back to main web experiences page
