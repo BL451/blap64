@@ -43,10 +43,10 @@ export const links = [
         description: "Writing"
     },
     {
-        id: "email",
-        title: "Email",
-        url: "mailto:hello@blap64.xyz",
-        icon: "MAIL", // Text icon for now
-        description: "Contact me!"
+        id: "contact",
+        title: "Contact & Services",
+        url: "contact-popup",
+        icon: "MESG", // Text icon for now
+        description: "Get in touch!"
     },
 ];

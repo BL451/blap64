@@ -613,6 +613,11 @@ export const sketch = function (p, options = {}) {
     }
 
     p.mouseWheel = function (event) {
+        // Allow normal scrolling when popups are open
+        if (window.helpPopupOpen || window.contactPopupOpen) {
+            return true; // Allow default browser scrolling
+        }
+        
         if (activeInfoCard !== null) {
             const project = projects[activeInfoCard];
             if (project && project.images && project.images.length > 0) {

@@ -6,7 +6,7 @@ export const sketch = function (p, options = {}) {
     let linkButtons = [];
     let scrollOffset = 0;
     let targetScrollOffset = 0;
-    
+
     // Drag detection
     let mouseDownPos = { x: 0, y: 0 };
     let isDragging = false;
@@ -85,12 +85,15 @@ export const sketch = function (p, options = {}) {
         if (!isDragging) {
             handleLinkClick(p.mouseX, p.mouseY);
         }
-        
+
         // Reset drag state
         isDragging = false;
     };
 
     function handleLinkClick(x, y) {
+        // Don't handle clicks if popups are open
+        if (window.helpPopupOpen || window.contactPopupOpen) return;
+
         console.log('Click detected at:', x, y, 'scrollOffset:', scrollOffset);
 
         linkButtons.forEach((button, index) => {
@@ -106,13 +109,27 @@ export const sketch = function (p, options = {}) {
 
             if (contains) {
                 console.log('Opening link:', button.link.url);
-                // Simple direct navigation - works reliably on mobile
-                window.location.href = button.link.url;
+
+                if (button.link.url === 'contact-popup') {
+                    // Open contact popup instead of navigating
+                    const contactButton = document.querySelector('.contact-button');
+                    if (contactButton) {
+                        contactButton.click();
+                    }
+                } else {
+                    // Simple direct navigation - works reliably on mobile
+                    window.location.href = button.link.url;
+                }
             }
         });
     }
 
     p.mouseWheel = function(event) {
+        // Allow normal scrolling when popups are open
+        if (window.helpPopupOpen || window.contactPopupOpen) {
+            return true; // Allow default browser scrolling
+        }
+
         // Handle scrolling for long lists (mainly for desktop)
         const totalContentHeight = TITLE_BUFFER + (links.length * ROW_HEIGHT) + ((links.length - 1) * SPACING_BETWEEN_ROWS) + BREADCRUMB_BUFFER;
         const maxScroll = Math.max(0, totalContentHeight - p.height);
@@ -327,7 +344,7 @@ class LinkButton {
         this.p5.noStroke();
         this.p5.textAlign(this.p5.CENTER, this.p5.CENTER);
         this.p5.textSize(Math.min(12, iconSize * 0.25));
-        this.p5.text(this.link.icon, iconX + iconSize/2, iconY + iconSize/2);
+        this.p5.text(this.link.icon, iconX + iconSize/2 + 1, iconY + iconSize/2);
 
         // Title text - adjust for smaller row heights
         const textX = iconX + iconSize + 15;
