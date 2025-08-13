@@ -269,8 +269,8 @@ export const sketch = function (p, options = {}) {
         renderRadialLayout();
         renderHUDDecorations();
 
-        // Handle pending project opening after layout is initialized and a few frames have passed
-        if (pendingProjectSlug && layoutInitialized && planetButtons && planetButtons.length > 0 && frameCount > 5) {
+        // Handle pending project opening after layout is initialized
+        if (pendingProjectSlug && layoutInitialized && planetButtons && planetButtons.length > 0) {
             const projectIndex = getProjectIndexBySlug(pendingProjectSlug);
             if (projectIndex !== -1 && projectIndex < planetButtons.length) {
                 openInfoCard(projectIndex);
