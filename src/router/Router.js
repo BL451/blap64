@@ -1,6 +1,71 @@
 import { render } from "lit";
 import { updateBreadcrumb } from "../views/elements/breadcrumb-nav.js";
 
+function updateMetaTags(path) {
+    const routes = {
+        '/': {
+            title: 'Benjamin Lappalainen - BLAP64',
+            description: 'Portfolio site of Creative Technologist, Educator, and Artist Benjamin Lappalainen. Interactive media installations, photography collections, and creative coding projects.',
+            canonical: 'https://blap64.xyz/'
+        },
+        '/about': {
+            title: 'About - Benjamin Lappalainen',
+            description: 'Biography and CV of Benjamin Lappalainen, Creative Technologist and Interactive Media Artist based in Toronto.',
+            canonical: 'https://blap64.xyz/about'
+        },
+        '/interactive': {
+            title: 'Interactive Projects - Benjamin Lappalainen',
+            description: 'Interactive media installations and web experiences by Benjamin Lappalainen.',
+            canonical: 'https://blap64.xyz/interactive'
+        },
+        '/interactive/live': {
+            title: 'Live Installations - Benjamin Lappalainen',
+            description: 'Live interactive media installations and performance projects by Benjamin Lappalainen.',
+            canonical: 'https://blap64.xyz/interactive/live'
+        },
+        '/interactive/web': {
+            title: 'Web Experiences - Benjamin Lappalainen',
+            description: 'Interactive web experiences and creative coding projects by Benjamin Lappalainen.',
+            canonical: 'https://blap64.xyz/interactive/web'
+        },
+        '/photo': {
+            title: 'Photography - Benjamin Lappalainen',
+            description: 'Photography collections by Benjamin Lappalainen including portrait, performance, experimental, and astrophotography.',
+            canonical: 'https://blap64.xyz/photo'
+        },
+        '/links': {
+            title: 'Links - Benjamin Lappalainen',
+            description: 'Contact information and social links for Benjamin Lappalainen.',
+            canonical: 'https://blap64.xyz/links'
+        }
+    };
+
+    const routeInfo = routes[path] || routes['/'];
+    
+    document.title = routeInfo.title;
+    
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) metaDescription.content = routeInfo.description;
+    
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.content = routeInfo.title;
+    
+    const ogDescription = document.querySelector('meta[property="og:description"]');
+    if (ogDescription) ogDescription.content = routeInfo.description;
+    
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl) ogUrl.content = routeInfo.canonical;
+    
+    const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twitterTitle) twitterTitle.content = routeInfo.title;
+    
+    const twitterDescription = document.querySelector('meta[name="twitter:description"]');
+    if (twitterDescription) twitterDescription.content = routeInfo.description;
+    
+    const canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) canonical.href = routeInfo.canonical;
+}
+
 export default class Router {
     constructor(routes = [], render_node) {
         this.routes = routes;
@@ -71,6 +136,7 @@ export default class Router {
                 document.getElementById("app").style.opacity = 1;
                 this.is_navigating = false;
                 updateBreadcrumb("/oops");
+                updateMetaTags("/oops");
             }, 250);
         }
         return;
@@ -106,6 +172,8 @@ export default class Router {
                 this.is_navigating = false;
                 // Update breadcrumb navigation with clean path
                 updateBreadcrumb(cleanPath);
+                // Update meta tags for SEO
+                updateMetaTags(cleanPath);
             }.bind(this),
             250,
         );

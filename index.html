@@ -2,6 +2,12 @@
 <html lang="en">
     <head>
         <title>Benjamin Lappalainen - BLAP64</title>
+        <meta name="description" content="Portfolio site of Creative Technologist, Educator, and Artist Benjamin Lappalainen. Interactive media installations, photography collections, and creative coding projects." />
+        <meta name="keywords" content="Benjamin Lappalainen, creative technologist, interactive media, artist, photography, installations, creative coding, p5.js, Toronto artist" />
+        <meta name="author" content="Benjamin Lappalainen" />
+        <link rel="canonical" href="https://blap64.xyz/" />
+
+        <!-- OpenGraph Meta Tags -->
         <meta property="og:title" content="Benjamin Lappalainen - BLAP64" />
         <meta property="og:description" content="Portfolio site of Creative Technologist, Educator, and Artist Benjamin Lappalainen." />
         <meta property="og:type" content="website" />
@@ -10,6 +16,13 @@
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content="Benjamin Lappalainen - BLAP64" />
+
+        <!-- Twitter Card Meta Tags -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Benjamin Lappalainen - BLAP64" />
+        <meta name="twitter:description" content="Portfolio site of Creative Technologist, Educator, and Artist Benjamin Lappalainen." />
+        <meta name="twitter:image" content="https://blap64.xyz/og-image.webp" />
+
         <link rel="manifest" crossorigin="anonymous" href="./manifest.json" />
         <link
             rel="apple-touch-icon"
@@ -35,6 +48,32 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/2.0.3/p5.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/p5.sound@0.2.0/dist/p5.sound.min.js"></script>
         <link rel="stylesheet" type="text/css" href="./src/css/style.css" />
+
+        <!-- JSON-LD Structured Data -->
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Person",
+            "name": "Benjamin Lappalainen",
+            "jobTitle": "Creative Technologist",
+            "description": "Interactive media artist and educator specializing in creative coding and digital installations",
+            "url": "https://blap64.xyz",
+            "image": "https://blap64.xyz/og-image.webp",
+            "knowsAbout": ["Creative Technology", "Interactive Media", "Photography", "Creative Coding", "p5.js", "Digital Art", "AI"],
+            "hasOccupation": {
+                "@type": "Occupation",
+                "name": "Creative Technologist",
+                "occupationLocation": {
+                    "@type": "City",
+                    "name": "Toronto"
+                }
+            },
+            "worksFor": {
+                "@type": "Organization",
+                "name": "UKAI Projects"
+            }
+        }
+        </script>
     </head>
     <!-- <nav id="mainNav">
         <button route="/" class="pointer route">Home</button>

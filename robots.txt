@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://blap64.xyz/sitemap.xml
+
+# Block unnecessary directories
+Disallow: /node_modules/
+Disallow: /src/
+Disallow: /.git/
+Disallow: /dist/

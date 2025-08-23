@@ -13,11 +13,12 @@
     },
     "scripts": {
         "dev": "parcel index.html --port 4321",
-        "predeploy": "rm -rf dist && parcel build index.html --public-url https://blap64.xyz && cp CNAME ./dist && cp public/og-image.webp ./dist && cp -r links about interactive photo dist/",
+        "predeploy": "rm -rf dist && parcel build index.html --public-url https://blap64.xyz && cp CNAME ./dist && cp public/og-image.webp ./dist && cp robots.txt ./dist && cp sitemap.xml ./dist && cp -r links about interactive photo dist/",
         "deploy": "gh-pages -d dist"
     },
     "devDependencies": {
         "@parcel/packager-raw-url": "^2.13.3",
+        "@parcel/transformer-jsonld": "^2.15.4",
         "@parcel/transformer-webmanifest": "^2.13.3"
     }
 }
