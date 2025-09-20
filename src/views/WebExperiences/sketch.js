@@ -1,5 +1,6 @@
 import { getViewportSize, loadGoogleFontSet, widthCheck, daysSince, UIWebButton, updateCursor, getMediaPath } from "../../utils";
 import { projects } from "./project-details.js";
+import { localSketches } from "./webexperiences.js";
 
 export const sketch = function (p, options = {}) {
 	let webButtons = [];
@@ -7,6 +8,7 @@ export const sketch = function (p, options = {}) {
 	let mobile = false;
 	let sols = 0;
 	let activeInfoCard = null;
+	let currentInfoCardProject = null;
 	let infoCardAlpha = 0;
 	let infoCardAnimationStart = 0;
 	let infoCardAnimating = false;
@@ -148,11 +150,9 @@ export const sketch = function (p, options = {}) {
 				infoCardAlpha = targetAlpha;
 				if (targetAlpha === 0) {
 					activeInfoCard = null;
-					// Ensure iframe is fully hidden and unloaded
-					if (currentIframe) {
-						currentIframe.src = 'about:blank'; // Unload content
-						currentIframe.style.display = 'none';
-					}
+					currentInfoCardProject = null;
+					// Clean up sketch instances and containers
+					cleanupCurrentSketch();
 				}
 			}
 		}
@@ -165,7 +165,9 @@ export const sketch = function (p, options = {}) {
 
 		// Render active info card (on top of everything)
 		if (activeInfoCard !== null || infoCardAlpha > 0) {
-			renderInfoCard(projects[activeInfoCard]);
+			// Use stored project reference during animations to avoid undefined issues
+			const projectToRender = currentInfoCardProject || projects[activeInfoCard];
+			renderInfoCard(projectToRender);
 		}
 	};
 
@@ -321,6 +323,7 @@ export const sketch = function (p, options = {}) {
 
 	function openInfoCard(index) {
 		activeInfoCard = index;
+		currentInfoCardProject = projects[index];
 		targetAlpha = 255;
 		infoCardAnimationStart = p.millis();
 		infoCardAnimating = true;
@@ -430,9 +433,9 @@ export const sketch = function (p, options = {}) {
 		}
 
 		// Unload and hide iframe when closing
-		if (currentIframe) {
-			currentIframe.src = 'about:blank'; // Unload the iframe content
-			currentIframe.style.display = 'none';
+		if (currentExternalIframe) {
+			currentExternalIframe.src = 'about:blank'; // Unload the iframe content
+			currentExternalIframe.style.display = 'none';
 		}
 
 		// Remove all event prevention
@@ -553,75 +556,118 @@ export const sketch = function (p, options = {}) {
 		const closeButtonY = isMobile ? cardY + cardHeight + 15 : cardY - closeButtonSize - 5; // Below iframe on mobile
 		renderCloseButton(closeButtonX, closeButtonY, closeButtonSize, infoCardAlpha);
 
-		// Create iframe - adjust height on mobile to leave space for close button
+		// Create sketch container - adjust height on mobile to leave space for close button
 		const padding = 0;
-		const iframeHeight = isMobile ? cardHeight - 10 : cardHeight - 2 * padding; // Slightly less height on mobile
-		createOrUpdateIframe(project, cardX + padding, cardY + padding, cardWidth - 2 * padding, iframeHeight);
+		const sketchHeight = isMobile ? cardHeight - 10 : cardHeight - 2 * padding; // Slightly less height on mobile
+		createOrUpdateSketch(project, cardX + padding, cardY + padding, cardWidth - 2 * padding, sketchHeight);
 
 		p.pop(); // Restore previous rectMode
 	}
 
 
-	let currentIframe = null;
+	let currentSketchInstance = null;
+	let currentSketchContainer = null;
 
-	function createOrUpdateIframe(project, x, y, width, height) {
+	function createOrUpdateSketch(project, x, y, width, height) {
+		// Handle external projects with iframe (keep existing functionality)
+		if (project.type === 'external') {
+			createOrUpdateExternalIframe(project, x, y, width, height);
+			return;
+		}
+
+		// Handle local projects with direct p5 instances
+		const sketchFunction = localSketches[project.slug];
+		if (!sketchFunction) {
+			console.warn(`No local sketch found for slug: ${project.slug}`);
+			return;
+		}
+
+		// Create container if it doesn't exist
+		if (!currentSketchContainer) {
+			currentSketchContainer = document.createElement('div');
+			currentSketchContainer.style.position = 'fixed';
+			currentSketchContainer.style.border = '2px solid #4A90E6';
+			currentSketchContainer.style.borderRadius = '0px';
+			currentSketchContainer.style.backgroundColor = '#000';
+			currentSketchContainer.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.5)';
+			currentSketchContainer.style.zIndex = '1000';
+			currentSketchContainer.style.overflow = 'hidden';
+			document.body.appendChild(currentSketchContainer);
+
+			// Create p5 instance targeting the container
+			currentSketchInstance = new p5(sketchFunction, currentSketchContainer);
+		}
+
+		// Update container position and size
+		const canvas = p.canvas;
+		const canvasRect = canvas.getBoundingClientRect();
+		const currentAlpha = infoCardAlpha;
+
+		currentSketchContainer.style.left = (canvasRect.left + x) + 'px';
+		currentSketchContainer.style.top = (canvasRect.top + y) + 'px';
+		currentSketchContainer.style.width = width + 'px';
+		currentSketchContainer.style.height = height + 'px';
+		currentSketchContainer.style.opacity = currentAlpha / 255;
+		currentSketchContainer.style.display = currentAlpha > 0 ? 'block' : 'none';
+	}
+
+	function cleanupCurrentSketch() {
+		// Clean up p5 instance
+		if (currentSketchInstance) {
+			currentSketchInstance.remove();
+			currentSketchInstance = null;
+		}
+
+		// Clean up container
+		if (currentSketchContainer) {
+			currentSketchContainer.remove();
+			currentSketchContainer = null;
+		}
+
+		// Clean up external iframe
+		if (currentExternalIframe) {
+			currentExternalIframe.src = 'about:blank';
+			currentExternalIframe.remove();
+			currentExternalIframe = null;
+		}
+	}
+
+	// Keep iframe functionality for external projects
+	let currentExternalIframe = null;
+	function createOrUpdateExternalIframe(project, x, y, width, height) {
 		const url = project.url;
 
 		// Remove existing iframe if URL has changed
-		if (currentIframe && currentIframe.src !== url) {
-			currentIframe.remove();
-			currentIframe = null;
+		if (currentExternalIframe && currentExternalIframe.src !== url) {
+			currentExternalIframe.remove();
+			currentExternalIframe = null;
 		}
 
 		// Create new iframe if needed
-		if (!currentIframe) {
-			currentIframe = document.createElement('iframe');
-			currentIframe.src = url;
-			currentIframe.style.border = '2px solid #4A90E6';
-			currentIframe.style.borderRadius = '0px'; // Remove rounded corners
-			currentIframe.style.backgroundColor = '#000';
-			currentIframe.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.5)';
-			// Add permissions for p5.js sketches that use microphone, camera, etc.
-			currentIframe.allow = 'microphone; camera; autoplay; encrypted-media; fullscreen; geolocation; gyroscope; accelerometer; magnetometer; midi';
-			document.body.appendChild(currentIframe);
-
-			// For local projects, add performance optimization after load
-			if (project.type === 'local') {
-				currentIframe.addEventListener('load', () => {
-					setTimeout(() => {
-						try {
-							// Access the iframe's window and add framerate optimization
-							const iframeWindow = currentIframe.contentWindow;
-							if (iframeWindow && iframeWindow.frameRate) {
-								iframeWindow.frameRate(60);
-							}
-
-							// Also try to call setup functions that might exist
-							if (iframeWindow && iframeWindow.optimizeForMobile) {
-								iframeWindow.optimizeForMobile();
-							}
-						} catch (e) {
-							// Silently handle any cross-origin or access issues
-							console.log('Could not optimize local iframe performance');
-						}
-					}, 500);
-				});
-			}
+		if (!currentExternalIframe) {
+			currentExternalIframe = document.createElement('iframe');
+			currentExternalIframe.src = url;
+			currentExternalIframe.style.border = '2px solid #4A90E6';
+			currentExternalIframe.style.borderRadius = '0px';
+			currentExternalIframe.style.backgroundColor = '#000';
+			currentExternalIframe.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.5)';
+			currentExternalIframe.allow = 'microphone; camera; autoplay; encrypted-media; fullscreen; geolocation; gyroscope; accelerometer; magnetometer; midi';
+			document.body.appendChild(currentExternalIframe);
 		}
 
-		// Get the canvas element's position on the page
+		// Update iframe position and size
 		const canvas = p.canvas;
 		const canvasRect = canvas.getBoundingClientRect();
+		const currentAlpha = infoCardAlpha;
 
-		// Update iframe position and size - convert p5 coordinates to screen coordinates
-		currentIframe.style.position = 'fixed';
-		currentIframe.style.left = (canvasRect.left + x) + 'px';
-		currentIframe.style.top = (canvasRect.top + y) + 'px';
-		currentIframe.style.width = width + 'px';
-		currentIframe.style.height = height + 'px';
-		currentIframe.style.zIndex = '1000';
-		currentIframe.style.opacity = infoCardAlpha / 255;
-		currentIframe.style.display = infoCardAlpha > 0 ? 'block' : 'none';
+		currentExternalIframe.style.position = 'fixed';
+		currentExternalIframe.style.left = (canvasRect.left + x) + 'px';
+		currentExternalIframe.style.top = (canvasRect.top + y) + 'px';
+		currentExternalIframe.style.width = width + 'px';
+		currentExternalIframe.style.height = height + 'px';
+		currentExternalIframe.style.zIndex = '1000';
+		currentExternalIframe.style.opacity = currentAlpha / 255;
+		currentExternalIframe.style.display = currentAlpha > 0 ? 'block' : 'none';
 	}
 
 	function renderCloseButton(x, y, size, alpha) {
@@ -646,13 +692,9 @@ export const sketch = function (p, options = {}) {
 		p.pop();
 	}
 
-	// Cleanup function to remove iframe when sketch is destroyed
+	// Cleanup function to remove sketches when main sketch is destroyed
 	p.cleanupSketch = function() {
-		if (currentIframe) {
-			currentIframe.src = 'about:blank'; // Unload content before removal
-			currentIframe.remove();
-			currentIframe = null;
-		}
+		cleanupCurrentSketch();
 
 		// Restore original theme color in case cleanup happens while infoCard is open
 		const themeColorMeta = document.querySelector('meta[name="theme-color"]');
@@ -698,6 +740,7 @@ export const sketch = function (p, options = {}) {
 
 		// Reset state
 		activeInfoCard = null;
+		currentInfoCardProject = null;
 		infoCardAlpha = 0;
 
 		// Show breadcrumb navigation if it was hidden on mobile

@@ -17,6 +17,13 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family: "CreatoDisplay";
+    src: url("../assets/fonts/CreatoDisplay-ExtraBold.otf") format('opentype');
+    font-display: swap;
+}
+
+
 html,
 body {
     margin: 0;

@@ -254,10 +254,26 @@ python3 optimize_photos.py  # Process new images from import folders
 - **Development Note**: Redirects only work after deployment or when serving built `dist/` folder - not during `npm run dev`
 - **New Route Protocol**: When adding new routes to the SPA, ALWAYS create corresponding redirect pages using the established template pattern
 
+### SEO Implementation & Maintenance
+- **Files Modified**: `index.html` (meta tags, JSON-LD), `src/router/Router.js` (dynamic meta updates), `package.json` (build process), plus `robots.txt` and `sitemap.xml` creation
+- **Meta Tags**: Complete OpenGraph, Twitter Cards, description, keywords, author, and canonical URL implementation
+- **Dynamic Updates**: Route-specific titles and descriptions update automatically via router (`src/router/Router.js` lines 4-67)
+- **JSON-LD Schema**: Person/Creative Technologist structured data in `index.html` (lines 53-76) - update employer, location, skills as needed
+- **Sitemap Maintenance**: Update `sitemap.xml` when adding routes or making major content changes, include new URLs in router's meta tag definitions
+- **Build Integration**: `robots.txt`, `sitemap.xml` automatically copy to `dist/` during deployment
+- **Keywords Strategy**: Current focus includes "creative technologist, interactive media, artist, photography, installations, creative coding, p5.js, Toronto artist, AI"
+- **Future Maintenance**: Update JSON-LD when career changes, add new routes to both router meta definitions and sitemap, consider adding content to redirect pages for enhanced SEO
+
 ### p5.js Event Handling Limitations
 - **CSS Pointer Events**: `pointer-events: none` doesn't work with p5.js canvases - use global flag approach instead
 - **Touch Event Bleeding**: Mobile touches can bleed through overlays to elements behind - implement comprehensive touch tracking and scroll detection
 - **Event Bypassing**: p5.js event handlers bypass standard DOM event bubbling, requiring manual coordination with HTML elements
+
+### WebGL Shader Loading with Parcel
+- **Direct Module Imports**: Use `import shaderSource from './shader.glsl'` to import GLSL files as string content
+- **Avoid URL Imports**: Do NOT use `import shaderUrl from 'url:./shader.glsl'` as this returns wrapped Parcel module URLs, not raw GLSL source
+- **Shader Creation**: Use `p.createShader(vertSource, fragSource)` directly with imported string content
+- **p5.js 2.0.3 Pattern**: No preload function - use async setup with direct imports for immediate access to shader strings
 
 ---
 

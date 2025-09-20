@@ -38,8 +38,8 @@ export const projects = [
         description: "A swirling psychedelic vortex of multicoloured squares twists aggressively back and forth, seemingly descending into the black background.",
         subtitle: "SKETCH",
         image: dimensionDoorThumb,
-        type: "external", // "local" or "external"
-        url: "https://openprocessing.org/sketch/2225444/embed/?plusEmbedHash=c87d5f9d&userID=424615&plusEmbedFullscreen=true&show=sketch"
+        type: "local", // "local" or "external"
+        url: null // Local sketches use slug for lookup, no URL needed
     },
     {
         name: "Strange Ink",
@@ -48,8 +48,8 @@ export const projects = [
         description: "An extremely simple program that produces a fascinating, liquid-like output using no physics or simulation algorithms.",
         subtitle: "INTERACTIVE",
         image: strangeInkThumb,
-        type: "external",
-        url: "https://openprocessing.org/sketch/2633988/embed/?plusEmbedHash=f02d6b2f&userID=424615&plusEmbedTitle=true&plusEmbedFullscreen=true&show=sketch"
+        type: "local",
+        url: null // Local sketches use slug for lookup, no URL needed
     },
     {
         name: "Koi Pond",
@@ -58,8 +58,8 @@ export const projects = [
         description: "Fishy :)",
         subtitle: "SKETCH",
         image: koiPondThumb,
-        type: "external", // Example of a local project
-        url: "https://openprocessing.org/sketch/2321803/embed/?plusEmbedHash=3c231366&userID=424615&plusEmbedFullscreen=true&show=sketch"
+        type: "local", // Example of a local project
+        url: null // Local sketches use slug for lookup, no URL needed
     },
     {
         name: "Lava Lamp",
@@ -68,8 +68,8 @@ export const projects = [
         description: "Groovy.",
         subtitle: "SKETCH",
         image: lavaLampThumb,
-        type: "external",
-        url: "https://openprocessing.org/sketch/2242573/embed/?plusEmbedHash=f69d7b44&userID=424615&plusEmbedFullscreen=true&show=sketch"
+        type: "local",
+        url: null // Local sketches use slug for lookup, no URL needed
     },
     {
         name: "Infinite Bauhaus",
@@ -78,8 +78,8 @@ export const projects = [
         description: "Bauhaus, infinitely.",
         subtitle: "SKETCH",
         image: infiniteBauhausThumb,
-        type: "external",
-        url: "https://openprocessing.org/sketch/2150578/embed/?plusEmbedHash=bc6f5151&userID=424615&plusEmbedFullscreen=true&show=sketch"
+        type: "local",
+        url: null // Local sketches use slug for lookup, no URL needed
     },
     {
         name: "Galaxy Collision",
@@ -88,8 +88,8 @@ export const projects = [
         description: "Oop.",
         subtitle: "SKETCH",
         image: galaxyCollisionThumb,
-        type: "external",
-        url: "https://openprocessing.org/sketch/2242584/embed/?plusEmbedHash=ee3b371c&userID=424615&plusEmbedFullscreen=true&show=sketch"
+        type: "local",
+        url: null // Local sketches use slug for lookup, no URL needed
     },
     {
         name: "Flow Fields",
@@ -98,8 +98,8 @@ export const projects = [
         description: "Configurable perlin noise field driving particle velocity.",
         subtitle: "INTERACTIVE",
         image: flowFieldsThumb,
-        type: "external",
-        url: "https://openprocessing.org/sketch/2238759/embed/?plusEmbedHash=2b202fab&userID=424615&plusEmbedFullscreen=true&show=sketch"
+        type: "local",
+        url: null // Local sketches use slug for lookup, no URL needed
     },
     {
         name: "Asteroids",
@@ -108,8 +108,8 @@ export const projects = [
         description: "Asteroids!",
         subtitle: "GAME",
         image: asteroidsThumb,
-        type: "external",
-        url: "https://openprocessing.org/sketch/2242558/embed/?plusEmbedHash=bd817a6f&userID=424615&plusEmbedFullscreen=true&show=sketch"
+        type: "local",
+        url: null // Local sketches use slug for lookup, no URL needed
     },
     {
         name: "Nissan 300ZX",
@@ -118,8 +118,8 @@ export const projects = [
         description: "A close digital clone of the speedometer and tachometer from the 1987 Nizzan 300ZX Z31",
         subtitle: "INTERACTIVE",
         image: nissan300zxThumb,
-        type: "external",
-        url: "https://openprocessing.org/sketch/2472358/embed/?plusEmbedHash=34b59852&userID=424615&plusEmbedTitle=true&plusEmbedFullscreen=true&show=sketch"
+        type: "local",
+        url: null // Local sketches use slug for lookup, no URL needed
     }
 ];
 
