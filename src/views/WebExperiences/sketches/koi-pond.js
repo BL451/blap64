@@ -42,7 +42,6 @@ export const sketch = function (p, options = {}) {
             lilypads.push(new_lilypad);
         }
 
-        p.describe("Koi Pond - Swimming fish in a peaceful pond environment.");
     }
 
     p.draw = function() {

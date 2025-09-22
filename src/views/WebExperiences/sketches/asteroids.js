@@ -34,7 +34,6 @@ export const sketch = function (p, options = {}) {
         t = 0;
         spawnAsteroids(2, 1.5, 2);
 
-        p.describe("Asteroids - Classic space shooter game.");
     }
 
     p.draw = function() {

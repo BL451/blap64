@@ -614,6 +614,10 @@ export const sketch = function (p, options = {}) {
 	function cleanupCurrentSketch() {
 		// Clean up p5 instance
 		if (currentSketchInstance) {
+			// Call custom cleanup method if it exists
+			if (typeof currentSketchInstance.cleanupSketch === 'function') {
+				currentSketchInstance.cleanupSketch();
+			}
 			currentSketchInstance.remove();
 			currentSketchInstance = null;
 		}

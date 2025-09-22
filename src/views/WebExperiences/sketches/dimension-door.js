@@ -29,7 +29,6 @@ export const sketch = function (p, options = {}) {
 
         palette = [p.color('#D81159'), p.color('#8F2D56'), p.color('#218380'), p.color('#FBB13C'), p.color('#73D2DE')];
 
-        p.describe("Dimension Door - a swirling psychedelic vortex of multicoloured squares twists aggressively back and forth, seemingly descending into the black background.");
     }
 
     p.draw = function() {

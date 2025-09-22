@@ -21,7 +21,6 @@ export const sketch = function (p, options = {}) {
         p.noStroke();
         start = p.random()*9999.0;
 
-        p.describe("Lava Lamp - Groovy visual effects using fragment shaders.");
     }
 
     p.draw = function() {

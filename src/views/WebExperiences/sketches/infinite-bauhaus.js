@@ -33,7 +33,6 @@ export const sketch = function (p, options = {}) {
             }
         }
 
-        p.describe("Infinite Bauhaus - Bauhaus-inspired geometric patterns that evolve infinitely.");
     }
 
     p.draw = function() {

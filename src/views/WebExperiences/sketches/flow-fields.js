@@ -28,7 +28,6 @@ export const sketch = function (p, options = {}) {
 
         p.background(0);
 
-        p.describe("Flow Fields - Configurable perlin noise field driving particle velocity.");
     }
 
     p.draw = function() {

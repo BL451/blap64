@@ -30,7 +30,6 @@ export const sketch = function (p, options = {}) {
         p.background(10);
         collidingGalaxySetup();
 
-        p.describe("Galaxy Collision - Simulated gravitational interaction between two galaxies.");
     }
 
     p.draw = function() {

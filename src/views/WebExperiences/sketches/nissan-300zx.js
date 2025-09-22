@@ -101,7 +101,6 @@ export const sketch = function (p, options = {}) {
             osc0 = osc1 = osc2 = lowpass = reverb = null;
         }
 
-        p.describe("Nissan 300ZX - A close digital clone of the speedometer and tachometer from the 1987 Nissan 300ZX Z31.");
     }
 
     p.draw = function() {

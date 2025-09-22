@@ -26,7 +26,6 @@ export const sketch = function (p, options = {}) {
         leftPressed = false;
         rightPressed = false;
 
-        p.describe("Strange Ink - An extremely simple program that produces a fascinating, liquid-like output using no physics or simulation algorithms.");
     }
 
     p.draw = function() {
