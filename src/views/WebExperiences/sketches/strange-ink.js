@@ -56,12 +56,6 @@ export const sketch = function (p, options = {}) {
         p.fill(fill_color);
     }
 
-    p.keyPressed = function(){
-        if (p.key == "s"){
-            p.save("Strange_Ink.png");
-        }
-    }
-
     p.windowResized = function(){
         p.setup();
     }

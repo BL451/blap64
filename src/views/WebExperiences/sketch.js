@@ -243,12 +243,6 @@ export const sketch = function (p, options = {}) {
 		}
 	};
 
-	p.keyPressed = function() {
-		if (p.key === 's') {
-			p.save("digitalbridges.png");
-		}
-	};
-
 	// Helper functions for web button physics and interactions
 	function applyForce(button, force) {
 		button.acc.add(force);

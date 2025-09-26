@@ -46,9 +46,6 @@ export const sketch = function (p, options = {}) {
     }
 
     p.keyPressed = function(){
-        if (p.key == 's'){
-            p.save(makeFilename());
-        }
         if (p.key == 'r'){
             restart();
         }
