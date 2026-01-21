@@ -12,11 +12,11 @@ export default (props) => html`
             </div>
             <p class="main-paragraph">
                 <br>
-                Benjamin Lappalainen is a Toronto-based creative technologist, educator, and multidisciplinary artist. He creates interactive installations that incorporate computer vision, AI, and algorithmic processes, with work exhibited at InterAccess, Northern Contemporary Gallery, and Long Winter Arts & Music Festival. His educational practice includes leading workshops and mentorship programs that bridge technical skill-building with experimental arts practices.
+                Benjamin Lappalainen is a Toronto-based creative technologist, educator, and multidisciplinary artist. He creates interactive audiovisual experiences that illuminate novel uses and potential dangers of emerging technologies such as computer vision and AI, with work exhibited at InterAccess, Northern Contemporary Gallery, and Long Winter Arts & Music Festival. His educational practice includes leading workshops and mentorship programs that bridge technical skill-building with experimental arts practices.
                 <br><br>
-                As XR Development Lead with UKAI Projects, Benjamin collaborates with artists and organizations to execute research, exhibitions, immersive and interactive installations, publishing, and workshops. UKAI Projects imagines and produces "culture for what's coming", most recently working with the Accton Arts Foundation in Hsinchu, Taiwan for research into arts policy, delivering workshops and immersive experiences, and cultural exchange.
+                As XR Development Lead with UKAI Projects, Benjamin collaborates with artists and organizations to execute research, exhibitions, immersive and interactive experiences, publishing, and workshops. UKAI Projects imagines and produces “culture for what’s coming”, most recently working with the Accton Arts Foundation in Hsinchu, Taiwan for research into arts policy, delivering workshops, and activating a city block with the first international iteration of Goblin Market, a collectively imagined alternative arts marketplace.
                 <br><br>
-                Benjamin holds a Bachelor of Applied Science in Engineering Science from the University of Toronto. His current research focuses on developing open source software for creative coding and interactive media, creating accessible tools that support artist communities in realizing technically ambitious projects.
+                Benjamin holds a Bachelor of Applied Science in Engineering Science from the University of Toronto. His current research focuses on developing and building software and hardware for interactive media, creating accessible and unique tools that support artist communities in realizing technically ambitious projects.
                 <br><br>
             </p>
 
@@ -70,6 +70,8 @@ export default (props) => html`
             <div class="cv-section">
                 <h2>Selected New Media Exhibitions & Performances</h2>
                 <p class="main-paragraph">
+                    <strong>2026</strong> - <em>OSCMOTO</em>, Cool New Instruments Night #7, Tranzac Club (Toronto, Canada)<br>
+                    <strong>2025</strong> - <em>Goblin Wishing Well</em>, Goblin Market, General Village (Hsinchu, Taiwan)<br>
                     <strong>2025</strong> - <em>IA Flow Fields</em>, flashDRIVE Digital Arts Fundraiser Exhibition, InterAccess (Toronto, Canada)<br>
                     <strong>2025</strong> - <a href="#/interactive/live/sketching-flock"><em>Sketching Flock</em></a>, Farewell to The Bridge, UKAI Projects, The Bridge (Toronto, Canada)<br>
                     <strong>2025</strong> - <em>Zen Flock</em>, LW13.5 x Open HDMI, Long Winter x InterAccess, St. Anne's Parish Hall (Toronto, Canada)<br>
