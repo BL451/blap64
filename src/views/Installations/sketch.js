@@ -18,6 +18,8 @@ export const sketch = function (p, options = {}) {
     let galleryDragging = false;
     let galleryDragStartX = 0;
     let galleryStartScrollX = 0;
+    let currentGalleryY = 0;
+    let currentGalleryHeight = 0;
     let loadedMedia = new Map();
     let expandedMediaIndex = null;
     let expandedMediaAlpha = 0;
@@ -53,14 +55,23 @@ export const sketch = function (p, options = {}) {
     p.cleanupSketch = function() {
         // Clean up native video element
         if (nativeVideoElement) {
+            nativeVideoElement.pause();
+            nativeVideoElement.removeAttribute('src');
+            nativeVideoElement.blur();
             nativeVideoElement.remove();
             nativeVideoElement = null;
         }
 
+        // Exit fullscreen if active
+        if (document.fullscreenElement) {
+            document.exitFullscreen().catch(() => {});
+        }
+
         // Clean up any loaded video elements
         loadedMedia.forEach((mediaData, path) => {
-            if (mediaData.type === 'video' && mediaData.element && mediaData.element.remove) {
-                mediaData.element.remove();
+            if (mediaData.type === 'video' && mediaData.element) {
+                if (mediaData.element.pause) mediaData.element.pause();
+                if (mediaData.element.remove) mediaData.element.remove();
             }
         });
         loadedMedia.clear();
@@ -320,6 +331,13 @@ export const sketch = function (p, options = {}) {
                 expandedMediaAlpha = targetExpandedAlpha;
                 if (targetExpandedAlpha === 0) {
                     expandedMediaIndex = null;
+                    // Clean up any orphaned video element
+                    if (nativeVideoElement) {
+                        nativeVideoElement.pause();
+                        nativeVideoElement.removeAttribute('src');
+                        nativeVideoElement.remove();
+                        nativeVideoElement = null;
+                    }
                 }
             }
         }
@@ -491,12 +509,9 @@ export const sketch = function (p, options = {}) {
             const project = projects[activeInfoCard];
             if (project.images && project.images.length > 0) {
                 const padding = isMobile ? 20 : 24;
-                const lineHeight = isMobile ? 28 : 32;
-                const galleryY = cardY + padding + lineHeight * 5.3; // Approximate gallery Y position
-                const galleryHeight = cardHeight * 0.35;
 
                 if (p.mouseX >= cardX + padding && p.mouseX <= cardX + cardWidth - padding &&
-                    p.mouseY >= galleryY && p.mouseY <= galleryY + galleryHeight) {
+                    p.mouseY >= currentGalleryY && p.mouseY <= currentGalleryY + currentGalleryHeight) {
                     // Start gallery dragging
                     galleryDragging = true;
                     galleryDragStartX = p.mouseX;
@@ -559,24 +574,17 @@ export const sketch = function (p, options = {}) {
             if (dragDistance < 5 && activeInfoCard !== null) {
                 const project = projects[activeInfoCard];
                 if (project && project.images && project.images.length > 0) {
-                    const { width: cardWidth, height: cardHeight, x: cardX, y: cardY, isMobile } = getCardDimensions();
-                    const { galleryY, padding, lineHeight } = getGalleryLayout(cardWidth, cardHeight, cardX, cardY, isMobile);
+                    const { width: cardWidth, x: cardX, isMobile } = getCardDimensions();
+                    const padding = isMobile ? 20 : 24;
 
-                    // Use EXACT same galleryHeight calculation as main rendering
-                    const galleryHeight = isMobile ? cardHeight * 0.3 : cardHeight * 0.4;
-
-                    // Use EXACT same calculations as renderGallery for consistent click detection
-                    const galleryAreaPadding = isMobile ? 8 : 10; // This is the 'padding' variable in rendering
-                    const itemHeight = galleryHeight - (2 * galleryAreaPadding);
+                    // Use stored gallery position from rendering
+                    const galleryAreaPadding = isMobile ? 8 : 10;
+                    const itemHeight = currentGalleryHeight - (2 * galleryAreaPadding);
                     const itemWidth = itemHeight * 1.5; // 3:2 aspect ratio
 
-                    // Gallery area coordinates (same as rendering: x=cardX+padding, y=galleryY)
-                    const galleryX = cardX + padding; // Card padding
-                    const galleryY_coords = galleryY;
-
-                    // Start coordinates within gallery area (same as rendering: startX = x + padding)
-                    const startX = galleryX + galleryAreaPadding; // Gallery area left padding
-                    const startY = galleryY_coords + galleryAreaPadding; // Gallery area top padding
+                    const galleryX = cardX + padding;
+                    const startX = galleryX + galleryAreaPadding;
+                    const startY = currentGalleryY + galleryAreaPadding;
 
                     // Check if clicking on a specific media item
                     for (let i = 0; i < project.images.length; i++) {
@@ -1314,6 +1322,9 @@ export const sketch = function (p, options = {}) {
         if (project.images && project.images.length > 0) {
             const galleryHeight = isMobile ? cardHeight * 0.3 : cardHeight * 0.4;
             const galleryY = textY;
+            // Store for click detection
+            currentGalleryY = galleryY;
+            currentGalleryHeight = galleryHeight;
             renderGallery(project.images, cardX + padding, galleryY, cardWidth - 2 * padding, galleryHeight, isMobile);
             textY += galleryHeight + (isMobile ? 12 : baseLineHeight); // Much tighter spacing on mobile
         }
@@ -1840,8 +1851,16 @@ export const sketch = function (p, options = {}) {
 
         // Clean up native video element
         if (nativeVideoElement) {
+            nativeVideoElement.pause();
+            nativeVideoElement.removeAttribute('src');
+            nativeVideoElement.blur();
             nativeVideoElement.remove();
             nativeVideoElement = null;
+        }
+
+        // Exit fullscreen if active
+        if (document.fullscreenElement) {
+            document.exitFullscreen().catch(() => {});
         }
     }
 
@@ -1851,10 +1870,18 @@ export const sketch = function (p, options = {}) {
         p.noStroke();
         p.rect(0, 0, p.width, p.height);
 
+        // Don't create video if we're closing (prevents orphaned elements)
+        if (targetExpandedAlpha === 0) {
+            return;
+        }
+
         // Create or update native video element
         if (!nativeVideoElement || nativeVideoElement.src !== videoPath) {
             // Clean up existing video if it exists
             if (nativeVideoElement) {
+                nativeVideoElement.pause();
+                nativeVideoElement.removeAttribute('src');
+                nativeVideoElement.blur();
                 nativeVideoElement.remove();
             }
 
@@ -1864,6 +1891,13 @@ export const sketch = function (p, options = {}) {
             nativeVideoElement.preload = 'metadata';
             nativeVideoElement.setAttribute('playsinline', true);
             nativeVideoElement.muted = true;
+            nativeVideoElement.disableRemotePlayback = true;
+
+            // Prevent double-click from triggering fullscreen
+            nativeVideoElement.addEventListener('dblclick', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
 
             // Style the video element
             nativeVideoElement.style.position = 'fixed';

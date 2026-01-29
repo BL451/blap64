@@ -54,7 +54,7 @@ export const sketch = function (p, options = {}) {
         intro_texts.push(new TextWriter(p, padding[1] * p.width, 0.18 * p.height, p.width / 2, p.height / 2, "I play many roles:", font_sizes.small));
         intro_texts.push(new TextWriter(p, padding[1] * p.width, 0.22 * p.height, p.width, p.height / 2, "CREATIVE TECHNOLOGIST\nEDUCATOR\nARTIST", font_sizes.medium));
 
-        animation_states = [
+        animation_states = !mobile ? [
             {
                 "start_time": 500,
                 "duration": 1000,
@@ -97,6 +97,79 @@ export const sketch = function (p, options = {}) {
             },
             {
                 "start_time": 5000,
+                "duration": 1000,
+                "idx": 0,
+                "fn": intro_texts[0].renderTransition.bind(intro_texts[0]),
+                "args": ["My name is Benjamin Lappalainen", "Benjamin Lappalainen"],
+                "persist": true,
+            },
+            {
+                "start_time": 7000,
+                "duration": 250,
+                "idx": 0,
+                "fn": intro_texts[0].renderTransition.bind(intro_texts[0]),
+                "args": ["Benjamin Lappalainen", "BLAP"],
+                "persist": true,
+            },
+            {
+                "start_time": 7500,
+                "duration": 250,
+                "idx": 0,
+                "fn": intro_texts[0].renderTransition.bind(intro_texts[0]),
+                "args": ["BLAP", "BLAP64"],
+                "persist": true,
+            },
+            {
+                "start_time": 4000,
+                "duration": 1000,
+                "idx": 3,
+                "fn": setUIOpacity,
+                "args": [],
+                "persist": false,
+            }
+        ] : [
+            {
+                "start_time": 500,
+                "duration": 1000,
+                "idx": 0,
+                "fn": intro_texts[0].renderSequentialRandom.bind(intro_texts[0]),
+                "args": [],
+                "persist": true,
+            },
+            {
+                "start_time": 3000,
+                "duration": 1000,
+                "idx": 0,
+                "fn": intro_texts[0].renderTransition.bind(intro_texts[0]),
+                "args": ["HELLO, FRIEND.", "My name is Benjamin Lappalainen"],
+                "persist": true,
+            },
+            {
+                "start_time": 5500,
+                "duration": 500,
+                "idx": 1,
+                "fn": intro_texts[1].renderSequentialRandom.bind(intro_texts[1]),
+                "args": [],
+                "persist": true,
+            },
+            {
+                "start_time": 6250,
+                "duration": 2000,
+                "idx": 2,
+                "fn": intro_texts[2].renderSequentialRandom.bind(intro_texts[2]),
+                "args": [],
+                "persist": true,
+            },
+            {
+                "start_time": 7750,
+                "duration": 1000,
+                "idx": 2,
+                "fn": intro_texts[2].renderTransition.bind(intro_texts[2]),
+                "args": ["CREATIVE TECHNOLOGIST\nEDUCATOR\nARTIST", "CREATIVE TECHNOLOGIST\nEDUCATOR\nARTIST\nand more..."],
+                "persist": true,
+            },
+            {
+                "start_time": 4500,
                 "duration": 1000,
                 "idx": 0,
                 "fn": intro_texts[0].renderTransition.bind(intro_texts[0]),
@@ -193,7 +266,7 @@ export const sketch = function (p, options = {}) {
         p.textFont('BPdotsSquareVF', {
             fontVariationSettings: `wght 900`
         });
-        if (animation_manager.t > 8250){
+        if (animation_manager.t > 9000){
             intro_texts[0].renderTransition(p.map(intro_texts[0].dist(smoothX, smoothY), 100, 250, 0, 1, true), "Benjamin Lappalainen", "BLAP64");
             intro_texts[1].render();
             intro_texts[2].render();
