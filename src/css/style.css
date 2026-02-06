@@ -444,7 +444,7 @@ body.lightbox-active .breadcrumb-nav {
     padding-bottom: 30px;
     width: calc(100% - 40px);
     max-width: 1600px;
-    margin: 0 20px 0 20px;
+    margin: 0 auto;
 }
 
 .photo-gallery-item {
@@ -480,8 +480,7 @@ body.lightbox-active .breadcrumb-nav {
 /* Mobile photo gallery styles */
 @media (max-width: 768px) {
     .photo-gallery-container {
-        padding: 120px 0 0 0;
-        padding-top: 60px;
+        padding: 60px 10px 0 10px;
     }
 
     .photo-gallery-grid {
@@ -493,7 +492,7 @@ body.lightbox-active .breadcrumb-nav {
         padding-bottom: 60px;
         width: 100%;
         max-width: 1200px;
-        margin: 0 -1px;
+        margin: 0 auto;
     }
 
     .photo-gallery-item {
