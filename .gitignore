@@ -133,6 +133,10 @@ dist
 /temp
 .claude
 
+# Python cache
+__pycache__/
+*.pyc
+
 # Photo asset directories - keep source files and import folders out of version control
 src/assets/photos/*/originals/
 src/assets/photos/*/import/

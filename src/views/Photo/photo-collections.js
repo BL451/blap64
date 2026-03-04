@@ -29,6 +29,10 @@ import portrait21 from 'url:../../assets/photos/portrait/portrait-21.webp';
 import portrait22 from 'url:../../assets/photos/portrait/portrait-22.webp';
 import portrait23 from 'url:../../assets/photos/portrait/portrait-23.webp';
 import portrait24 from 'url:../../assets/photos/portrait/portrait-24.webp';
+import portrait25 from 'url:../../assets/photos/portrait/portrait-25.webp';
+import portrait26 from 'url:../../assets/photos/portrait/portrait-26.webp';
+import portrait27 from 'url:../../assets/photos/portrait/portrait-27.webp';
+import portrait28 from 'url:../../assets/photos/portrait/portrait-28.webp';
 
 // Performance collection media imports
 import performanceHero from 'url:../../assets/photos/performance/hero.webp';
@@ -42,6 +46,16 @@ import performance08 from 'url:../../assets/photos/performance/performance-08.we
 import performance09 from 'url:../../assets/photos/performance/performance-09.webp';
 import performance10 from 'url:../../assets/photos/performance/performance-10.webp';
 import performance11 from 'url:../../assets/photos/performance/performance-11.webp';
+import performance12 from 'url:../../assets/photos/performance/performance-12.webp';
+import performance13 from 'url:../../assets/photos/performance/performance-13.webp';
+import performance14 from 'url:../../assets/photos/performance/performance-14.webp';
+import performance15 from 'url:../../assets/photos/performance/performance-15.webp';
+import performance16 from 'url:../../assets/photos/performance/performance-16.webp';
+import performance17 from 'url:../../assets/photos/performance/performance-17.webp';
+import performance18 from 'url:../../assets/photos/performance/performance-18.webp';
+import performance19 from 'url:../../assets/photos/performance/performance-19.webp';
+import performance20 from 'url:../../assets/photos/performance/performance-20.webp';
+import performance21 from 'url:../../assets/photos/performance/performance-21.webp';
 
 // Aberrant collection media imports
 import aberrantHero from 'url:../../assets/photos/aberrant/hero.webp';
@@ -58,6 +72,8 @@ import aberrant10 from 'url:../../assets/photos/aberrant/aberrant-10.webp';
 import aberrant11 from 'url:../../assets/photos/aberrant/aberrant-11.webp';
 import aberrant12 from 'url:../../assets/photos/aberrant/aberrant-12.webp';
 import aberrant13 from 'url:../../assets/photos/aberrant/aberrant-13.webp';
+import aberrant14 from 'url:../../assets/photos/aberrant/aberrant-14.webp';
+import aberrant15 from 'url:../../assets/photos/aberrant/aberrant-15.webp';
 
 // Astro collection media imports
 import astroHero from 'url:../../assets/photos/astro/hero.webp';
@@ -71,7 +87,7 @@ import astro07 from 'url:../../assets/photos/astro/astro-07.webp';
 import astro08 from 'url:../../assets/photos/astro/astro-08.webp';
 import astro09 from 'url:../../assets/photos/astro/astro-09.webp';
 import astro10 from 'url:../../assets/photos/astro/astro-10.webp';
-import astro10 from 'url:../../assets/photos/astro/astro-11.webp';
+import astro11 from 'url:../../assets/photos/astro/astro-11.webp';
 
 // Photo collections data structure
 export const photoCollections = [
@@ -84,17 +100,21 @@ export const photoCollections = [
         heroImageThumb: portraitHeroThumb,
         images: [
             portraitHero, // Hero image as first gallery item
+            portrait27,
+            portrait26,
             portrait01,
             portrait17,
+            portrait18,
             portrait15,
             portrait21,
-            portrait16,
-            portrait18,
+            portrait28,
             portrait19,
             portrait10,
             portrait06,
             portrait24,
+            portrait25,
             portrait11,
+            portrait16,
             portrait04,
             portrait05,
             portrait07,
@@ -118,6 +138,7 @@ export const photoCollections = [
         heroImageThumb: aberrantHeroThumb,
         images: [
             aberrantHero, // Hero image as first gallery item
+            aberrant15,
             aberrant13,
             aberrant01,
             aberrant02,
@@ -131,6 +152,7 @@ export const photoCollections = [
             aberrant10,
             aberrant11,
             aberrant12,
+            aberrant14,
         ]
     },
     {
@@ -142,16 +164,24 @@ export const photoCollections = [
         heroImageThumb: performanceHeroThumb,
         images: [
             performanceHero, // Hero image as first gallery item
-            performance09,
-            performance11,
-            performance01,
-            performance03,
+            performance20,
+            performance18,
             performance08,
+            performance09,
+            performance17,
+            performance01,
+            performance12,
+            performance14,
+            performance15,
+            performance11,
+            performance03,
             performance10,
             performance02,
+            performance19,
             performance06,
             performance07,
             performance05,
+            performance21,
         ]
     },
     {
@@ -165,13 +195,14 @@ export const photoCollections = [
             astroHero, // Hero image as first gallery item
             astro01,
             astro02,
+            astro09,
             astro03,
             astro04,
             astro05,
             astro06,
             astro07,
-            astro09,
-            astro10
+            astro10,
+            astro11
         ]
     }
 ];
