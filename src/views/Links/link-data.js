@@ -49,4 +49,11 @@ export const links = [
         icon: "MESG", // Text icon for now
         description: "Get in touch!"
     },
+    {
+        id: "home",
+        title: "Website",
+        url: "https://blap64.xyz",
+        icon: "HOME",
+        description: "Home"
+    },
 ];

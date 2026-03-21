@@ -175,6 +175,7 @@ export const sketch = function (p, options = {}) {
             [50, 255, 255],   // Cyan
             [74, 144, 230],   // Blue (original)
             [180, 100, 255],  // Purple
+            [255, 255, 255],  // White
 
 
         ];

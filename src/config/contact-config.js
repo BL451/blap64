@@ -6,7 +6,7 @@ export const contactConfig = [
         title: "Contact",
         content: `
             <p>What can I do for you?</p>
-            <p><strong>Email:</strong> <a href="mailto:hello@blap64.xyz">hello@blap64.xyz</a></p>
+            <p><strong>Email:</strong> <a href="mailto:null@blap64.xyz">null@blap64.xyz</a></p>
             <p><strong>Location:</strong> Toronto, Canada is home. Work is global. Will travel and collaborate across all timezones.</p>
             <p><strong>Response Time:</strong> Within 48 hours</p>
         `
@@ -15,7 +15,7 @@ export const contactConfig = [
         title: "Services",
         content: `
             <h3>Interactive Media & Installations</h3>
-            <p>Custom interactive experiences for events, exhibitions, and permanent installations. Specializing in real-time visuals, sensor integration, and audience participation.</p>
+            <p>Custom interactive experiences for events, exhibitions, and permanent installations. Specializing in real-time visuals, TouchDesigner development, sensor integration, and audience participation.</p>
 
             <h3>Creative Technology Consulting</h3>
             <p>Technical guidance for artists, galleries, and cultural institutions. From concept development to implementation strategy.</p>

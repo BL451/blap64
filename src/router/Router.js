@@ -15,17 +15,17 @@ function updateMetaTags(path) {
         },
         '/interactive': {
             title: 'Interactive Projects - Benjamin Lappalainen',
-            description: 'Interactive media installations and web experiences by Benjamin Lappalainen.',
+            description: 'Interactive media installations and web experiences by Benjamin Lappalainen. Creative coding, digital art, and live performance technology.',
             canonical: 'https://blap64.xyz/interactive'
         },
         '/interactive/live': {
             title: 'Live Installations - Benjamin Lappalainen',
-            description: 'Live interactive media installations and performance projects by Benjamin Lappalainen.',
+            description: 'Live interactive media installations and performance projects by Benjamin Lappalainen. Real-time visuals, sensor-driven art, and audience participation.',
             canonical: 'https://blap64.xyz/interactive/live'
         },
         '/interactive/web': {
             title: 'Web Experiences - Benjamin Lappalainen',
-            description: 'Interactive web experiences and creative coding projects by Benjamin Lappalainen.',
+            description: 'Interactive web experiences and creative coding projects by Benjamin Lappalainen. Browser-based generative art, simulations, and visual experiments.',
             canonical: 'https://blap64.xyz/interactive/web'
         },
         '/photo': {
@@ -37,6 +37,11 @@ function updateMetaTags(path) {
             title: 'Links - Benjamin Lappalainen',
             description: 'Contact information and social links for Benjamin Lappalainen.',
             canonical: 'https://blap64.xyz/links'
+        },
+        '/oops': {
+            title: 'Page Not Found - Benjamin Lappalainen',
+            description: 'The page you were looking for could not be found.',
+            canonical: 'https://blap64.xyz/'
         }
     };
 
