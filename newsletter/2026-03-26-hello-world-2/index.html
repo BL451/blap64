@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello, World 2: Electric Boogaloo - Code Art Corner</title>
+    <meta name="description" content="The blog has a new home. Quick update.">
+    <meta name="theme-color" content="#171717">
+
+    <meta property="og:title" content="Hello, World 2: Electric Boogaloo - Code Art Corner">
+    <meta property="og:description" content="The blog has a new home. Quick update.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://blap64.xyz/newsletter/2026-03-26-hello-world-2/">
+    <meta property="og:image" content="">
+    <meta property="og:site_name" content="BLAP64">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Hello, World 2: Electric Boogaloo">
+    <meta name="twitter:description" content="The blog has a new home. Quick update.">
+
+    <link rel="canonical" href="https://blap64.xyz/newsletter/2026-03-26-hello-world-2/">
+
+    <style>
+        @font-face {
+            font-family: "BPdotsSquareVF";
+            src: url("/newsletter/fonts/BPdotsSquareVF.ttf") format('truetype');
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "ZxGamut";
+            src: url("/newsletter/fonts/ZxGamut-Variable.woff2") format('woff2');
+            font-display: swap;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            background-color: #171717;
+            color: #e8e8e8;
+            font-family: "ZxGamut", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .newsletter-wrapper {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        .newsletter-header {
+            border-bottom: 1px solid #333;
+            padding-bottom: 16px;
+            margin-bottom: 40px;
+        }
+
+        .newsletter-header a {
+            font-family: "BPdotsSquareVF", monospace;
+            font-weight: 900;
+            color: #808080;
+            text-decoration: none;
+            font-size: 13px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .newsletter-header a:hover {
+            color: #4a90e2;
+        }
+
+        .post-meta {
+            margin-bottom: 32px;
+        }
+
+        .post-title {
+            font-family: "BPdotsSquareVF", monospace;
+            font-size: 36px;
+            font-weight: 900;
+            color: #fafafa;
+            margin: 0 0 12px;
+            line-height: 1.2;
+        }
+
+        .post-date {
+            color: #808080;
+            font-size: 14px;
+        }
+
+        .post-updated {
+            display: block;
+            color: #606060;
+            font-size: 13px;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .post-tags {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .post-tag {
+            font-family: "BPdotsSquareVF", monospace;
+            font-weight: 900;
+            font-size: 12px;
+            color: #4a90e2;
+            border: 1px solid rgba(74, 144, 230, 0.3);
+            padding: 2px 10px;
+            letter-spacing: 0.03em;
+        }
+
+        .post-content h1 {
+            font-family: "BPdotsSquareVF", monospace;
+            font-size: 28px;
+            font-weight: 900;
+            color: #fafafa;
+            margin: 48px 0 16px;
+            line-height: 1.3;
+        }
+
+        .post-content h2 {
+            font-family: "BPdotsSquareVF", monospace;
+            font-size: 22px;
+            font-weight: 900;
+            color: #fafafa;
+            margin: 40px 0 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #2a2a2a;
+            line-height: 1.3;
+        }
+
+        .post-content h3 {
+            font-family: "BPdotsSquareVF", monospace;
+            font-size: 18px;
+            font-weight: 900;
+            color: #e0e0e0;
+            margin: 32px 0 8px;
+        }
+
+        .post-content p {
+            margin: 0 0 20px;
+            color: #d0d0d0;
+        }
+
+        .post-content a {
+            color: #4a90e2;
+            text-decoration: underline;
+            text-decoration-color: rgba(74, 144, 230, 0.4);
+            text-underline-offset: 2px;
+        }
+
+        .post-content a:visited {
+            color: #f5be07;
+            text-decoration-color: rgba(245, 190, 7, 0.4);
+        }
+
+        .post-content a:hover {
+            color: #74a0e6;
+            text-decoration-color: #74a0e6;
+        }
+
+        .post-content img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #333;
+            margin: 24px 0;
+            display: block;
+        }
+
+        .post-content blockquote {
+            border-left: 3px solid #4a90e2;
+            margin: 24px 0;
+            padding: 4px 0 4px 20px;
+            color: #b0b0b0;
+        }
+
+        .post-content blockquote p {
+            color: #b0b0b0;
+        }
+
+        .post-content ul, .post-content ol {
+            padding-left: 24px;
+            margin: 0 0 20px;
+            color: #d0d0d0;
+        }
+
+        .post-content li {
+            margin-bottom: 8px;
+        }
+
+        .post-content hr {
+            border: none;
+            border-top: 1px solid #333;
+            margin: 40px 0;
+        }
+
+        .post-content pre {
+            margin: 24px 0;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+
+        .post-content .shiki {
+            padding: 20px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .post-content code:not(pre code) {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', Consolas, 'Courier New', monospace;
+            font-size: 0.9em;
+            background: #2a2a2a;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #e6edf3;
+        }
+
+        .video-embed {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            margin: 24px 0;
+            overflow: hidden;
+        }
+
+        .video-embed iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 1px solid #333;
+        }
+
+        .video-fallback {
+            display: none;
+        }
+
+        .sketch-embed {
+            margin: 24px 0;
+        }
+
+        .sketch-embed iframe {
+            display: block;
+            max-width: 100%;
+        }
+
+        .sketch-caption {
+            font-family: "BPdotsSquareVF", monospace;
+            font-weight: 900;
+            font-size: 13px;
+            color: #808080;
+            margin: 8px 0 0;
+            text-align: center;
+        }
+
+        .newsletter-footer {
+            font-family: "BPdotsSquareVF", monospace;
+            font-weight: 900;
+            margin-top: 60px;
+            padding-top: 24px;
+            border-top: 1px solid #333;
+            color: #606060;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .newsletter-footer a {
+            color: #4a90e2;
+            text-decoration: none;
+        }
+
+        .newsletter-footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .newsletter-wrapper {
+                padding: 24px 16px 60px;
+            }
+
+            .post-title {
+                font-size: 28px;
+            }
+
+            .post-content .shiki {
+                font-size: 13px;
+                padding: 16px;
+            }
+
+            .newsletter-footer {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="newsletter-wrapper">
+        <nav class="newsletter-header">
+            <a href="https://blap64.xyz">BLAP64</a>
+            &nbsp;/&nbsp;
+            <a href="https://blap64.xyz/newsletter/">Code Art Corner</a>
+        </nav>
+
+        <div class="post-meta">
+            <h1 class="post-title">Hello, World 2: Electric Boogaloo</h1>
+            <time class="post-date" datetime="Wed Mar 25 2026 20:00:00 GMT-0400 (Eastern Daylight Saving Time)">March 25, 2026</time>
+            
+            <div class="post-tags"><span class="post-tag">announcement</span><span class="post-tag">non-technical</span><span class="post-tag">Substack</span></div>
+        </div>
+
+        <div class="post-content">
+            <p>Code Art Corner is moving off <a href="https://blap64.substack.com/">Substack</a> and onto my own site. Same blog and email newsletter, but the tech stack is more DIY and I can easily switch out components if any of them rub me the wrong way :) Many folks who are truly technical have a mentality of keeping a loaded gun pointed at their printer should it misbehave, and this is my version of that for having control over my content and distribution.</p>
+<h2>Why the move?</h2>
+<p>Substack’s boneless content moderation policies and <a href="https://arstechnica.com/tech-policy/2025/07/substacks-nazi-problem-wont-go-away-after-push-notification-apology/">willingness to allow themselves to be a platform for far-right extremist groups</a> is what prompted me to migrate away. I’m in the process of grabbing all of my posts from there and reuploading/reformatting them to live here.</p>
+<p>An additional bonus is that I can extend these posts with whatever functionality I want (at least on the web, less so in email since email clients are basically stuck as web browsers from 2005).</p>
+<p>Try moving your mouse around/touching the canvas here:</p>
+<div class="sketch-embed">
+    <iframe
+      src="/newsletter/2026-03-26-hello-world-2/sketches/wobbler/"
+      title="Wobbly System"
+      width="100%"
+      height="400"
+      frameborder="0"
+      allow="microphone; camera; autoplay; encrypted-media; fullscreen; geolocation; gyroscope; accelerometer; magnetometer; midi"
+      allowfullscreen
+      loading="lazy"
+      style="border: 1px solid #333;"
+    ></iframe>
+    <p class="sketch-caption">Wobbly System</p>
+  </div><p>If you’re an artist or organization who’s curious about self-hosting your writing or other content, shoot me a message!</p>
+<h2>Moving forward</h2>
+<p>I came to realize that a lot of my previous writing was lesson/topic-based and actually quite disconnected from my current activities (although the ideas serve as the foundation for much of what I do). I’m hoping to strike a better balance in my upcoming writing between talking about skills and techniques more abstractly and more concrete, real-world applications and projects that I’m actively applying these skills and techniques to.</p>
+<p>What you can expect out of this blog/newsletter:</p>
+<ul>
+<li><strong>Creative coding tutorials</strong> — p5.js, TouchDesigner, generative art techniques</li>
+<li><strong>Behind-the-scenes</strong> — breakdowns of my installations and interactive work</li>
+<li><strong>Tools and workflows</strong> — what I’m using and how I’m using it</li>
+</ul>
+<p>Thanks for following along. More soon.</p>
+
+        </div>
+
+        <footer class="newsletter-footer">
+            <span>Code Art Corner by <a href="https://blap64.xyz">Benjamin Lappalainen</a></span>
+            <a href="https://blap64.xyz/newsletter/">All posts</a>
+        </footer>
+    </div>
+</body>
+</html>

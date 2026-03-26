@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Art Corner - Blog</title>
+    <meta name="description" content="Code Art Corner blog by Benjamin Lappalainen. Creative coding, interactive media, and art technology.">
+    <meta name="theme-color" content="#171717">
+
+    <meta property="og:title" content="Code Art Corner - Blog">
+    <meta property="og:description" content="Creative coding, interactive media, and art technology.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://blap64.xyz/newsletter/">
+    <meta property="og:site_name" content="BLAP64">
+
+    <link rel="canonical" href="https://blap64.xyz/newsletter/">
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+    <style>
+        @font-face {
+            font-family: "BPdotsSquareVF";
+            src: url("/newsletter/fonts/BPdotsSquareVF.ttf") format('truetype');
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "ZxGamut";
+            src: url("/newsletter/fonts/ZxGamut-Variable.woff2") format('woff2');
+            font-display: swap;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            background-color: #171717;
+            color: #e8e8e8;
+            font-family: "ZxGamut", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 16px;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .index-wrapper {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        .index-header {
+            border-bottom: 1px solid #333;
+            padding-bottom: 16px;
+            margin-bottom: 40px;
+        }
+
+        .index-header a {
+            font-family: "BPdotsSquareVF", monospace;
+            font-weight: 900;
+            color: #808080;
+            text-decoration: none;
+            font-size: 13px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .index-header a:hover {
+            color: #4a90e2;
+        }
+
+        .index-title {
+            font-family: "BPdotsSquareVF", monospace;
+            font-size: 36px;
+            font-weight: 900;
+            color: #fafafa;
+            margin: 0 0 8px;
+        }
+
+        .index-subtitle {
+            color: #808080;
+            font-size: 15px;
+            margin: 0 0 40px;
+        }
+
+        .post-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .post-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .post-item {
+            padding: 24px 0 24px 20px;
+            border-bottom: 1px solid #2a2a2a;
+            transition: background-color 0.15s ease;
+        }
+
+        .post-link:hover .post-item {
+            background-color: rgba(74, 144, 230, 0.04);
+        }
+
+        .post-date {
+            font-family: "BPdotsSquareVF", monospace;
+            font-weight: 900;
+            color: #606060;
+            font-size: 13px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .post-title {
+            font-family: "BPdotsSquareVF", monospace;
+            font-size: 20px;
+            font-weight: 900;
+            color: #fafafa;
+            margin: 0 0 6px;
+            line-height: 1.3;
+        }
+
+        .post-link:hover .post-title {
+            color: #4a90e2;
+        }
+
+        .post-description {
+            color: #909090;
+            font-size: 14px;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .subscribe-form {
+            border: 1px solid #333;
+            padding: 24px 24px 4px;
+            margin-bottom: 48px;
+        }
+
+        .subscribe-form h2 {
+            font-family: "BPdotsSquareVF", monospace;
+            font-size: 16px;
+            font-weight: 900;
+            color: #fafafa;
+            margin: 0 0 12px;
+        }
+
+        .subscribe-form p {
+            color: #808080;
+            font-size: 14px;
+            margin: 0 0 16px;
+            line-height: 1.5;
+        }
+
+        .subscribe-fields {
+            display: flex;
+            gap: 8px;
+        }
+
+        .subscribe-fields input[type="email"] {
+            flex: 1;
+            padding: 10px 14px;
+            background: #0d0d0d;
+            border: 1px solid #404040;
+            color: #fafafa;
+            font-family: "ZxGamut", -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .subscribe-fields input[type="email"]:focus {
+            border-color: #4a90e2;
+        }
+
+        .subscribe-fields input[type="email"]::placeholder {
+            color: #606060;
+        }
+
+        .subscribe-fields button {
+            font-family: "BPdotsSquareVF", monospace;
+            font-weight: 900;
+            font-size: 13px;
+            padding: 10px 20px;
+            background: #4a90e2;
+            color: #fff;
+            border: 1px solid #4a90e2;
+            cursor: pointer;
+            letter-spacing: 0.03em;
+            transition: background 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .subscribe-fields button:hover {
+            background: #3a7bc8;
+        }
+
+        .subscribe-fields button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .subscribe-turnstile {
+            margin-top: 12px;
+        }
+
+        .subscribe-message {
+            font-size: 13px;
+            margin-top: 10px;
+            min-height: 20px;
+        }
+
+        .subscribe-message.success {
+            color: #4a90e2;
+        }
+
+        .subscribe-message.error {
+            color: #e25c4a;
+        }
+
+        @media (max-width: 600px) {
+            .subscribe-fields {
+                flex-direction: column;
+            }
+
+            .subscribe-fields button {
+                width: 100%;
+            }
+        }
+
+        .index-footer {
+            font-family: "BPdotsSquareVF", monospace;
+            font-weight: 900;
+            margin-top: 60px;
+            padding-top: 24px;
+            border-top: 1px solid #333;
+            color: #606060;
+            font-size: 13px;
+        }
+
+        .index-footer a {
+            color: #4a90e2;
+            text-decoration: none;
+        }
+
+        .index-footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .index-wrapper {
+                padding: 24px 16px 60px;
+            }
+
+            .index-title {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="index-wrapper">
+        <nav class="index-header">
+            <a href="https://blap64.xyz">BLAP64</a>
+            &nbsp;/&nbsp;
+            <span style="font-family: 'BPdotsSquareVF', monospace; font-weight: 900; color: #e8e8e8; font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase;">Code Art Corner</span>
+        </nav>
+
+        <h1 class="index-title">Code Art Corner</h1>
+        <p class="index-subtitle">Creative coding, interactive media, and art technology.</p>
+
+        <div class="subscribe-form">
+            <h2>Subscribe</h2>
+            <p>Get new posts delivered to your inbox.</p>
+            <form id="subscribe" action="https://newsletter-subscribe.b-m-lappalainen.workers.dev" method="POST">
+                <div class="subscribe-fields">
+                    <input type="email" name="email" placeholder="your@email.com" required autocomplete="email">
+                    <button type="submit">Subscribe</button>
+                </div>
+                <div class="subscribe-turnstile">
+                    <div class="cf-turnstile" data-sitekey="0x4AAAAAACeFh_PLBS7wUUKA" data-theme="dark" data-size="compact"></div>
+                </div>
+            </form>
+            <div id="subscribe-msg" class="subscribe-message"></div>
+        </div>
+
+        <div class="post-list">
+            <a href="/newsletter/2026-03-26-hello-world-2/" class="post-link">
+        <article class="post-item">
+          <time class="post-date">March 25, 2026</time>
+          <h2 class="post-title">Hello, World 2: Electric Boogaloo</h2>
+          <p class="post-description">The blog has a new home. Quick update.</p>
+        </article>
+      </a>
+        </div>
+
+        <footer class="index-footer">
+            <a href="https://blap64.xyz">Back to BLAP64</a>
+        </footer>
+    </div>
+    <script>
+        document.getElementById('subscribe').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const msg = document.getElementById('subscribe-msg');
+            const btn = form.querySelector('button');
+            const email = form.querySelector('input[name="email"]').value;
+
+            const turnstileInput = form.querySelector('[name="cf-turnstile-response"]');
+            const token = turnstileInput ? turnstileInput.value : '';
+
+            if (!token) {
+                msg.className = 'subscribe-message error';
+                msg.textContent = 'Please complete the verification.';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Subscribing...';
+            msg.className = 'subscribe-message';
+            msg.textContent = '';
+
+            try {
+                const res = await fetch(form.action, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, token })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    msg.className = 'subscribe-message success';
+                    msg.textContent = data.message || 'Subscribed! Check your inbox.';
+                    form.querySelector('input[name="email"]').value = '';
+                    if (typeof turnstile !== 'undefined') turnstile.reset();
+                } else {
+                    msg.className = 'subscribe-message error';
+                    msg.textContent = data.error || 'Something went wrong. Try again.';
+                    if (typeof turnstile !== 'undefined') turnstile.reset();
+                }
+            } catch {
+                msg.className = 'subscribe-message error';
+                msg.textContent = 'Could not connect. Try again later.';
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Subscribe';
+        });
+    </script>
+</body>
+</html>
