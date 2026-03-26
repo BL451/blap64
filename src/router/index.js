@@ -23,9 +23,15 @@ export default (routes) => {
         // Detect if this is a back/forward navigation by checking if user initiated it
         const isBackForward = !router.is_navigating;
         const rawPath = e.target.location.hash.substr(1);
-        const cleanPath = rawPath && rawPath !== '' ? 
+        const cleanPath = rawPath && rawPath !== '' ?
             (rawPath.startsWith('/') ? rawPath : '/' + rawPath) : '/';
-        
+
+        if (cleanPath === '/contact') {
+            window.history.replaceState(null, '', window.location.pathname + (router.path ? '#' + router.path : ''));
+            document.dispatchEvent(new CustomEvent('open-contact-popup'));
+            return;
+        }
+
         if (isBackForward) {
             router.navigate(cleanPath, { skipAnimations: true });
         }

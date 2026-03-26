@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>BLAP64 Sketch</title>
+    <meta name="theme-color" content="#171717">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/2.0.5/p5.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./runner.css" />
+</head>
+<body>
+    <div id="sketch-container"></div>
+
+    <a id="watermark" href="https://blap64.xyz" target="_blank" rel="noopener">
+        <div class="watermark-bracket watermark-bracket-tl"></div>
+        <div class="watermark-bracket watermark-bracket-br"></div>
+        <span class="watermark-text">BLAP64</span>
+    </a>
+
+    <div id="error" class="hidden">
+        <p class="error-title">Sketch not found</p>
+        <p class="error-message">Available sketches:</p>
+        <ul id="sketch-list"></ul>
+        <p class="error-link"><a href="https://blap64.xyz/#/interactive/web">View all sketches</a></p>
+    </div>
+
+    <script type="module" src="./runner.js"></script>
+</body>
+</html>

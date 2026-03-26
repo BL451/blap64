@@ -4,7 +4,7 @@ import { mobileCheck } from "./utils.js";
 import { render } from "lit";
 import { createBreadcrumbNav } from "./views/elements/breadcrumb-nav.js";
 import { createHelpButton } from "./views/elements/help-button.js";
-import { createContactButton } from "./views/elements/contact-button.js";
+import { createContactButton, openContactPopup } from "./views/elements/contact-button.js";
 
 import homeView from "./views/Home/home.js";
 import codeartView from "./views/CodeArt/codeart.js";
@@ -14,6 +14,14 @@ import aboutView from "./views/About/about.js";
 import installationsView from "./views/Installations/installations.js";
 import photoView from "./views/Photo/photo.js";
 import oopsView from "./views/Oops/oops.js";
+
+// Intercept #/contact before router initializes so it doesn't hit the 404 page
+const _preInitHash = window.location.hash.substr(1);
+const _preInitPath = _preInitHash.startsWith('/') ? _preInitHash : '/' + _preInitHash;
+const _openContactOnLoad = _preInitPath === '/contact';
+if (_openContactOnLoad) {
+    window.history.replaceState(null, '', window.location.pathname + '#/');
+}
 
 const routes = [
     new Route("project", "/interactive/live/:project", installationsView),
@@ -60,6 +68,15 @@ document.addEventListener('navigate-to', (event) => {
         router.navigate(event.detail.path);
     }
 });
+
+// Handle /contact path - opens the contact popup without routing
+document.addEventListener('open-contact-popup', () => {
+    openContactPopup();
+});
+
+if (_openContactOnLoad) {
+    setTimeout(() => openContactPopup(), 400);
+}
 
 if (mobileCheck()) {
     document.getElementById("mainNav").className = "nav-mobile";

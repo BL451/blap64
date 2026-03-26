@@ -91,6 +91,21 @@ export const createContactButton = () => {
     `;
 };
 
+export function openContactPopup() {
+    const popup = document.getElementById('contact-popup');
+    const overlay = document.getElementById('contact-overlay');
+    if (!popup || !overlay || isPopupOpen) return;
+
+    popup.classList.add('contact-popup-open');
+    overlay.classList.add('contact-overlay-open');
+    document.body.classList.add('contact-active');
+    window.contactPopupOpen = true;
+    isPopupOpen = true;
+
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+    if (themeColorMeta) themeColorMeta.content = '#000000';
+}
+
 // Function to re-render contact button (useful after config changes)
 export const refreshContactButton = () => {
     const contactContainer = document.getElementById("contact-container");

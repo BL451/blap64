@@ -146,3 +146,8 @@ src/assets/interactive/web/thumbnails/originals/
 
 # Boring directory - separate deployment
 boring/
+
+# Newsletter build output and tooling dependencies
+newsletter/output/
+newsletter/tools/node_modules/
+newsletter/subscribe-worker/node_modules/

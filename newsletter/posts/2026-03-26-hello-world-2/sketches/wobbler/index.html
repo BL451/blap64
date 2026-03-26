@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wobbly System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/2.0.5/p5.min.js"></script>
+    <style>
+        html, body { margin: 0; padding: 0; overflow: hidden; background: #171717; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+<script>
+function setup() {
+	createCanvas(windowWidth, windowHeight, WEBGL);
+	fbo = createFramebuffer({format: FLOAT});
+	background(16);
+	rectMode(CENTER);
+	imageMode(CENTER);
+	short_side = min(width, height);
+	TIME_FACTOR = 0.001;
+	n = 88;
+	colours = [
+		'#AA0000',
+		'#EEAA00',
+		'#3300DD',
+		'#11EE11',
+	]
+	smoothX = width/2;
+	smoothY = height/2;
+	noStroke();
+}
+
+function draw() {
+	fbo.begin();
+	fill(16, 8);
+	rect(0, 0, width, height);
+	smoothX = lerp(smoothX, mouseX, 0.03);
+	smoothY = lerp(smoothY, mouseY, 0.03);
+	let x_max = 0.4*width;
+	let y_max = 0.4*height;
+	let x_mod = smoothX/width;
+	let y_mod = smoothY/height;
+	const t = TIME_FACTOR * millis();
+	push();
+	fill('#BB0000');
+	rotate(x_mod + 0.1*t);
+	square(0, 0, 0.2*short_side*noise(0.5*t));
+	noStroke();
+	fill(16);
+	rotate(y_mod + 0.1*t);
+	square(0, 0, 0.1*short_side*noise(0.5*t));
+	pop();
+	for (let i = 0; i < n; i++){
+		fill(colours[i % colours.length]);
+		push();
+		rotate(2*x_mod + 2*y_mod + 0.1*t);
+		square(x_max*cos(t + i*n/TWO_PI)*noise(2*x_mod, 0.5*t + 0.03*i), y_max*sin(t + i*n/TWO_PI)*noise(0.5*t + 0.03*i, 2*y_mod), 0.05*short_side*noise(0.5*t));
+		pop();
+	}
+	fbo.end();
+	image(fbo, 0, 0);
+}
+
+function windowResized(){
+	resizeCanvas(windowWidth, windowHeight);
+	short_side = min(width, height);
+}
+</script>
+</body>
+</html>

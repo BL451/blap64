@@ -1,0 +1,19 @@
+{
+  "name": "blap64-newsletter",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node src/build.js build",
+    "preview": "node src/build.js preview",
+    "send": "node src/build.js send",
+    "test-send": "node src/build.js test"
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3",
+    "juice": "^11.0.0",
+    "markdown-it": "^14.1.0",
+    "resend": "^4.1.2",
+    "shiki": "^3.2.1"
+  }
+}

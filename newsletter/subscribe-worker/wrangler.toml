@@ -1,0 +1,11 @@
+name = "newsletter-subscribe"
+main = "src/worker.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+ALLOWED_ORIGIN = "https://blap64.xyz"
+
+# Set these as secrets via:
+# wrangler secret put RESEND_API_KEY
+# wrangler secret put RESEND_AUDIENCE_ID
+# wrangler secret put TURNSTILE_SECRET_KEY

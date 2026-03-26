@@ -12,9 +12,9 @@ export default (props) => html`
             </div>
             <p class="main-paragraph">
                 <br>
-                Benjamin Lappalainen is a Toronto-based creative technologist, artist, and educator whose practice spans interactive installations, kinetic sculpture, and experimental instruments. His work reveals how perceptive and generative technologies actually work and invites audiences to engage with them on their own terms. His educational practice includes leading workshops and mentorship programs that bridge technical skill-building with experimental arts practices.
+                Benjamin Lappalainen is a Toronto-based creative technologist, artist, and educator whose practice spans interactive installations, kinetic sculpture, and creative code. His work reveals how perceptive and generative technologies actually work and invites audiences to engage with them on their own terms. Through exhibitions, workshops, and mentorship programs at institutions including InterAccess, Long Winter, and OCAD University, his educational practice bridges technical skill-building with experimental arts practices.
                 <br><br>
-                As XR Development Lead with UKAI Projects, Benjamin collaborates with artists and organizations to execute research, exhibitions, immersive and interactive installations, publishing, and workshops. UKAI Projects imagines and produces “culture for what’s coming”, most recently working with the Accton Arts Foundation in Hsinchu, Taiwan for research into arts policy, delivering workshops and immersive experiences, and activating a city block with the first international iteration of Goblin Market, a collectively imagined alternative arts marketplace.
+                As XR Development Lead with UKAI Projects, Benjamin collaborates with artists and organizations to execute research, exhibitions, immersive and interactive installations, publishing, and workshops. UKAI Projects imagines and produces “culture for what’s coming”. Most recently, the organization worked with the Accton Arts Foundation in Hsinchu, Taiwan for research into arts policy, delivering workshops and immersive experiences, and activating a city block with the first international iteration of Goblin Market, a collectively imagined alternative arts marketplace.
                 <br><br>
                 Benjamin holds a Bachelor of Applied Science in Engineering Science from the University of Toronto. His current research focuses on developing software and hardware for interactive media — working across tools like p5.js, TouchDesigner, and custom electronics — creating accessible tools that support artist communities in realizing technically ambitious projects.
                 <br><br>
@@ -110,9 +110,39 @@ export default (props) => html`
             </div>
 
             <div class="cv-section">
+                <h2>Work Experience</h2>
+                <p class="main-paragraph">
+                    <strong>2025-Present</strong> - XR Development Lead, UKAI Projects<br>
+                    <strong>2025</strong> - <em>We Play in the World They Make</em> Role-Playing Game, UKAI Projects<br>
+                        &nbsp;&nbsp;- Software development, art direction, and prompt engineering for AI game components<br>
+                    <strong>2024-2025</strong> - AAASeed Software and Installation Development, Artcast4D<br>
+                        &nbsp;&nbsp;- Building interactive and networked installations for showcase in Europe<br>
+                        &nbsp;&nbsp;- Software development in C++ and Lua<br>
+                        &nbsp;&nbsp;- Artcast4D is funded by the European Union's Horizon Europe research and innovation program<br>
+                    <strong>2020-2024</strong> - Product Manager, Nanoleaf<br>
+                        &nbsp;&nbsp;- Creator and lead developer of Nanoleaf Screen Mirror technology<br>
+                        &nbsp;&nbsp;- Developed expertise in Thread mesh networking protocol and Matter smart home protocol<br>
+                        &nbsp;&nbsp;- Managed successful certification of the first smart lights on Matter<br>
+                        &nbsp;&nbsp;- Creator of Nanoleaf Orchestrator advanced music visualizer
+                </p>
+            </div>
+
+            <div class="cv-section">
+                <h2>Education & Training</h2>
+                <p class="main-paragraph">
+                    <strong>2024</strong> - Mentored by digital artist, designer, and technologist Priam Givord<br>
+                    <strong>2024</strong> - <a href="https://www.aimetaphorsworkshop.com/" target="_blank" rel="noopener">"AI Metaphors" Workshop</a>, University of Toronto, UKAI Projects, InterAccess<br>
+                    <strong>2024</strong> - <a href="https://ukaiprojects.com/pages/festival" target="_blank" rel="noopener">"Carnival of Shipwreck"</a> Cultural Philosophy and New Media workshop series, UKAI Projects<br>
+                    <strong>2024</strong> - <a href="https://labs.hxouse.com/" target="_blank" rel="noopener">"Habitats"</a> Unreal Engine 5 & Cultural Philosophy Workshop, HXOUSE LABS<br>
+                    <strong>2019-Present</strong> - Self-taught interactive media, programming, and AI techniques and technologies<br>
+                    <strong>2015-2020</strong> - BASc., Engineering Science, University of Toronto
+                </p>
+            </div>
+
+            <div class="cv-section">
                 <h2>Independent Projects</h2>
                 <p class="main-paragraph">
-                    <strong>2025-Present</strong> - <a href="https://blap64.substack.com/" target="_blank" rel="noopener">"Code Art Corner" educational newsletter</a><br>
+                    <strong>2025-Present</strong> - <a href="/newsletter/" target="_blank" rel="noopener">"Code Art Corner" educational newsletter</a><br>
                     <strong>2024</strong> - <a href="https://editor.p5js.org/blapcode/collections/ZbpMINM3u" target="_blank" rel="noopener">Genuary Generative Art Prompt Series</a><br>
                     <strong>2024</strong> - <a href="https://youtu.be/AohJn0CFkYY" target="_blank" rel="noopener">Cipher Fault</a><br>
                     <strong>2023-Present</strong> - <a href="https://openprocessing.org/user/424615/?o=40&view=sketches" target="_blank" rel="noopener">Open Source Code Art Sketches</a><br>

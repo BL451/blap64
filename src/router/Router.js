@@ -112,6 +112,12 @@ export default class Router {
     }
 
     navigate(path, options = {}) {
+        if (path === '/contact') {
+            window.location.hash = '#' + (this.path || '/');
+            document.dispatchEvent(new CustomEvent('open-contact-popup'));
+            return;
+        }
+
         if (path == this.path || this.is_navigating) {
             return;
         }
