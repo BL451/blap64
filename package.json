@@ -14,7 +14,7 @@
     "scripts": {
         "predev": "rm -rf .parcel-cache",
         "dev": "parcel index.html sketch-runner/index.html --port 4321",
-        "predeploy": "rm -rf dist && parcel build index.html sketch-runner/index.html --public-url https://blap64.xyz && cp CNAME ./dist && cp public/og-image.webp ./dist && cp robots.txt ./dist && cp sitemap.xml ./dist && cp -r links about interactive photo contact dist/ && cp -r public/publications ./dist && if [ -d newsletter/output ]; then cp -r newsletter/output dist/newsletter; fi",
+        "predeploy": "rm -rf dist && parcel build index.html sketch-runner/index.html --public-url https://blap64.xyz && cp CNAME ./dist && cp public/og-image.webp ./dist && cp robots.txt ./dist && cp sitemap.xml ./dist && cp src/assets/favicon/favicon.ico ./dist && cp src/assets/favicon/favicon-32x32.png ./dist && cp src/assets/favicon/favicon-16x16.png ./dist && cp -r links about interactive photo contact dist/ && cp -r public/publications ./dist && if [ -d newsletter/output ]; then cp -r newsletter/output dist/newsletter; fi",
         "deploy": "gh-pages -d dist"
     },
     "devDependencies": {
