@@ -7,5 +7,5 @@ ALLOWED_ORIGIN = "https://blap64.xyz"
 
 # Set these as secrets via:
 # wrangler secret put RESEND_API_KEY
-# wrangler secret put RESEND_AUDIENCE_ID
+# wrangler secret put RESEND_SEGMENT_ID
 # wrangler secret put TURNSTILE_SECRET_KEY

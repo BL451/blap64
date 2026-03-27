@@ -92,7 +92,7 @@ export default {
         },
         body: JSON.stringify({
           email,
-          audience_id: env.RESEND_AUDIENCE_ID,
+          segments: [{ id: env.RESEND_SEGMENT_ID }],
         }),
       });
 
