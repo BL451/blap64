@@ -37,8 +37,8 @@ export const links = [
     },
     {
         id: "blog",
-        title: "Substack",
-        url: "https://blap64.substack.com/",
+        title: "Blog",
+        url: "https://blap64.xyz/newsletter/",
         icon: "BLOG", // Text icon for now
         description: "Writing"
     },

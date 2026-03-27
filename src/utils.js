@@ -19,7 +19,7 @@ export const easeInCubic = (x) => {
 
 export const getFontSizes = (w, h) => {
     if (widthCheck(w) && mobileCheck()){
-        return { "small": 16, "medium": 24, "large": 48};
+        return { "small": 13, "medium": 20, "large": 48};
     } else {
         return { "small": 24, "medium": 32, "large": 64};
     }
@@ -561,6 +561,46 @@ export class UIHexButton extends UIObj{
             const startX = this.p5.lerp(currentVertex.x, prevVertex.x, offset + progress * (1 - offset));
             const startY = this.p5.lerp(currentVertex.y, prevVertex.y, offset + progress * (1 - offset));
             this.p5.line(startToPrevX, startToPrevY, startX, startY);
+        }
+    }
+}
+
+export class UILinesButton extends UIObj {
+    constructor(p, x, y, w, h, sx, sy, text, textSize) {
+        super(p, x, y, w, h);
+        this.cs = p.createVector(sx, sy);
+        this.textWriter = new TextWriter(p, x, y, undefined, undefined, text, textSize);
+    }
+
+    contains(x, y) {
+        return x >= this.p.x - this.s.x / 2 && x <= this.p.x + this.s.x / 2
+            && y >= this.p.y - this.s.y / 2 && y <= this.p.y + this.s.y / 2;
+    }
+
+    render() {
+        const cx = this.p.x;
+        const cy = this.p.y;
+        const w = this.s.x;
+        const h = this.s.y;
+        const minLen = 0.08 * w;
+        const lineLen = this.p5.lerp(minLen, w, this.p5.constrain(this.cs.x, 0, 1));
+
+        const innerSpacing = 0.12 * h;
+        const textGap = 0.36 * h;
+
+        const lineYs = [
+            cy - textGap - innerSpacing,
+            cy - textGap,
+            cy + textGap,
+            cy + textGap + innerSpacing,
+        ];
+
+        for (let i = 0; i < 4; i++) {
+            if (i < 2) {
+                this.p5.line(cx - w / 2, lineYs[i], cx - w / 2 + lineLen, lineYs[i]);
+            } else {
+                this.p5.line(cx + w / 2, lineYs[i], cx + w / 2 - lineLen, lineYs[i]);
+            }
         }
     }
 }

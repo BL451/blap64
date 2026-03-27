@@ -1,4 +1,4 @@
-import { smoothFollow, easeInCubic, getFontSizes, widthCheck, loadGoogleFontSet, injectFontLink, getViewportSize, AnimationManager, UICornerBoxButton, UIArcButton, UITriangleButton, UIHexButton, TextWriter, updateCursor } from "../../utils";
+import { smoothFollow, easeInCubic, getFontSizes, widthCheck, loadGoogleFontSet, injectFontLink, getViewportSize, AnimationManager, UICornerBoxButton, UIArcButton, UITriangleButton, UIHexButton, UILinesButton, TextWriter, updateCursor } from "../../utils";
 
 // Home sketch with animation support
 // options.skipAnimations: boolean - when true, skips intro animations and shows final state immediately
@@ -29,11 +29,12 @@ export const sketch = function (p, options = {}) {
 		// Font already loaded via CSS
 		p.textAlign(p.CENTER, p.CENTER);
 		short = p.min(p.width, p.height);
-		const s_font = mobile ? 14 : Math.max(0.022*p.width, 32);
+		const s_font = mobile ? 14 : Math.min(Math.max(0.022*p.width, 32), 48);
 		ui.push(new UICornerBoxButton(p, 0.25*p.width, 0.7*p.height, 0.26*short, 0.26*short, 0.01*p.width, 0.01*p.width, "INTERACTIVE\nMEDIA", s_font));
 		ui.push(new UIArcButton(p, 0.5*p.width, 0.7*p.height, 0.3*short, 0.3*short, 0.01*p.width, 0.01*p.width, "PHOTO", s_font));
 		ui.push(new UITriangleButton(p, 0.75*p.width, 0.35*p.height, 0.2*short, 0.2*short, 0.01*p.width, 0.01*p.width, -0.5*p.PI, "ABOUT", s_font));
 		ui.push(new UIHexButton(p, 0.75*p.width, 0.7*p.height, 0.3*short, 0.3*short, 0.01*p.width, 0.01*p.width, "LINKS", s_font));
+		ui.push(new UILinesButton(p, 0.82*p.width, 0.78*p.height, 0.22*short, 0.16*short, 0.01*p.width, 0.01*p.width, "BLOG", s_font));
 
 		// Apply quadratic curve layout to UI elements
 		layoutUI();
@@ -52,7 +53,8 @@ export const sketch = function (p, options = {}) {
 
         intro_texts.push(new TextWriter(p, padding[0] * p.width, padding[0] * p.width, p.width, p.height / 2, "HELLO, FRIEND.", font_sizes.large));
         intro_texts.push(new TextWriter(p, padding[1] * p.width, 0.18 * p.height, p.width / 2, p.height / 2, "I play many roles:", font_sizes.small));
-        intro_texts.push(new TextWriter(p, padding[1] * p.width, 0.22 * p.height, p.width, p.height / 2, "CREATIVE TECHNOLOGIST\nEDUCATOR\nARTIST", font_sizes.medium));
+        intro_texts.push(new TextWriter(p, padding[1] * p.width, 0.22 * p.height, p.width, p.height / 2, "CREATIVE TECHNOLOGIST\nARTIST\nEDUCATOR", font_sizes.medium));
+        intro_texts.push(new TextWriter(p, padding[1] * p.width, 0.22 * p.height + (mobile ? 4.0 : 3.8) * font_sizes.medium, p.width, p.height / 2, "and more...", font_sizes.small));
 
         animation_states = !mobile ? [
             {
@@ -90,9 +92,9 @@ export const sketch = function (p, options = {}) {
             {
                 "start_time": 7250,
                 "duration": 1000,
-                "idx": 2,
-                "fn": intro_texts[2].renderTransition.bind(intro_texts[2]),
-                "args": ["CREATIVE TECHNOLOGIST\nEDUCATOR\nARTIST", "CREATIVE TECHNOLOGIST\nEDUCATOR\nARTIST\nand more..."],
+                "idx": 4,
+                "fn": intro_texts[3].renderSequentialRandom.bind(intro_texts[3]),
+                "args": [],
                 "persist": true,
             },
             {
@@ -161,11 +163,11 @@ export const sketch = function (p, options = {}) {
                 "persist": true,
             },
             {
-                "start_time": 7750,
+                "start_time": 8750,
                 "duration": 1000,
-                "idx": 2,
-                "fn": intro_texts[2].renderTransition.bind(intro_texts[2]),
-                "args": ["CREATIVE TECHNOLOGIST\nEDUCATOR\nARTIST", "CREATIVE TECHNOLOGIST\nEDUCATOR\nARTIST\nand more..."],
+                "idx": 4,
+                "fn": intro_texts[3].renderSequentialRandom.bind(intro_texts[3]),
+                "args": [],
                 "persist": true,
             },
             {
@@ -208,7 +210,8 @@ export const sketch = function (p, options = {}) {
             // Set final states immediately
             intro_texts[0].t = "BLAP64";
             intro_texts[1].t = "I play many roles:";
-            intro_texts[2].t = "CREATIVE TECHNOLOGIST\nEDUCATOR\nARTIST\nand more...";
+            intro_texts[2].t = "CREATIVE TECHNOLOGIST\nARTIST\nEDUCATOR";
+            intro_texts[3].t = "and more...";
             ui_opacity = 255;
             animation_manager.t = 999999;
         }
@@ -266,10 +269,11 @@ export const sketch = function (p, options = {}) {
         p.textFont('BPdotsSquareVF', {
             fontVariationSettings: `wght 900`
         });
-        if (animation_manager.t > 9000){
+        if (animation_manager.t > 10000){
             intro_texts[0].renderTransition(p.map(intro_texts[0].dist(smoothX, smoothY), 100, 250, 0, 1, true), "Benjamin Lappalainen", "BLAP64");
             intro_texts[1].render();
             intro_texts[2].render();
+            intro_texts[3].render();
         } else {
             animation_manager.execute(p);
         }
@@ -294,7 +298,8 @@ export const sketch = function (p, options = {}) {
             // Set final states immediately
             intro_texts[0].t = "BLAP64";
             intro_texts[1].t = "I play many roles:";
-            intro_texts[2].t = "CREATIVE TECHNOLOGIST\nEDUCATOR\nARTIST\nand more...";
+            intro_texts[2].t = "CREATIVE TECHNOLOGIST\nARTIST\nEDUCATOR";
+            intro_texts[3].t = "and more...";
             ui_opacity = 255;
             animation_manager.t = 999999;
             return;
@@ -328,6 +333,11 @@ export const sketch = function (p, options = {}) {
                             setTimeout(() => {
                                 window.appRouter.navigate('/links');
                             }, ANIMATION_DELAY);
+                            break;
+                        case 4: // Fifth button - BLOG
+                            setTimeout(() => {
+                                window.location.href = '/newsletter/';
+                            }, ANIMATION_DELAY);
 					}
 				}
                 return;
@@ -347,7 +357,8 @@ export const sketch = function (p, options = {}) {
             // Set final states immediately
             intro_texts[0].t = "BLAP64";
             intro_texts[1].t = "I play many roles:";
-            intro_texts[2].t = "CREATIVE TECHNOLOGIST\nEDUCATOR\nARTIST\nand more...";
+            intro_texts[2].t = "CREATIVE TECHNOLOGIST\nARTIST\nEDUCATOR";
+            intro_texts[3].t = "and more...";
             ui_opacity = 255;
             animation_manager.t = 999999;
             return false;
@@ -375,11 +386,12 @@ export const sketch = function (p, options = {}) {
         // Clear and recreate UI elements with new proportional positions
         // UI elements: corner box, arc, and triangle buttons at 25%, 50%, 75% width
         ui.length = 0;
-        const s_font = mobile ? 14 : Math.max(0.022*p.width, 32);
+        const s_font = mobile ? 14 : Math.min(Math.max(0.022*p.width, 32), 48);
         ui.push(new UICornerBoxButton(p, 0.25*p.width, 0.7*p.height, 0.26*short, 0.26*short, 0.01*p.width, 0.01*p.width, "INTERACTIVE\nMEDIA", s_font));
 		ui.push(new UIArcButton(p, 0.5*p.width, 0.7*p.height, 0.3*short, 0.3*short, 0.01*p.width, 0.01*p.width, "PHOTO", s_font));
 		ui.push(new UITriangleButton(p, 0.75*p.width, 0.35*p.height, 0.2*short, 0.2*short, 0.01*p.width, 0.01*p.width, -0.5*p.PI, "ABOUT", s_font));
 		ui.push(new UIHexButton(p, 0.75*p.width, 0.7*p.height, 0.3*short, 0.3*short, 0.01*p.width, 0.01*p.width, "LINKS", s_font));
+		ui.push(new UILinesButton(p, 0.82*p.width, 0.78*p.height, 0.22*short, 0.16*short, 0.01*p.width, 0.01*p.width, "BLOG", s_font));
 
         // Apply quadratic curve layout to UI elements
         layoutUI();
@@ -391,7 +403,8 @@ export const sketch = function (p, options = {}) {
             intro_texts.length = 0;
             intro_texts.push(new TextWriter(p, padding[0] * p.width, padding[0] * p.width, 0.8*p.width, p.height / 2, "BLAP64", font_sizes.large));
             intro_texts.push(new TextWriter(p, padding[1] * p.width, 0.18 * p.height, p.width / 2, p.height / 2, "I play many roles:", font_sizes.small));
-            intro_texts.push(new TextWriter(p, padding[1] * p.width, 0.22 * p.height, p.width, p.height / 2, "CREATIVE TECHNOLOGIST\nEDUCATOR\nARTIST\nand more...", font_sizes.medium));
+            intro_texts.push(new TextWriter(p, padding[1] * p.width, 0.22 * p.height, p.width, p.height / 2, "CREATIVE TECHNOLOGIST\nARTIST\nEDUCATOR", font_sizes.medium));
+            intro_texts.push(new TextWriter(p, padding[1] * p.width, 0.22 * p.height + (mobile ? 4.0 : 3.8) * font_sizes.medium, p.width, p.height / 2, "and more...", font_sizes.small));
         } else {
             // Update positions but preserve current animation states and text content
             intro_texts[0].p.x = padding[0] * p.width;
@@ -411,6 +424,9 @@ export const sketch = function (p, options = {}) {
             intro_texts[2].s.x = p.width;
             intro_texts[2].s.y = p.height / 2;
             intro_texts[2].size = font_sizes.medium;
+            intro_texts[3].p.x = padding[1] * p.width;
+            intro_texts[3].p.y = 0.22 * p.height + (mobile ? 4.0 : 3.8) * font_sizes.medium;
+            intro_texts[3].size = font_sizes.small;
         }
      };
 
@@ -424,50 +440,57 @@ export const sketch = function (p, options = {}) {
     function layoutUI() {
         if (ui.length === 0) return;
 
+        const curveCount = ui.length - 1; // all but blog (last element)
+
         if (mobile) {
-            // Mobile layout: arrange in 2x2 grid in lower third of screen
-            const gridCenterX = 0.5 * p.width;
-            const gridCenterY = 0.7 * p.height; // Lower third of screen
-            const gridSpacing = 0.45 * p.width; // Spacing between grid positions
+            // Mobile layout: V-shape — Blog at bottom centre, arms rising left and right
+            const blogX = 0.5 * p.width;
+            const blogY = 0.90 * p.height;
+            const leftTopX = 0.21 * p.width;
+            const rightTopX = 0.79 * p.width;
+            const topY = 0.45 * p.height;
+            const midY = p.lerp(blogY, topY, 0.5);
 
-            // Grid positions: 2x2 layout
-            const gridPositions = [
-                { x: gridCenterX - gridSpacing/2, y: gridCenterY - gridSpacing/2 }, // Top-left
-                { x: gridCenterX + gridSpacing/2, y: gridCenterY - gridSpacing/2 }, // Top-right
-                { x: gridCenterX - gridSpacing/2, y: gridCenterY + gridSpacing/2 }, // Bottom-left
-                { x: gridCenterX + gridSpacing/2, y: gridCenterY + gridSpacing/2 }  // Bottom-right
-            ];
+            // Blog - bottom centre (apex of V)
+            ui[curveCount].p.x = blogX;
+            ui[curveCount].p.y = blogY;
+            ui[curveCount].textWriter.p.x = blogX;
+            ui[curveCount].textWriter.p.y = blogY + 2;
 
-            // Position UI elements in grid
-            for (let i = 0; i < ui.length; i++) {
-                const pos = gridPositions[i % gridPositions.length]; // Handle more than 4 elements
+            // Photo - top of left arm, offset down
+            ui[1].p.x = leftTopX;
+            ui[1].p.y = topY + 0.04 * p.height;
+            ui[1].textWriter.p.x = leftTopX;
+            ui[1].textWriter.p.y = topY + 0.04 * p.height;
 
-                // Update UI element position
-                ui[i].p.x = pos.x;
-                ui[i].p.y = pos.y;
+            // About - left arm midpoint, offset down
+            ui[2].p.x = 0.30 * p.width;
+            ui[2].p.y = midY + 0.04 * p.height;
+            ui[2].textWriter.p.x = ui[2].p.x;
+            ui[2].textWriter.p.y = ui[2].p.y;
 
-                // Update corresponding TextWriter position
-                ui[i].textWriter.p.x = pos.x;
-                ui[i].textWriter.p.y = pos.y;
-            }
+            // Interactive Media - top of right arm, shifted left
+            ui[0].p.x = rightTopX - 0.07 * p.width;
+            ui[0].p.y = topY;
+            ui[0].textWriter.p.x = rightTopX - 0.07 * p.width;
+            ui[0].textWriter.p.y = topY;
+
+            // Links - right arm midpoint
+            ui[3].p.x = 0.70 * p.width;
+            ui[3].p.y = midY;
+            ui[3].textWriter.p.x = ui[3].p.x;
+            ui[3].textWriter.p.y = ui[3].p.y;
         } else {
-            // Desktop layout: quadratic curve
-            // Define curve parameters - curve goes from bottom-left to top-right
-            const startX = 0.15 * p.width;  // Start X position (15% from left)
-            const startY = 0.75 * p.height; // Start Y position (75% from top, near bottom)
-            const endX = 0.85 * p.width;    // End X position (85% from left)
-            const endY = 0.2 * p.height;    // End Y position (20% from top, near top)
+            // Desktop layout: quadratic curve for first 4 buttons
+            const startX = 0.15 * p.width;
+            const startY = 0.75 * p.height;
+            const endX = 0.85 * p.width;
+            const endY = 0.2 * p.height;
+            const controlX = 0.6 * p.width;
+            const controlY = 0.65 * p.height;
 
-            // Quadratic curve control point to create convex upward arc
-            const controlX = 0.6 * p.width;  // Control point X
-            const controlY = 0.65 * p.height; // Control point Y (creates convex curve)
-
-            // Calculate positions for each UI element along the curve
-            for (let i = 0; i < ui.length; i++) {
-                // Parameter t goes from 0 to 1 along the curve
-                const t = ui.length > 1 ? i / (ui.length - 1) : 0;
-
-                // Quadratic Bezier curve formula: P(t) = (1-t)²P₀ + 2(1-t)tP₁ + t²P₂
+            for (let i = 0; i < curveCount; i++) {
+                const t = curveCount > 1 ? i / (curveCount - 1) : 0;
                 const oneMinusT = 1 - t;
                 const x = oneMinusT * oneMinusT * startX +
                          2 * oneMinusT * t * controlX +
@@ -475,15 +498,17 @@ export const sketch = function (p, options = {}) {
                 const y = oneMinusT * oneMinusT * startY +
                          2 * oneMinusT * t * controlY +
                          t * t * endY;
-
-                // Update UI element position
                 ui[i].p.x = x;
                 ui[i].p.y = y;
-
-                // Update corresponding TextWriter position
                 ui[i].textWriter.p.x = x;
                 ui[i].textWriter.p.y = y;
             }
+
+            // Blog button fixed at bottom-right
+            ui[curveCount].p.x = 0.82 * p.width;
+            ui[curveCount].p.y = 0.78 * p.height;
+            ui[curveCount].textWriter.p.x = 0.82 * p.width;
+            ui[curveCount].textWriter.p.y = 0.78 * p.height + 2;
         }
     }
 };
