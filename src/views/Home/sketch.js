@@ -443,43 +443,40 @@ export const sketch = function (p, options = {}) {
         const curveCount = ui.length - 1; // all but blog (last element)
 
         if (mobile) {
-            // Mobile layout: V-shape — Blog at bottom centre, arms rising left and right
-            const blogX = 0.5 * p.width;
-            const blogY = 0.90 * p.height;
-            const leftTopX = 0.21 * p.width;
-            const rightTopX = 0.79 * p.width;
-            const topY = 0.45 * p.height;
-            const midY = p.lerp(blogY, topY, 0.5);
+            // Mobile layout: two parallel diagonals, bottom-left to upper-right
+            // Left diagonal: Photo (lower), Links (upper)
+            // Right diagonal: Blog (lower), Interactive Media (mid), About (upper)
 
-            // Blog - bottom centre (apex of V)
-            ui[curveCount].p.x = blogX;
-            ui[curveCount].p.y = blogY;
-            ui[curveCount].textWriter.p.x = blogX;
-            ui[curveCount].textWriter.p.y = blogY + 2;
+            // Photo - lower left
+            ui[1].p.x = 0.18 * p.width;
+            ui[1].p.y = 0.77 * p.height;
+            ui[1].textWriter.p.x = ui[1].p.x;
+            ui[1].textWriter.p.y = ui[1].p.y;
 
-            // Photo - top of left arm, offset down
-            ui[1].p.x = leftTopX;
-            ui[1].p.y = topY + 0.04 * p.height;
-            ui[1].textWriter.p.x = leftTopX;
-            ui[1].textWriter.p.y = topY + 0.04 * p.height;
+            // Links - left diagonal
+            ui[3].p.x = 0.30 * p.width;
+            ui[3].p.y = 0.57 * p.height;
+            ui[3].textWriter.p.x = 0.30 * p.width;
+            ui[3].textWriter.p.y = ui[3].p.y;
 
-            // About - left arm midpoint, offset down
-            ui[2].p.x = 0.30 * p.width;
-            ui[2].p.y = midY + 0.04 * p.height;
+
+            // Blog - lower right diagonal
+            ui[curveCount].p.x = 0.49 * p.width;
+            ui[curveCount].p.y = 0.90 * p.height;
+            ui[curveCount].textWriter.p.x = ui[curveCount].p.x;
+            ui[curveCount].textWriter.p.y = ui[curveCount].p.y + 2;
+
+            // Interactive Media - mid right diagonal, equidistant between Blog and About
+            ui[0].p.x = 0.66 * p.width;
+            ui[0].p.y = 0.73 * p.height;
+            ui[0].textWriter.p.x = ui[0].p.x;
+            ui[0].textWriter.p.y = ui[0].p.y;
+
+            // About - upper right diagonal
+            ui[2].p.x = 0.78 * p.width;
+            ui[2].p.y = 0.54 * p.height;
             ui[2].textWriter.p.x = ui[2].p.x;
             ui[2].textWriter.p.y = ui[2].p.y;
-
-            // Interactive Media - top of right arm, shifted left
-            ui[0].p.x = rightTopX - 0.07 * p.width;
-            ui[0].p.y = topY;
-            ui[0].textWriter.p.x = rightTopX - 0.07 * p.width;
-            ui[0].textWriter.p.y = topY;
-
-            // Links - right arm midpoint
-            ui[3].p.x = 0.70 * p.width;
-            ui[3].p.y = midY;
-            ui[3].textWriter.p.x = ui[3].p.x;
-            ui[3].textWriter.p.y = ui[3].p.y;
         } else {
             // Desktop layout: quadratic curve for first 4 buttons
             const startX = 0.15 * p.width;

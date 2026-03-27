@@ -24,6 +24,7 @@
         @font-face {
             font-family: "BPdotsSquareVF";
             src: url("/newsletter/fonts/BPdotsSquareVF.ttf") format('truetype');
+            font-weight: 100 900;
             font-display: swap;
         }
 
@@ -306,6 +307,201 @@
                 text-align: center;
             }
         }
+
+        /* Site navigation elements */
+        .blog-breadcrumb {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 9998;
+            background: rgba(23, 23, 23, 0.6);
+            border: 1px solid #404040;
+            padding: 10px 14px;
+            font-family: "BPdotsSquareVF", monospace;
+            font-weight: 600;
+            font-size: 2.4vmin;
+            line-height: 1;
+            color: #fafafa;
+            backdrop-filter: blur(4px);
+            user-select: none;
+            display: flex;
+            align-items: center;
+        }
+        .blog-breadcrumb-segment {
+            color: #b0b0b0;
+            text-decoration: none;
+            transition: color 0.2s ease;
+            font-family: "BPdotsSquareVF", monospace;
+            font-weight: 600;
+        }
+        .blog-breadcrumb-segment:hover { color: #4a90e2; }
+        .blog-breadcrumb-sep { color: #808080; padding: 0 2px; }
+        .blog-help-btn, .blog-contact-btn {
+            position: fixed;
+            bottom: 20px;
+            z-index: 9998;
+            height: calc(2.4vmin + 20px);
+            aspect-ratio: 1;
+            padding: 10px;
+            background: rgba(23, 23, 23, 0.6);
+            border-radius: 0;
+            backdrop-filter: blur(4px);
+            display: grid;
+            place-items: center;
+            user-select: none;
+            transition: all 0.3s ease;
+            font-family: "BPdotsSquareVF", monospace;
+            font-weight: 600;
+            font-size: 2.4vmin;
+            line-height: 1;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+        }
+        .blog-help-btn { right: 20px; border: 1px solid #4a90e2; }
+        .blog-help-btn:hover { background: rgba(74, 144, 230, 0.2); border-color: #74a0e6; transform: scale(1.05); }
+        .blog-contact-btn { right: 80px; border: 1px solid #d2691e; }
+        .blog-contact-btn:hover { background: rgba(210, 105, 30, 0.2); border-color: #f5be07; transform: scale(1.05); }
+        .blog-btn-icon { line-height: 1; display: block; width: 100%; text-align: center; transition: color 0.3s ease; transform: translate(1px, 1px); }
+        .blog-help-btn .blog-btn-icon { color: #4a90e2; }
+        .blog-help-btn:hover .blog-btn-icon { color: #74a0e6; }
+        .blog-contact-btn .blog-btn-icon { color: #d2691e; }
+        .blog-contact-btn:hover .blog-btn-icon { color: #f5be07; }
+        /* Shared popup overlay */
+        .blog-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0);
+            z-index: 99998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        .blog-overlay.open {
+            background: rgba(0, 0, 0, 0.8);
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+        .blog-popup {
+            background: #171717;
+            border: 2px solid #404040;
+            border-radius: 0;
+            width: 90%;
+            max-width: 768px;
+            max-height: 80vh;
+            overflow: hidden;
+            transform: scale(0.8) translateY(20px);
+            transition: transform 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        .blog-overlay.open .blog-popup { transform: scale(1) translateY(0); }
+        .blog-popup-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #404040;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #blogHelpOverlay .blog-popup-header { background: rgba(74, 144, 230, 0.1); }
+        #blogContactOverlay .blog-popup-header { background: rgba(210, 105, 30, 0.1); }
+        .blog-popup-header h2 {
+            font-family: "BPdotsSquareVF", monospace;
+            font-weight: 800;
+            font-size: 24px;
+            color: #fafafa;
+            margin: 0;
+            letter-spacing: 0.1em;
+        }
+        .blog-popup-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #b0b0b0;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        .blog-popup-close:hover { background: rgba(255, 255, 255, 0.1); color: #fafafa; }
+        .blog-popup-content {
+            padding: 24px;
+            max-height: 60vh;
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .blog-popup-content::-webkit-scrollbar { display: none; }
+        /* FAQ items (help popup) */
+        .blog-faq-item { margin-bottom: 24px; }
+        .blog-faq-item:last-child { margin-bottom: 0; }
+        .blog-faq-question {
+            font-family: "BPdotsSquareVF", monospace;
+            font-weight: 700;
+            font-size: 16px;
+            color: #4a90e2;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        .blog-faq-answer {
+            font-family: "ZxGamut", sans-serif;
+            font-weight: 400;
+            font-size: 14px;
+            color: #d0d0d0;
+            line-height: 1.6;
+            padding-left: 12px;
+            border-left: 2px solid rgba(74, 144, 230, 0.3);
+        }
+        .blog-faq-answer a { color: #4a90e2; text-decoration: underline; }
+        .blog-faq-answer a:hover { color: #74a0e6; text-decoration: none; }
+        /* Contact sections */
+        .blog-contact-section { margin-bottom: 32px; }
+        .blog-contact-section:last-child { margin-bottom: 0; }
+        .blog-contact-section-title {
+            font-family: "BPdotsSquareVF", monospace;
+            font-weight: 700;
+            font-size: 18px;
+            color: #d2691e;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .blog-contact-section-content {
+            font-family: "ZxGamut", sans-serif;
+            font-weight: 400;
+            font-size: 14px;
+            color: #d0d0d0;
+            line-height: 1.6;
+            padding-left: 12px;
+            border-left: 2px solid rgba(210, 105, 30, 0.3);
+        }
+        .blog-contact-section-content p { margin: 0 0 8px; }
+        .blog-contact-section-content p:last-child { margin-bottom: 0; }
+        .blog-contact-section-content h3 {
+            font-family: "BPdotsSquareVF", monospace;
+            font-weight: 600;
+            font-size: 16px;
+            color: #f5be07;
+            margin: 12px 0 4px;
+        }
+        .blog-contact-section-content h3:first-child { margin-top: 0; }
+        .blog-contact-section-content a { color: #4a90e2; text-decoration: underline; }
+        .blog-contact-section-content a:hover { color: #74a0e6; text-decoration: none; }
+        @media (max-width: 768px) {
+            .blog-breadcrumb { font-size: 4vmin; padding: 8px; bottom: 8px; left: 8px; }
+            .blog-help-btn, .blog-contact-btn { bottom: 8px; height: calc(4vmin + 16px); aspect-ratio: 1; padding: 8px; font-size: 4vmin; }
+            .blog-help-btn { right: 8px; }
+            .blog-contact-btn { right: 55px; }
+        }
     </style>
 </head>
 <body>
@@ -332,5 +528,111 @@
             <a href="{{siteBaseUrl}}/newsletter/">All posts</a>
         </footer>
     </div>
+    <nav class="blog-breadcrumb">
+        <a class="blog-breadcrumb-segment" href="https://blap64.xyz/">~/home</a><span class="blog-breadcrumb-sep">/</span><a class="blog-breadcrumb-segment" href="/newsletter/">blog</a>
+    </nav>
+    <div class="blog-contact-btn" onclick="toggleBlogPopup('blogContactOverlay')" title="Contact &amp; Services">
+        <span class="blog-btn-icon">!</span>
+    </div>
+    <div class="blog-help-btn" onclick="toggleBlogPopup('blogHelpOverlay')" title="Site Guide">
+        <span class="blog-btn-icon">?</span>
+    </div>
+
+    <!-- Contact popup -->
+    <div class="blog-overlay" id="blogContactOverlay" onclick="if(event.target===this)toggleBlogPopup('blogContactOverlay')">
+        <div class="blog-popup">
+            <div class="blog-popup-header">
+                <h2>CONTACT &amp; SERVICES</h2>
+                <button class="blog-popup-close" onclick="toggleBlogPopup('blogContactOverlay')">×</button>
+            </div>
+            <div class="blog-popup-content">
+                <div class="blog-contact-section">
+                    <div class="blog-contact-section-title">Contact</div>
+                    <div class="blog-contact-section-content">
+                        <p>What can I do for you?</p>
+                        <p><strong>Email:</strong> <a href="mailto:null@blap64.xyz">null@blap64.xyz</a></p>
+                        <p><strong>Location:</strong> Toronto, Canada is home. Work is global. Will travel and collaborate across all timezones.</p>
+                        <p><strong>Response Time:</strong> Within 48 hours</p>
+                    </div>
+                </div>
+                <div class="blog-contact-section">
+                    <div class="blog-contact-section-title">Services</div>
+                    <div class="blog-contact-section-content">
+                        <h3>Interactive Media &amp; Installations</h3>
+                        <p>Custom interactive experiences for events, exhibitions, and permanent installations. Specializing in real-time visuals, TouchDesigner development, sensor integration, and audience participation.</p>
+                        <h3>Creative Technology Consulting</h3>
+                        <p>Technical guidance for artists, galleries, and cultural institutions. From concept development to implementation strategy.</p>
+                        <h3>Web Development</h3>
+                        <p>Custom websites and web applications with a focus on creative expression and unique user experiences.</p>
+                        <h3>Education &amp; Workshops</h3>
+                        <p>Teaching creative coding, AI, and interactive media development for individuals and organizations.</p>
+                        <h3>Photography</h3>
+                        <p>Creative portrait photography and live performance documentation. Specializing in capturing authentic moments and dynamic energy in controlled and natural environments.</p>
+                    </div>
+                </div>
+                <div class="blog-contact-section">
+                    <div class="blog-contact-section-title">Process</div>
+                    <div class="blog-contact-section-content">
+                        <h3>1. Initial Consultation</h3>
+                        <p>Free 30-minute discovery call to discuss your project goals, timeline, and budget.</p>
+                        <h3>2. Proposal &amp; Planning</h3>
+                        <p>Detailed project proposal with timeline, deliverables, and technical specifications.</p>
+                        <h3>3. Development &amp; Iteration</h3>
+                        <p>Collaborative development process with regular check-ins and feedback sessions.</p>
+                        <h3>4. Launch &amp; Support</h3>
+                        <p>Deployment assistance and ongoing technical support as needed.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help popup -->
+    <div class="blog-overlay" id="blogHelpOverlay" onclick="if(event.target===this)toggleBlogPopup('blogHelpOverlay')">
+        <div class="blog-popup">
+            <div class="blog-popup-header">
+                <h2>SITE GUIDE</h2>
+                <button class="blog-popup-close" onclick="toggleBlogPopup('blogHelpOverlay')">×</button>
+            </div>
+            <div class="blog-popup-content">
+                <div class="blog-faq-item">
+                    <div class="blog-faq-question">Navigation</div>
+                    <div class="blog-faq-answer">Click on the desired 'path' in the bottom left corner to navigate back to a previous view.<br><br>Orange exclamation mark button (left of the one you just clicked) for contact info &amp; services.</div>
+                </div>
+                <div class="blog-faq-item">
+                    <div class="blog-faq-question">Lore</div>
+                    <div class="blog-faq-answer">Benjamin Lappalainen &rarr; B. Lappalainen &rarr; BLAP. Years ago when I first made an Instagram account for my photography, I decided on @blapphoto as a username. 'blap' stuck ever since, and some of my friends have adopted it as a nickname for me.<br><br>As for '64':<br>We are in the era of 64-bit computers (generally, computers with size 2^64 integer and addressing registers).<br><br>64 is 8^2. 8 in Cantonese (and other Chinese-speaking cultures) is considered a lucky number because it bears homophonic similarity to the word for 'wealth' or 'prosperity'.<br><br>64 is 2^6. I was 26 when I made the decision to choose a different path through life, which has since led me to some extraordinary people, places, ideas, and opportunities.</div>
+                </div>
+                <div class="blog-faq-item">
+                    <div class="blog-faq-question">Technology (for the nerds)</div>
+                    <div class="blog-faq-answer">The dynamic pages on this site are constructed using a creative coding library called <a href="https://p5js.org" target="_blank">p5.js</a>. I'm a big advocate for this library and teach people how to make art with it, as well as teach programming using it as a starting point. Otherwise, the site was built in HTML, CSS, and vanilla JavaScript. <a href="https://parceljs.org/" target="_blank">Parcel</a> is the bundler, and the site is deployed to <a href="https://pages.github.com/" target="_blank">GitHub Pages</a> so that my only expense is the domain.</div>
+                </div>
+                <div class="blog-faq-item">
+                    <div class="blog-faq-question">"This is a bit much for me."</div>
+                    <div class="blog-faq-answer">If you don't like it, it's not for you.<br><br>However, a 'brutalist' version of the site will be available soon with the same content in a utilitarian package.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleBlogPopup(id) {
+            var overlay = document.getElementById(id);
+            var isOpening = !overlay.classList.contains('open');
+            document.querySelectorAll('.blog-overlay.open').forEach(function(el) { el.classList.remove('open'); });
+            if (isOpening) overlay.classList.add('open');
+            var meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.content = overlay.classList.contains('open') ? '#000000' : '#171717';
+        }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.blog-overlay.open').forEach(function(el) {
+                    el.classList.remove('open');
+                });
+                var meta = document.querySelector('meta[name="theme-color"]');
+                if (meta) meta.content = '#171717';
+            }
+        });
+    </script>
 </body>
 </html>
