@@ -6,7 +6,7 @@ export const contactConfig = [
         title: "Contact",
         content: `
             <p>What can I do for you?</p>
-            <p><strong>Email:</strong> <a href="mailto:null@blap64.xyz">null@blap64.xyz</a></p>
+            <p><strong>Email:</strong> <a href="mailto:null@blap64.com">null@blap64.com</a></p>
             <p><strong>Location:</strong> Toronto, Canada is home. Work is global. Will travel and collaborate across all timezones.</p>
             <p><strong>Response Time:</strong> Within 48 hours</p>
         `

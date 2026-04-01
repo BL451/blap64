@@ -38,7 +38,7 @@ export const links = [
     {
         id: "blog",
         title: "Blog",
-        url: "https://blap64.xyz/newsletter/",
+        url: "https://blap64.com/newsletter/",
         icon: "BLOG", // Text icon for now
         description: "Writing"
     },
@@ -52,7 +52,7 @@ export const links = [
     {
         id: "home",
         title: "Website",
-        url: "https://blap64.xyz",
+        url: "https://blap64.com",
         icon: "HOME",
         description: "Home"
     },

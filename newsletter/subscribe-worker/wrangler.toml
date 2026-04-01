@@ -3,7 +3,7 @@ main = "src/worker.js"
 compatibility_date = "2024-01-01"
 
 [vars]
-ALLOWED_ORIGIN = "https://blap64.xyz"
+ALLOWED_ORIGIN = "https://blap64.com"
 
 # Set these as secrets via:
 # wrangler secret put RESEND_API_KEY

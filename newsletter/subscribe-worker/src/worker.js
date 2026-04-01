@@ -1,7 +1,7 @@
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
-    const allowedOrigin = env.ALLOWED_ORIGIN || "https://blap64.xyz";
+    const allowedOrigin = env.ALLOWED_ORIGIN || "https://blap64.com";
 
     const corsHeaders = {
       "Access-Control-Allow-Origin": allowedOrigin,
@@ -20,7 +20,7 @@ export default {
       );
     }
 
-    if (!origin.endsWith("blap64.xyz") && origin !== "http://localhost:4322") {
+    if (!origin.endsWith("blap64.com") && origin !== "http://localhost:4322") {
       return Response.json(
         { error: "Forbidden" },
         { status: 403, headers: corsHeaders }

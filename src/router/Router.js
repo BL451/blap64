@@ -6,42 +6,42 @@ function updateMetaTags(path) {
         '/': {
             title: 'Benjamin Lappalainen - BLAP64',
             description: 'Portfolio site of Creative Technologist, Educator, and Artist Benjamin Lappalainen. Interactive media installations, photography collections, and creative coding projects.',
-            canonical: 'https://blap64.xyz/'
+            canonical: 'https://blap64.com/'
         },
         '/about': {
             title: 'About - Benjamin Lappalainen',
             description: 'Biography and CV of Benjamin Lappalainen, Creative Technologist and Interactive Media Artist based in Toronto.',
-            canonical: 'https://blap64.xyz/about'
+            canonical: 'https://blap64.com/about'
         },
         '/interactive': {
             title: 'Interactive Projects - Benjamin Lappalainen',
             description: 'Interactive media installations and web experiences by Benjamin Lappalainen. Creative coding, digital art, and live performance technology.',
-            canonical: 'https://blap64.xyz/interactive'
+            canonical: 'https://blap64.com/interactive'
         },
         '/interactive/live': {
             title: 'Live Installations - Benjamin Lappalainen',
             description: 'Live interactive media installations and performance projects by Benjamin Lappalainen. Real-time visuals, sensor-driven art, and audience participation.',
-            canonical: 'https://blap64.xyz/interactive/live'
+            canonical: 'https://blap64.com/interactive/live'
         },
         '/interactive/web': {
             title: 'Web Experiences - Benjamin Lappalainen',
             description: 'Interactive web experiences and creative coding projects by Benjamin Lappalainen. Browser-based generative art, simulations, and visual experiments.',
-            canonical: 'https://blap64.xyz/interactive/web'
+            canonical: 'https://blap64.com/interactive/web'
         },
         '/photo': {
             title: 'Photography - Benjamin Lappalainen',
             description: 'Photography collections by Benjamin Lappalainen including portrait, performance, experimental, and astrophotography.',
-            canonical: 'https://blap64.xyz/photo'
+            canonical: 'https://blap64.com/photo'
         },
         '/links': {
             title: 'Links - Benjamin Lappalainen',
             description: 'Contact information and social links for Benjamin Lappalainen.',
-            canonical: 'https://blap64.xyz/links'
+            canonical: 'https://blap64.com/links'
         },
         '/oops': {
             title: 'Page Not Found - Benjamin Lappalainen',
             description: 'The page you were looking for could not be found.',
-            canonical: 'https://blap64.xyz/'
+            canonical: 'https://blap64.com/'
         }
     };
 

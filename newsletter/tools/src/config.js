@@ -27,11 +27,11 @@ function loadEnv() {
 loadEnv();
 
 export const config = {
-  siteBaseUrl: process.env.SITE_BASE_URL || "https://blap64.xyz",
+  siteBaseUrl: process.env.SITE_BASE_URL || "https://blap64.com",
   resendApiKey: process.env.RESEND_API_KEY || "",
   newsletterFrom:
     process.env.NEWSLETTER_FROM ||
-    "Benjamin Lappalainen <newsletter@blap64.xyz>",
+    "Benjamin Lappalainen <newsletter@blap64.com>",
   audienceId: process.env.AUDIENCE_ID || "",
   testEmail: process.env.TEST_EMAIL || "",
   subscribeEndpoint:
