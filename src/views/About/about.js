@@ -16,26 +16,19 @@ export default (props) => html`
                 <br><br>
                 As XR Development Lead with UKAI Projects, Benjamin collaborates with artists and organizations to execute research, exhibitions, immersive and interactive installations, publishing, and workshops. UKAI Projects imagines and produces “culture for what’s coming”. Most recently, the organization worked with the Accton Arts Foundation in Hsinchu, Taiwan for research into arts policy, delivering workshops and immersive experiences, and activating a city block with the first international iteration of Goblin Market, a collectively imagined alternative arts marketplace.
                 <br><br>
-                Benjamin holds a Bachelor of Applied Science in Engineering Science from the University of Toronto. His current research focuses on developing software and hardware for interactive media — working across tools like p5.js, TouchDesigner, and custom electronics — creating accessible tools that support artist communities in realizing technically ambitious projects.
+                Benjamin holds a Bachelor of Applied Science in Engineering Science from the University of Toronto. His current research focuses on developing software and hardware for interactive media, working across tools like p5.js, TouchDesigner, and custom electronics to create accessible resources that support artist communities in realizing technically ambitious projects.
                 <br><br>
             </p>
 
             <h2>Artist Statement</h2>
             <p class="main-paragraph">
-                I create interactive art that reveals how perceptive and generative technologies actually work and what they mean for the people who use them. I see my work as both art and education — demonstrating the capabilities and inner workings of technologies that are often dressed up in minimal, clean interfaces, or only running behind the scenes. As an artist and creative technologist, I feel a deep-rooted sense of responsibility to share my knowledge of complex systems and concepts in an accessible and practical manner that empowers my audience to make informed decisions about the technology they choose to use and the systems they choose to participate in.
+            	As an artist and creative technologist, I feel a deep-rooted sense of responsibility to share my knowledge of complex systems and concepts in an accessible and practical manner that empowers my audience to make informed decisions about the technology they choose to use and the systems they choose to participate in. I see my work as both art and education, demonstrating the capabilities and inner workings of technologies that are often dressed up in minimal, clean interfaces, or only running behind the scenes.
                 <br><br>
-                This approach has deep roots in art history. Conceptual and instruction-based art from the 1900s has had a large influence on my artistic process. Artists such as Vera Molnár (1924–2023) and Sol LeWitt (1928–2007) created paintings and wall drawings based on rules and sets of instructions, even before digital computers were available. Creating art with code is hardly any different — the work of the "code artist" is to come up with an algorithm (a set of instructions) for the creative vision which another entity (the computer) then executes.
+                This approach has deep roots in art history. Conceptual and instruction-based art from the 1900s has had a large influence on my artistic process. Artists such as Vera Molnár (1924–2023) and Sol LeWitt (1928–2007) created paintings and wall drawings based on rules and sets of instructions, even before digital computers were available. Creating art with code is hardly any different: the work of the "code artist" is to come up with an algorithm (a set of instructions) for the creative vision which another entity (the computer) then executes.
                 <br><br>
                 Science fiction media and video games play a large role in the themes, aesthetic direction, and interaction mechanisms that I implement throughout my work. While I'm a big fan of dystopian sci-fi and cyberpunk aesthetics, I also hope to demonstrate the flip side: visions of brighter futures, healthier relationships between humans and computers, and the subversive and unintended use cases of emerging technologies that provide genuine benefit to people and communities rather than a corporation's bottom line.
                 <br><br>
                 The choice of how people physically engage with my work is just as intentional. I believe that learning through play is a fun and effective yet underutilized avenue for teaching. Using the movement of the physical body to understand how a system behaves creates a sense of tangible investigation regardless of participant background, bringing an innate degree of understanding which transcends language and technical jargon.
-                <br><br>
-                <em>My message to you, reader:</em><br>
-                We have the ability to build a better world than the one we live in.<br>
-                Technology is not just for ruthless optimization.<br>
-                Number does not always need to go up.<br>
-                Find people you trust and create things that help people.<br>
-                Do good, have fun.
                 <br><br>
             </p>
         </div>
