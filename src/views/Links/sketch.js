@@ -292,6 +292,42 @@ class LinkButton {
                mouseY >= this.y && mouseY <= this.y + this.height;
     }
 
+    scrollingText(txt, x, y, maxWidth) {
+        const w = this.p5.textWidth(txt);
+
+        if (w <= maxWidth) {
+            this.p5.text(txt, x, y);
+            return;
+        }
+
+        const overflow = w - maxWidth;
+        const travel = (overflow / 28) * 1000;
+        const pause = 1200;
+        const cycle = travel * 2 + pause * 2;
+        const t = this.p5.millis() % cycle;
+
+        let offset;
+        if (t < pause) {
+            offset = 0;
+        } else if (t < pause + travel) {
+            offset = -overflow * ((t - pause) / travel);
+        } else if (t < pause * 2 + travel) {
+            offset = -overflow;
+        } else {
+            offset = -overflow * (1 - (t - pause * 2 - travel) / travel);
+        }
+
+        const ctx = this.p5.drawingContext;
+        const half = (this.p5.textAscent() + this.p5.textDescent()) / 2 + 2;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x, y - half, maxWidth, half * 2);
+        ctx.clip();
+        this.p5.text(txt, x + offset, y);
+        ctx.restore();
+    }
+
     render() {
         const isHovered = this.contains(this.p5.mouseX, this.p5.mouseY);
         this.targetHoverAlpha = isHovered ? 1 : 0;
@@ -358,7 +394,7 @@ class LinkButton {
             this.p5.textAlign(this.p5.LEFT, this.p5.CENTER);
             this.p5.textFont('BPdotsSquareVF', { fontVariationSettings: 'wght 900' });
             this.p5.textSize(16);
-            this.p5.text(this.link.title, textX, titleY);
+            this.scrollingText(this.link.title, textX, titleY, this.x + this.width - 15 - textX);
         } else {
             // Two line layout for normal rows
             const titleY = this.y + this.height/2 - 8;
@@ -366,13 +402,13 @@ class LinkButton {
             this.p5.textAlign(this.p5.LEFT, this.p5.CENTER);
             this.p5.textFont('BPdotsSquareVF', { fontVariationSettings: 'wght 900' });
             this.p5.textSize(18);
-            this.p5.text(this.link.title, textX, titleY);
+            this.scrollingText(this.link.title, textX, titleY, this.x + this.width - 15 - textX);
 
             // Description text
             this.p5.fill(150, alpha * 1.5);
             this.p5.textFont('BPdotsSquareVF', { fontVariationSettings: 'wght 900' });
             this.p5.textSize(13);
-            this.p5.text(this.link.description, textX, titleY + 18);
+            this.scrollingText(this.link.description, textX, titleY + 18, this.x + this.width - 15 - textX);
         }
 
         // Hover scan line effect

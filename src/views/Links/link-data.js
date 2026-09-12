@@ -1,18 +1,18 @@
 // Links data for the sci-fi styled links page
 export const links = [
-    {
-        id: "github",
-        title: "GitHub",
-        url: "https://github.com/BL451",
-        icon: "CODE", // Text icon for now
-        description: "Code"
+	{
+        id: "tube",
+        title: "YouTube",
+        url: "https://www.youtube.com/@blapcode",
+        icon: "TUBE", // Text icon for now
+        description: "Free TouchDesigner Videos"
     },
     {
-        id: "linkedin",
-        title: "LinkedIn",
-        url: "https://www.linkedin.com/in/benjamin-lappalainen-888006149/",
-        icon: "PROF", // Text icon for now
-        description: "Corporate Facebook"
+        id: "patreon",
+        title: "Patreon",
+        url: "https://www.patreon.com/blapcode",
+        icon: "PTRN", // Text icon for now
+        description: "TouchDesigner components, Writing, Behind-the-scenes..."
     },
     {
         id: "instagram",
@@ -28,19 +28,19 @@ export const links = [
         icon: "GOAT", // Text icon for now
         description: "Culture for what's coming"
     },
-    {
-        id: "ctl",
-        title: "Cultural Tech Lab",
-        url: "https://www.culturaltechnologieslab.org/",
-        icon: "CTL", // Text icon for now
-        description: "R&D"
+	{
+        id: "zcal",
+        title: "Discovery Call",
+        url: "https://zcal.co/blap64",
+        icon: "CALL", // Text icon for now
+        description: "Book a call with me"
     },
     {
-        id: "blog",
-        title: "Blog",
-        url: "https://blap64.com/newsletter/",
-        icon: "BLOG", // Text icon for now
-        description: "Writing"
+        id: "linkedin",
+        title: "LinkedIn",
+        url: "https://www.linkedin.com/in/benjamin-lappalainen-888006149/",
+        icon: "PROF", // Text icon for now
+        description: "Corporate Facebook"
     },
     {
         id: "contact",
