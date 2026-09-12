@@ -34,7 +34,8 @@ export const sketch = function (p, options = {}) {
 		ui.push(new UIArcButton(p, 0.5*p.width, 0.7*p.height, 0.3*short, 0.3*short, 0.01*p.width, 0.01*p.width, "PHOTO", s_font));
 		ui.push(new UITriangleButton(p, 0.75*p.width, 0.35*p.height, 0.2*short, 0.2*short, 0.01*p.width, 0.01*p.width, -0.5*p.PI, "ABOUT", s_font));
 		ui.push(new UIHexButton(p, 0.75*p.width, 0.7*p.height, 0.3*short, 0.3*short, 0.01*p.width, 0.01*p.width, "LINKS", s_font));
-		ui.push(new UILinesButton(p, 0.82*p.width, 0.78*p.height, 0.22*short, 0.16*short, 0.01*p.width, 0.01*p.width, "BLOG", s_font));
+		// BLOG button (disabled - newsletter hidden from homepage)
+		// ui.push(new UILinesButton(p, 0.82*p.width, 0.78*p.height, 0.22*short, 0.16*short, 0.01*p.width, 0.01*p.width, "BLOG", s_font));
 
 		// Apply quadratic curve layout to UI elements
 		layoutUI();
@@ -334,10 +335,10 @@ export const sketch = function (p, options = {}) {
                                 window.appRouter.navigate('/links');
                             }, ANIMATION_DELAY);
                             break;
-                        case 4: // Fifth button - BLOG
-                            setTimeout(() => {
-                                window.location.href = '/newsletter/';
-                            }, ANIMATION_DELAY);
+                        // case 4: // Fifth button - BLOG (disabled - newsletter hidden from homepage)
+                        //     setTimeout(() => {
+                        //         window.location.href = '/newsletter/';
+                        //     }, ANIMATION_DELAY);
 					}
 				}
                 return;
@@ -391,7 +392,8 @@ export const sketch = function (p, options = {}) {
 		ui.push(new UIArcButton(p, 0.5*p.width, 0.7*p.height, 0.3*short, 0.3*short, 0.01*p.width, 0.01*p.width, "PHOTO", s_font));
 		ui.push(new UITriangleButton(p, 0.75*p.width, 0.35*p.height, 0.2*short, 0.2*short, 0.01*p.width, 0.01*p.width, -0.5*p.PI, "ABOUT", s_font));
 		ui.push(new UIHexButton(p, 0.75*p.width, 0.7*p.height, 0.3*short, 0.3*short, 0.01*p.width, 0.01*p.width, "LINKS", s_font));
-		ui.push(new UILinesButton(p, 0.82*p.width, 0.78*p.height, 0.22*short, 0.16*short, 0.01*p.width, 0.01*p.width, "BLOG", s_font));
+		// BLOG button (disabled - newsletter hidden from homepage)
+		// ui.push(new UILinesButton(p, 0.82*p.width, 0.78*p.height, 0.22*short, 0.16*short, 0.01*p.width, 0.01*p.width, "BLOG", s_font));
 
         // Apply quadratic curve layout to UI elements
         layoutUI();
@@ -440,54 +442,86 @@ export const sketch = function (p, options = {}) {
     function layoutUI() {
         if (ui.length === 0) return;
 
-        const curveCount = ui.length - 1; // all but blog (last element)
-
         if (mobile) {
-            // Mobile layout: two parallel diagonals, bottom-left to upper-right
+            // Mobile layout: arrange in 2x2 grid in lower third of screen
+            const gridCenterX = 0.5 * p.width;
+            const gridCenterY = 0.7 * p.height; // Lower third of screen
+            const gridSpacing = 0.45 * p.width; // Spacing between grid positions
+
+            // Grid positions: 2x2 layout
+            const gridPositions = [
+                { x: gridCenterX - gridSpacing/2, y: gridCenterY - gridSpacing/2 }, // Top-left
+                { x: gridCenterX + gridSpacing/2, y: gridCenterY - gridSpacing/2 }, // Top-right
+                { x: gridCenterX - gridSpacing/2, y: gridCenterY + gridSpacing/2 }, // Bottom-left
+                { x: gridCenterX + gridSpacing/2, y: gridCenterY + gridSpacing/2 }  // Bottom-right
+            ];
+
+            // Position UI elements in grid
+            for (let i = 0; i < ui.length; i++) {
+                const pos = gridPositions[i % gridPositions.length]; // Handle more than 4 elements
+
+                // Update UI element position
+                ui[i].p.x = pos.x;
+                ui[i].p.y = pos.y;
+
+                // Update corresponding TextWriter position
+                ui[i].textWriter.p.x = pos.x;
+                ui[i].textWriter.p.y = pos.y;
+            }
+
+            // Blog layout (disabled - newsletter hidden from homepage)
+            // Two parallel diagonals, bottom-left to upper-right
             // Left diagonal: Photo (lower), Links (upper)
             // Right diagonal: Blog (lower), Interactive Media (mid), About (upper)
-
-            // Photo - lower left
-            ui[1].p.x = 0.18 * p.width;
-            ui[1].p.y = 0.77 * p.height;
-            ui[1].textWriter.p.x = ui[1].p.x;
-            ui[1].textWriter.p.y = ui[1].p.y;
-
-            // Links - left diagonal
-            ui[3].p.x = 0.30 * p.width;
-            ui[3].p.y = 0.57 * p.height;
-            ui[3].textWriter.p.x = 0.30 * p.width;
-            ui[3].textWriter.p.y = ui[3].p.y;
-
-
-            // Blog - lower right diagonal
-            ui[curveCount].p.x = 0.49 * p.width;
-            ui[curveCount].p.y = 0.90 * p.height;
-            ui[curveCount].textWriter.p.x = ui[curveCount].p.x;
-            ui[curveCount].textWriter.p.y = ui[curveCount].p.y + 2;
-
-            // Interactive Media - mid right diagonal, equidistant between Blog and About
-            ui[0].p.x = 0.66 * p.width;
-            ui[0].p.y = 0.73 * p.height;
-            ui[0].textWriter.p.x = ui[0].p.x;
-            ui[0].textWriter.p.y = ui[0].p.y;
-
-            // About - upper right diagonal
-            ui[2].p.x = 0.78 * p.width;
-            ui[2].p.y = 0.54 * p.height;
-            ui[2].textWriter.p.x = ui[2].p.x;
-            ui[2].textWriter.p.y = ui[2].p.y;
+            // const curveCount = ui.length - 1; // all but blog (last element)
+            //
+            // // Photo - lower left
+            // ui[1].p.x = 0.18 * p.width;
+            // ui[1].p.y = 0.77 * p.height;
+            // ui[1].textWriter.p.x = ui[1].p.x;
+            // ui[1].textWriter.p.y = ui[1].p.y;
+            //
+            // // Links - left diagonal
+            // ui[3].p.x = 0.30 * p.width;
+            // ui[3].p.y = 0.57 * p.height;
+            // ui[3].textWriter.p.x = 0.30 * p.width;
+            // ui[3].textWriter.p.y = ui[3].p.y;
+            //
+            // // Blog - lower right diagonal
+            // ui[curveCount].p.x = 0.49 * p.width;
+            // ui[curveCount].p.y = 0.90 * p.height;
+            // ui[curveCount].textWriter.p.x = ui[curveCount].p.x;
+            // ui[curveCount].textWriter.p.y = ui[curveCount].p.y + 2;
+            //
+            // // Interactive Media - mid right diagonal, equidistant between Blog and About
+            // ui[0].p.x = 0.66 * p.width;
+            // ui[0].p.y = 0.73 * p.height;
+            // ui[0].textWriter.p.x = ui[0].p.x;
+            // ui[0].textWriter.p.y = ui[0].p.y;
+            //
+            // // About - upper right diagonal
+            // ui[2].p.x = 0.78 * p.width;
+            // ui[2].p.y = 0.54 * p.height;
+            // ui[2].textWriter.p.x = ui[2].p.x;
+            // ui[2].textWriter.p.y = ui[2].p.y;
         } else {
-            // Desktop layout: quadratic curve for first 4 buttons
-            const startX = 0.15 * p.width;
-            const startY = 0.75 * p.height;
-            const endX = 0.85 * p.width;
-            const endY = 0.2 * p.height;
-            const controlX = 0.6 * p.width;
-            const controlY = 0.65 * p.height;
+            // Desktop layout: quadratic curve
+            // Define curve parameters - curve goes from bottom-left to top-right
+            const startX = 0.15 * p.width;  // Start X position (15% from left)
+            const startY = 0.75 * p.height; // Start Y position (75% from top, near bottom)
+            const endX = 0.85 * p.width;    // End X position (85% from left)
+            const endY = 0.2 * p.height;    // End Y position (20% from top, near top)
 
-            for (let i = 0; i < curveCount; i++) {
-                const t = curveCount > 1 ? i / (curveCount - 1) : 0;
+            // Quadratic curve control point to create convex upward arc
+            const controlX = 0.6 * p.width;  // Control point X
+            const controlY = 0.65 * p.height; // Control point Y (creates convex curve)
+
+            // Calculate positions for each UI element along the curve
+            for (let i = 0; i < ui.length; i++) {
+                // Parameter t goes from 0 to 1 along the curve
+                const t = ui.length > 1 ? i / (ui.length - 1) : 0;
+
+                // Quadratic Bezier curve formula: P(t) = (1-t)²P₀ + 2(1-t)tP₁ + t²P₂
                 const oneMinusT = 1 - t;
                 const x = oneMinusT * oneMinusT * startX +
                          2 * oneMinusT * t * controlX +
@@ -495,17 +529,21 @@ export const sketch = function (p, options = {}) {
                 const y = oneMinusT * oneMinusT * startY +
                          2 * oneMinusT * t * controlY +
                          t * t * endY;
+
+                // Update UI element position
                 ui[i].p.x = x;
                 ui[i].p.y = y;
+
+                // Update corresponding TextWriter position
                 ui[i].textWriter.p.x = x;
                 ui[i].textWriter.p.y = y;
             }
 
-            // Blog button fixed at bottom-right
-            ui[curveCount].p.x = 0.82 * p.width;
-            ui[curveCount].p.y = 0.78 * p.height;
-            ui[curveCount].textWriter.p.x = 0.82 * p.width;
-            ui[curveCount].textWriter.p.y = 0.78 * p.height + 2;
+            // Blog button fixed at bottom-right (disabled - newsletter hidden from homepage)
+            // ui[curveCount].p.x = 0.82 * p.width;
+            // ui[curveCount].p.y = 0.78 * p.height;
+            // ui[curveCount].textWriter.p.x = 0.82 * p.width;
+            // ui[curveCount].textWriter.p.y = 0.78 * p.height + 2;
         }
     }
 };
