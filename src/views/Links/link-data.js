@@ -1,59 +1,52 @@
 // Links data for the sci-fi styled links page
 export const links = [
 	{
+        id: "zcal",
+        title: "BOOK ME",
+        url: "https://zcal.co/blap64",
+        icon: "CALL", // Text icon for now
+        description: "Tell me your project"
+    },
+	{
         id: "tube",
-        title: "YouTube",
+        title: "YOUTUBE",
         url: "https://www.youtube.com/@blapcode",
-        icon: "TUBE", // Text icon for now
-        description: "Free TouchDesigner Videos"
+        icon: "YTBE", // Text icon for now
+        description: "TouchDesigner tutorials"
     },
     {
         id: "patreon",
-        title: "Patreon",
+        title: "PATREON",
         url: "https://www.patreon.com/blapcode",
         icon: "PTRN", // Text icon for now
-        description: "TouchDesigner components, Writing, Behind-the-scenes..."
+        description: "Insider info"
     },
     {
         id: "instagram",
-        title: "Instagram",
+        title: "INSTAGRAM",
         url: "https://instagram.com/blapcode",
-        icon: "META", // Text icon for now
-        description: "Necessary evil"
+        icon: "INST", // Text icon for now
+        description: "Upcoming projects"
     },
     {
         id: "ukai",
-        title: "UKAI Projects",
+        title: "UKAI PROJECTS",
         url: "https://ukaiprojects.com",
-        icon: "GOAT", // Text icon for now
-        description: "Culture for what's coming"
-    },
-	{
-        id: "zcal",
-        title: "Discovery Call",
-        url: "https://zcal.co/blap64",
-        icon: "CALL", // Text icon for now
-        description: "Book a call with me"
+        icon: "UKAI", // Text icon for now
+        description: "Live events"
     },
     {
         id: "linkedin",
-        title: "LinkedIn",
-        url: "https://www.linkedin.com/in/benjamin-lappalainen-888006149/",
-        icon: "PROF", // Text icon for now
-        description: "Corporate Facebook"
-    },
-    {
-        id: "contact",
-        title: "Contact & Services",
-        url: "contact-popup",
-        icon: "MESG", // Text icon for now
-        description: "Get in touch!"
+        title: "LINKEDIN",
+        url: "https://www.linkedin.com/in/benjamin-lappalainen/",
+        icon: "LKDN", // Text icon for now
+        description: "CV"
     },
     {
         id: "home",
-        title: "Website",
+        title: "PORTFOLIO",
         url: "https://blap64.com",
-        icon: "HOME",
-        description: "Home"
+        icon: "SITE",
+        description: "Works / contact"
     },
 ];
