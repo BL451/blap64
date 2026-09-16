@@ -19,7 +19,7 @@ export const links = [
         title: "PATREON",
         url: "https://www.patreon.com/blapcode",
         icon: "PTRN", // Text icon for now
-        description: "Insider info"
+        description: "TouchDesigner files"
     },
     {
         id: "instagram",
