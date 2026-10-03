@@ -38,6 +38,11 @@ function updateMetaTags(path) {
             description: 'Contact information and social links for Benjamin Lappalainen.',
             canonical: 'https://blap64.com/links'
         },
+        '/links/workshops': {
+            title: 'Workshops - Benjamin Lappalainen',
+            description: 'Upcoming creative technology and TouchDesigner workshops led by Benjamin Lappalainen.',
+            canonical: 'https://blap64.com/links/workshops'
+        },
         '/oops': {
             title: 'Page Not Found - Benjamin Lappalainen',
             description: 'The page you were looking for could not be found.',

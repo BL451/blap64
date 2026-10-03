@@ -7,6 +7,28 @@ export const links = [
         icon: "CALL", // Text icon for now
         description: "Tell me your project"
     },
+    {
+        id: "workshops",
+        title: "WORKSHOPS",
+        icon: "WKSP",
+        description: "Upcoming sessions",
+        links: [
+            {
+                id: "internet-presence",
+                title: "INTERNET PRESENCE",
+                url: "https://www.tickettailor.com/events/softlaunch/2452856",
+                icon: "WEB",
+                description: "(Vibe)coding your artist portfolio"
+            },
+            {
+                id: "td-physical-world",
+                title: "WIRING TOUCHDESIGNER TO THE PHYSICAL WORLD",
+                url: "https://luma.com/5snjpwr7",
+                icon: "OSC",
+                description: "Online TouchDesigner workshop"
+            },
+        ]
+    },
 	{
         id: "tube",
         title: "YOUTUBE",
@@ -50,3 +72,5 @@ export const links = [
         description: "Works / contact"
     },
 ];
+
+export const findLinkGroupBySlug = (slug) => links.find(link => link.id === slug && link.links);

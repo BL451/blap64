@@ -28,6 +28,7 @@ const routes = [
     new Route("installations", "/interactive/live", installationsView),
     new Route("codeart", "/interactive", codeartView),
     new Route("webexperiences", "/interactive/web", webexperiencesView),
+    new Route("links-group", "/links/:group", linksView),
     new Route("links", "/links", linksView),
     new Route("photo-collection", "/photo/:collection", photoView),
     new Route("photo", "/photo", photoView),

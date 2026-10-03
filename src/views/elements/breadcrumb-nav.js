@@ -2,6 +2,7 @@ import { html } from "lit-html";
 import { findProjectBySlug } from "../Installations/project-details.js";
 import { findCollectionBySlug } from "../Photo/photo-collections.js";
 import { findProjectBySlug as findWebProjectBySlug } from "../WebExperiences/project-details.js";
+import { findLinkGroupBySlug } from "../Links/link-data.js";
 
 // Map routes to human-readable directory names and their actual paths
 const pathMap = {
@@ -63,6 +64,19 @@ function getBreadcrumbSegments(currentPath) {
             { name: 'home', path: '/' },
             { name: 'photo', path: '/photo' },
             { name: collection ? collection.name : collectionSlug, path: cleanPath }
+        ];
+    }
+
+    // Handle link group paths
+    const linkGroupMatch = cleanPath.match(/^\/links\/(.+)$/);
+    if (linkGroupMatch) {
+        const groupSlug = linkGroupMatch[1];
+        const linkGroup = findLinkGroupBySlug(groupSlug);
+        return [
+            { name: '~', path: null },
+            { name: 'home', path: '/' },
+            { name: 'links', path: '/links' },
+            { name: linkGroup ? linkGroup.id : groupSlug, path: cleanPath }
         ];
     }
 

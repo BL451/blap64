@@ -1,7 +1,10 @@
 import { getViewportSize, loadGoogleFontSet, widthCheck, updateCursor } from "../../utils";
-import { links } from "./link-data.js";
+import { links as allLinks, findLinkGroupBySlug } from "./link-data.js";
 
 export const sketch = function (p, options = {}) {
+    const group = options.group ? findLinkGroupBySlug(options.group) : null;
+    const links = group ? group.links : allLinks;
+    const title = group ? group.title : "MY LINKS";
     let mobile = false;
     let linkButtons = [];
     let scrollOffset = 0;
@@ -116,6 +119,10 @@ export const sketch = function (p, options = {}) {
                     if (contactButton) {
                         contactButton.click();
                     }
+                } else if (button.link.links) {
+                    document.dispatchEvent(new CustomEvent('navigate-to', {
+                        detail: { path: `/links/${button.link.id}` }
+                    }));
                 } else {
                     // Simple direct navigation - works reliably on mobile
                     window.location.href = button.link.url;
@@ -224,10 +231,10 @@ export const sketch = function (p, options = {}) {
             fontVariationSettings: `wght 900`
         });
         p.textSize(titleSize);
-        p.text("MY LINKS", p.width / 2, titleY);
+        p.text(title, p.width / 2, titleY);
 
         // Underline decoration
-        const textWidth = p.textWidth("MY LINKS");
+        const textWidth = p.textWidth(title);
         p.stroke(74, 144, 230, 120);
         p.strokeWeight(1);
         p.line(p.width/2 - textWidth/2 - 20, titleY + titleSize + 8,
@@ -271,6 +278,9 @@ export const sketch = function (p, options = {}) {
         p.text("SYS: ONLINE", margin + cornerSize * 0.5, margin + step);
         p.text("CONN: " + links.length, margin + cornerSize * 0.5, margin + step * 2);
         p.text("PROTO: HTTPS", margin + cornerSize * 0.5, margin + step * 3);
+        if (group) {
+            p.text("DIR: /" + group.id.toUpperCase(), margin + cornerSize * 0.5, margin + step * 4);
+        }
     }
 };
 
@@ -385,6 +395,8 @@ class LinkButton {
 
         // Title text - adjust for smaller row heights
         const textX = iconX + iconSize + 15;
+        const isGroup = !!this.link.links;
+        const textMaxWidth = this.x + this.width - textX - (isGroup ? 45 : 15);
         const isMobileCompact = this.height < 50;
 
         if (isMobileCompact) {
@@ -394,7 +406,7 @@ class LinkButton {
             this.p5.textAlign(this.p5.LEFT, this.p5.CENTER);
             this.p5.textFont('BPdotsSquareVF', { fontVariationSettings: 'wght 900' });
             this.p5.textSize(16);
-            this.scrollingText(this.link.title, textX, titleY, this.x + this.width - 15 - textX);
+            this.scrollingText(this.link.title, textX, titleY, textMaxWidth);
         } else {
             // Two line layout for normal rows
             const titleY = this.y + this.height/2 - 8;
@@ -402,13 +414,25 @@ class LinkButton {
             this.p5.textAlign(this.p5.LEFT, this.p5.CENTER);
             this.p5.textFont('BPdotsSquareVF', { fontVariationSettings: 'wght 900' });
             this.p5.textSize(18);
-            this.scrollingText(this.link.title, textX, titleY, this.x + this.width - 15 - textX);
+            this.scrollingText(this.link.title, textX, titleY, textMaxWidth);
 
             // Description text
             this.p5.fill(150, alpha * 1.5);
             this.p5.textFont('BPdotsSquareVF', { fontVariationSettings: 'wght 900' });
             this.p5.textSize(13);
-            this.scrollingText(this.link.description, textX, titleY + 18, this.x + this.width - 15 - textX);
+            this.scrollingText(this.link.description, textX, titleY + 18, textMaxWidth);
+        }
+
+        if (isGroup) {
+            const chevronSize = 6;
+            const nudge = this.hoverAlpha * 4;
+            const chevronX = this.x + this.width - 25 + nudge;
+            const chevronY = this.y + this.height / 2;
+            this.p5.stroke(this.color[0], this.color[1], this.color[2], alpha * 1.5);
+            this.p5.strokeWeight(2);
+            this.p5.noFill();
+            this.p5.line(chevronX - chevronSize, chevronY - chevronSize, chevronX, chevronY);
+            this.p5.line(chevronX, chevronY, chevronX - chevronSize, chevronY + chevronSize);
         }
 
         // Hover scan line effect
@@ -437,5 +461,5 @@ class LinkButton {
 }
 
 export const linksSketch = (node, options = {}) => {
-    return new p5(sketch, node);
+    return new p5((p) => sketch(p, options), node);
 };
