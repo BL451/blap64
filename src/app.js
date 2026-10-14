@@ -32,6 +32,7 @@ const routes = [
     new Route("links", "/links", linksView),
     new Route("photo-collection", "/photo/:collection", photoView),
     new Route("photo", "/photo", photoView),
+    new Route("about-resume", "/about/resume", (props) => aboutView({ ...props, resume: true })),
     new Route("about", "/about", aboutView),
     new Route("oops", "/oops", oopsView),
     new Route("home", "/", homeView),

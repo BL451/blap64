@@ -108,6 +108,15 @@ function getBreadcrumbSegments(currentPath) {
         ];
     }
 
+    if (cleanPath === '/about/resume') {
+        return [
+            { name: '~', path: null },
+            { name: 'home', path: '/' },
+            { name: 'about', path: '/about' },
+            { name: 'resume', path: '/about/resume' }
+        ];
+    }
+
     if (cleanPath === '/interactive') {
         return [
             { name: '~', path: null },

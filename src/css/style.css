@@ -303,6 +303,113 @@ h3 {
     margin-bottom: 2vmin;
 }
 
+.cv-toggle {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 2vmin;
+}
+
+.cv-toggle-button {
+    position: relative;
+    background: rgba(23, 23, 23, 0.6);
+    border: 1px solid #404040;
+    padding: 10px 14px;
+    font-family: "BPdotsSquareVF";
+    font-weight: 600;
+    font-size: 16px;
+    color: #b0b0b0;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+@supports (text-box: trim-both cap alphabetic) {
+    .cv-toggle-button {
+        text-box: trim-both cap alphabetic;
+        padding: 12px 14px;
+    }
+}
+
+@supports not (text-box: trim-both cap alphabetic) {
+    .cv-toggle-button {
+        padding: calc(10px + 0.1em) 14px calc(10px - 0.1em);
+    }
+}
+
+.cv-toggle-button:hover {
+    color: #4a90e2;
+}
+
+.cv-toggle-button.active {
+    color: #4a90e2;
+    border-color: #2c5aa0;
+    cursor: default;
+}
+
+.cv-toggle-button.active::before,
+.cv-toggle-button.active::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border: 2px solid #4a90e2;
+}
+
+.cv-toggle-button.active::before {
+    top: -5px;
+    left: -5px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.cv-toggle-button.active::after {
+    bottom: -5px;
+    right: -5px;
+    border-left: none;
+    border-top: none;
+}
+
+a.cv-download {
+    display: inline-block;
+    width: auto;
+    margin: 1vmin 0 0.5vmin 0;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.cv-icon {
+    width: 0.75em;
+    height: 0.75em;
+    margin-right: 0.45em;
+    fill: currentColor;
+    vertical-align: -0.05em;
+    transition: transform 0.2s ease;
+}
+
+a.cv-download:hover .cv-icon {
+    transform: translateY(2px);
+}
+
+a.cv-download[target="_blank"]:hover .cv-icon {
+    transform: translate(2px, -2px);
+}
+
+.cv-actions {
+    display: flex;
+    gap: 20px;
+}
+
+a.cv-download:link,
+a.cv-download:visited {
+    color: #b0b0b0;
+}
+
+a.cv-download:hover {
+    color: #4a90e2;
+}
+
 .breadcrumb-nav {
     position: fixed;
     bottom: 20px;

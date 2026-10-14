@@ -249,7 +249,7 @@ python3 optimize_photos.py  # Process new images from import folders
   - `<script>window.location.href = "https://blap64.xyz/#/[ROUTE]";</script>` as JavaScript fallback
   - CSS styling: `body { background-color: #171717; color: #fff; font-family: sans-serif; margin: 0; padding: 20px; }`
   - Manual fallback link for users with JavaScript disabled
-- **Current Implementation**: Redirect pages exist for `/links`, `/about`, `/interactive`, `/interactive/web`, `/interactive/live`, and `/photo`
+- **Current Implementation**: Redirect pages exist for `/links`, `/links/workshops`, `/about`, `/about/resume`, `/interactive`, `/interactive/web`, `/interactive/live`, and `/photo`
 - **Deployment**: Redirect directories are automatically copied to `dist/` during build process via updated `predeploy` script (`cp -r links about interactive photo dist/`)
 - **Development Note**: Redirects only work after deployment or when serving built `dist/` folder - not during `npm run dev`
 - **New Route Protocol**: When adding new routes to the SPA, ALWAYS create corresponding redirect pages using the established template pattern
@@ -274,6 +274,17 @@ python3 optimize_photos.py  # Process new images from import folders
 - **Avoid URL Imports**: Do NOT use `import shaderUrl from 'url:./shader.glsl'` as this returns wrapped Parcel module URLs, not raw GLSL source
 - **Shader Creation**: Use `p.createShader(vertSource, fragSource)` directly with imported string content
 - **p5.js 2.0.3 Pattern**: No preload function - use async setup with direct imports for immediate access to shader strings
+
+### CV & Resume Sync Workflow
+- **Source of Truth**: Benjamin maintains the artist CV and technical resume in Pages documents. The About page HTML mirrors them; the Pages docs win on any conflict
+- **PDF Location**: `public/cv/Benjamin Lappalainen Artist CV - YYYY-MM.pdf` and `public/cv/Benjamin Lappalainen Technical Resume - YYYY-MM.pdf`, imported in `src/views/About/about.js` via `url:` (same pattern as `ecaadePdf`). Filenames are dated, so a new export means updating both the import path and the matching `download="..."` attribute (which gives the downloaded file a clean name without Parcel's hash), then deleting the old PDF
+- **Routes**: `#/about` shows the artist CV, `#/about/resume` shows the technical resume. The toggle buttons at the top of the CV column switch between them; the bio column is shared
+- **Sync Request**: When asked to "sync the CV" or "sync the resume", read the PDF, diff it against the corresponding HTML section in `about.js`, update only what changed, and show the diff before committing
+- **Intentional Omissions**: The resume's summary paragraph is left off the site on purpose (the bio sits beside it). Only the headline line is shown, in normal paragraph font, with the LinkedIn link next to the download link
+- **Do Not Read .pages Files**: Ask for a PDF export instead
+- **Website-Only Links**: The HTML version links entries to internal project pages (e.g., `#/interactive/live/...`) and external sites not present in the PDF. Preserve existing links during sync; propose links for new entries where a matching project page exists
+- **Privacy Check**: Before committing a new PDF, confirm it contains no phone number or home address
+- **Duplicate Check**: After syncing, verify each `<h2>` CV section heading appears only once
 
 ---
 

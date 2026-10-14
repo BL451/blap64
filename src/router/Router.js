@@ -13,6 +13,11 @@ function updateMetaTags(path) {
             description: 'Biography and CV of Benjamin Lappalainen, Creative Technologist and Interactive Media Artist based in Toronto.',
             canonical: 'https://blap64.com/about'
         },
+        '/about/resume': {
+            title: 'Technical Resume - Benjamin Lappalainen',
+            description: 'Technical resume of Benjamin Lappalainen, Creative Technologist and Software Developer specializing in networked systems, interactive media, and computer vision.',
+            canonical: 'https://blap64.com/about/resume'
+        },
         '/interactive': {
             title: 'Interactive Projects - Benjamin Lappalainen',
             description: 'Interactive media installations and web experiences by Benjamin Lappalainen. Creative coding, digital art, and live performance technology.',
@@ -159,7 +164,9 @@ export default class Router {
     } else {
         this.is_navigating = true;
         // Fade out the main view
-        document.getElementById("app").style.opacity = 0;
+        if (!options.instant) {
+            document.getElementById("app").style.opacity = 0;
+        }
         let route_element = document.querySelector(
             `[route=${CSS.escape(route.path)}]`,
         );
@@ -168,31 +175,33 @@ export default class Router {
             route_element.classList.add("route-active");
         }
         // Render new page and fade in the main view after 200ms
-        setTimeout(
-            function () {
-                // Update URL to match clean path
-                const cleanPath = path.startsWith('/') ? path : '/' + path;
-                if (window.location.hash !== '#' + cleanPath) {
-                    window.location.hash = '#' + cleanPath;
-                }
-                // Add navigation options to route props
-                const routeProps = route.props || {};
-                if (options.skipAnimations) {
-                    routeProps.skipAnimations = true;
-                }
-                route.setProps(routeProps);
-                // Lit template rendering of HTML for the view
-                render(route.renderView(), this.render_node);
-                // Sick fade bro
-                document.getElementById("app").style.opacity = 1;
-                this.is_navigating = false;
-                // Update breadcrumb navigation with clean path
-                updateBreadcrumb(cleanPath);
-                // Update meta tags for SEO
-                updateMetaTags(cleanPath);
-            }.bind(this),
-            250,
-        );
+        const renderRoute = function () {
+            // Update URL to match clean path
+            const cleanPath = path.startsWith('/') ? path : '/' + path;
+            if (window.location.hash !== '#' + cleanPath) {
+                window.location.hash = '#' + cleanPath;
+            }
+            // Add navigation options to route props
+            const routeProps = route.props || {};
+            if (options.skipAnimations) {
+                routeProps.skipAnimations = true;
+            }
+            route.setProps(routeProps);
+            // Lit template rendering of HTML for the view
+            render(route.renderView(), this.render_node);
+            // Sick fade bro
+            document.getElementById("app").style.opacity = 1;
+            this.is_navigating = false;
+            // Update breadcrumb navigation with clean path
+            updateBreadcrumb(cleanPath);
+            // Update meta tags for SEO
+            updateMetaTags(cleanPath);
+        }.bind(this);
+        if (options.instant) {
+            renderRoute();
+        } else {
+            setTimeout(renderRoute, 250);
+        }
     }
     }
 
