@@ -20,13 +20,6 @@ export const links = [
                 icon: "WEB",
                 description: "(Vibe)coding your artist portfolio"
             },
-            {
-                id: "td-physical-world",
-                title: "WIRING TOUCHDESIGNER TO THE PHYSICAL WORLD",
-                url: "https://luma.com/5snjpwr7",
-                icon: "OSC",
-                description: "Online TouchDesigner workshop"
-            },
         ]
     },
 	{
@@ -58,11 +51,11 @@ export const links = [
         description: "Live events"
     },
     {
-        id: "linkedin",
-        title: "LINKEDIN",
-        url: "https://www.linkedin.com/in/benjamin-lappalainen/",
-        icon: "LKDN", // Text icon for now
-        description: "CV"
+        id: "discord",
+        title: "DISCORD",
+        url: "https://discord.gg/pYPvzCMwFY",
+        icon: "DSCD", // Text icon for now
+        description: "Join the community"
     },
     {
         id: "home",
