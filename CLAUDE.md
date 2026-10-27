@@ -249,7 +249,7 @@ python3 optimize_photos.py  # Process new images from import folders
   - `<script>window.location.href = "https://blap64.xyz/#/[ROUTE]";</script>` as JavaScript fallback
   - CSS styling: `body { background-color: #171717; color: #fff; font-family: sans-serif; margin: 0; padding: 20px; }`
   - Manual fallback link for users with JavaScript disabled
-- **Current Implementation**: Redirect pages exist for `/links`, `/links/workshops`, `/about`, `/about/resume`, `/interactive`, `/interactive/web`, `/interactive/live`, and `/photo`
+- **Current Implementation**: Redirect pages exist for `/links`, `/links/learn`, `/links/learn/workshops`, `/links/workshops` (legacy, points to `/links/learn/workshops`), `/about`, `/about/resume`, `/interactive`, `/interactive/web`, `/interactive/live`, and `/photo`
 - **Deployment**: Redirect directories are automatically copied to `dist/` during build process via updated `predeploy` script (`cp -r links about interactive photo dist/`)
 - **Development Note**: Redirects only work after deployment or when serving built `dist/` folder - not during `npm run dev`
 - **New Route Protocol**: When adding new routes to the SPA, ALWAYS create corresponding redirect pages using the established template pattern

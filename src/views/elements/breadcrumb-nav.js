@@ -2,7 +2,7 @@ import { html } from "lit-html";
 import { findProjectBySlug } from "../Installations/project-details.js";
 import { findCollectionBySlug } from "../Photo/photo-collections.js";
 import { findProjectBySlug as findWebProjectBySlug } from "../WebExperiences/project-details.js";
-import { findLinkGroupBySlug } from "../Links/link-data.js";
+import { findLinkGroupPath } from "../Links/link-data.js";
 
 // Map routes to human-readable directory names and their actual paths
 const pathMap = {
@@ -70,14 +70,24 @@ function getBreadcrumbSegments(currentPath) {
     // Handle link group paths
     const linkGroupMatch = cleanPath.match(/^\/links\/(.+)$/);
     if (linkGroupMatch) {
-        const groupSlug = linkGroupMatch[1];
-        const linkGroup = findLinkGroupBySlug(groupSlug);
-        return [
+        const slugs = linkGroupMatch[1].split('/');
+        const groupPath = findLinkGroupPath(slugs[slugs.length - 1]);
+        const crumbs = [
             { name: '~', path: null },
             { name: 'home', path: '/' },
-            { name: 'links', path: '/links' },
-            { name: linkGroup ? linkGroup.id : groupSlug, path: cleanPath }
+            { name: 'links', path: '/links' }
         ];
+        if (groupPath) {
+            groupPath.forEach((linkGroup, index) => {
+                crumbs.push({
+                    name: linkGroup.id,
+                    path: '/links/' + groupPath.slice(0, index + 1).map(g => g.id).join('/')
+                });
+            });
+        } else {
+            crumbs.push({ name: slugs[slugs.length - 1], path: cleanPath });
+        }
+        return crumbs;
     }
 
     // Handle nested paths

@@ -3,7 +3,10 @@ main = "src/worker.js"
 compatibility_date = "2024-01-01"
 
 [vars]
-ALLOWED_ORIGIN = "https://blap64.com"
+# Signups are only accepted if the Turnstile check was solved on this site
+TURNSTILE_HOSTNAME = "blap64.com"
+# Optional: from Resend → Audience → Topics. New subscribers are opted in to it.
+RESEND_TOPIC_ID = "42de63de-5ac1-4883-8ee4-3177b891fb88"
 
 # Set these as secrets via:
 # wrangler secret put RESEND_API_KEY

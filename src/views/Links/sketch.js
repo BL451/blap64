@@ -1,10 +1,13 @@
 import { getViewportSize, loadGoogleFontSet, widthCheck, updateCursor } from "../../utils";
-import { links as allLinks, findLinkGroupBySlug } from "./link-data.js";
+import { links as allLinks, findLinkGroupPath } from "./link-data.js";
 
 export const sketch = function (p, options = {}) {
-    const group = options.group ? findLinkGroupBySlug(options.group) : null;
+    const groupPath = (options.group && findLinkGroupPath(options.group)) || [];
+    const group = groupPath.length ? groupPath[groupPath.length - 1] : null;
+    const groupRoute = groupPath.map(g => g.id).join("/");
     const links = group ? group.links : allLinks;
     const title = group ? group.title : "MY LINKS";
+    const isEmpty = links.length === 0;
     let mobile = false;
     let linkButtons = [];
     let scrollOffset = 0;
@@ -14,6 +17,7 @@ export const sketch = function (p, options = {}) {
     let mouseDownPos = { x: 0, y: 0 };
     let isDragging = false;
     let dragThreshold = 5; // pixels
+    let dragStartOffset = 0;
 
     // Layout constants
     const MARGIN = 40;
@@ -23,6 +27,11 @@ export const sketch = function (p, options = {}) {
 
     // Mobile layout adjustments - will be calculated dynamically
     let TITLE_BUFFER, BREADCRUMB_BUFFER, SPACING_BETWEEN_ROWS;
+    let emptyCard = null;
+    let newsletterElement = null;
+    let newsletterWidth = 400;
+    let newsletterHeight = 128;
+    let newsletterY = 0;
 
     p.setup = async function() {
         const s = getViewportSize();
@@ -30,6 +39,7 @@ export const sketch = function (p, options = {}) {
         mobile = widthCheck(s.width);
         p.background(23);
         p.strokeCap(p.PROJECT);
+        p.canvas.style.touchAction = "none";
 
         // Font already loaded via CSS
         p.textFont('BPdotsSquareVF', {
@@ -51,6 +61,8 @@ export const sketch = function (p, options = {}) {
         // Render link buttons
         renderLinkButtons();
 
+        updateNewsletterPosition();
+
         // Update cursor
         updateCursor(p, p.mouseX, p.mouseY, ...linkButtons.map(btn => ({
             contains: (x, y) => btn.contains(x, y)
@@ -70,6 +82,7 @@ export const sketch = function (p, options = {}) {
         // Record mouse down position for drag detection
         mouseDownPos.x = p.mouseX;
         mouseDownPos.y = p.mouseY;
+        dragStartOffset = targetScrollOffset;
         isDragging = false;
     };
 
@@ -79,6 +92,14 @@ export const sketch = function (p, options = {}) {
         if (distance > dragThreshold) {
             isDragging = true;
         }
+
+        if (window.helpPopupOpen || window.contactPopupOpen) return;
+
+        const maxScroll = getMaxScroll();
+        if (isDragging && maxScroll > 0) {
+            targetScrollOffset = p.constrain(dragStartOffset + (p.mouseY - mouseDownPos.y), -maxScroll, 0);
+        }
+        return false;
     };
 
     p.mouseReleased = function(event) {
@@ -121,7 +142,7 @@ export const sketch = function (p, options = {}) {
                     }
                 } else if (button.link.links) {
                     document.dispatchEvent(new CustomEvent('navigate-to', {
-                        detail: { path: `/links/${button.link.id}` }
+                        detail: { path: `/links/${groupRoute ? groupRoute + "/" : ""}${button.link.id}` }
                     }));
                 } else {
                     // Simple direct navigation - works reliably on mobile
@@ -138,8 +159,7 @@ export const sketch = function (p, options = {}) {
         }
 
         // Handle scrolling for long lists (mainly for desktop)
-        const totalContentHeight = TITLE_BUFFER + (links.length * ROW_HEIGHT) + ((links.length - 1) * SPACING_BETWEEN_ROWS) + BREADCRUMB_BUFFER;
-        const maxScroll = Math.max(0, totalContentHeight - p.height);
+        const maxScroll = getMaxScroll();
 
         // Only allow scrolling if content doesn't fit
         if (maxScroll > 0) {
@@ -147,6 +167,16 @@ export const sketch = function (p, options = {}) {
         }
         return false; // Prevent default browser scrolling
     };
+
+    function getMaxScroll() {
+        const totalContentHeight = newsletterY + newsletterHeight + BREADCRUMB_BUFFER;
+        return Math.max(0, totalContentHeight - p.height);
+    }
+
+    function getContentHeight() {
+        if (isEmpty) return emptyCard.height;
+        return (links.length * ROW_HEIGHT) + ((links.length - 1) * SPACING_BETWEEN_ROWS);
+    }
 
     function setupLinkButtons() {
         linkButtons = [];
@@ -158,19 +188,24 @@ export const sketch = function (p, options = {}) {
 
         const buttonWidth = mobile ? p.width - (MARGIN * 2) : Math.min(400, p.width - (MARGIN * 2));
         const startX = (p.width - buttonWidth) / 2;
+        newsletterWidth = buttonWidth;
+        if (isEmpty) emptyCard = layoutEmptyCard(buttonWidth);
 
         // Calculate available space and adjust row height for mobile
-        const availableHeight = p.height - TITLE_BUFFER - BREADCRUMB_BUFFER;
-        const totalSpacingNeeded = (links.length - 1) * SPACING_BETWEEN_ROWS;
+        const itemCount = Math.max(links.length, 1);
+        const availableHeight = p.height - TITLE_BUFFER - BREADCRUMB_BUFFER - SPACING_BETWEEN_ROWS - newsletterHeight;
+        const totalSpacingNeeded = (itemCount - 1) * SPACING_BETWEEN_ROWS;
         const availableForRows = availableHeight - totalSpacingNeeded;
 
         // On mobile, adjust row height to fit all links
         if (mobile) {
-            const calculatedRowHeight = Math.floor(availableForRows / links.length);
+            const calculatedRowHeight = Math.floor(availableForRows / itemCount);
             ROW_HEIGHT = Math.max(60, Math.min(calculatedRowHeight, 80)); // Min 60px, max 80px
         } else {
             ROW_HEIGHT = 80; // Desktop keeps standard height
         }
+
+        newsletterY = TITLE_BUFFER + getContentHeight() + SPACING_BETWEEN_ROWS;
 
         // Sci-fi color palette
         const colors = [
@@ -189,21 +224,130 @@ export const sketch = function (p, options = {}) {
 
         links.forEach((link, index) => {
             const y = TITLE_BUFFER + (index * (ROW_HEIGHT + SPACING_BETWEEN_ROWS));
-            const color = colors[index % colors.length];
+            const color = !group && index === links.length - 1 ? [255, 255, 255] : colors[index % colors.length];
             linkButtons.push(new LinkButton(p, startX, y, buttonWidth, ROW_HEIGHT, link, color));
         });
+
+        const maxScroll = getMaxScroll();
+        targetScrollOffset = p.constrain(targetScrollOffset, -maxScroll, 0);
+        scrollOffset = p.constrain(scrollOffset, -maxScroll, 0);
     }
 
     function renderLinkButtons() {
         p.push();
         p.translate(0, scrollOffset);
 
-        linkButtons.forEach(button => {
-            // Only render if button is visible on screen
-            if (button.y + scrollOffset > -ROW_HEIGHT && button.y + scrollOffset < p.height + ROW_HEIGHT) {
-                button.render();
-            }
-        });
+        if (isEmpty) {
+            renderEmptyState();
+        } else {
+            linkButtons.forEach(button => {
+                // Only render if button is visible on screen
+                if (button.y + scrollOffset > -ROW_HEIGHT && button.y + scrollOffset < p.height + ROW_HEIGHT) {
+                    button.render();
+                }
+            });
+        }
+
+        p.pop();
+    }
+
+    function updateNewsletterPosition() {
+        if (!newsletterElement) {
+            newsletterElement = document.querySelector("newsletter-form");
+        }
+        if (!newsletterElement) return;
+
+        const width = `${newsletterWidth}px`;
+        if (newsletterElement.style.width !== width) newsletterElement.style.width = width;
+
+        const measuredHeight = newsletterElement.offsetHeight;
+        if (measuredHeight && measuredHeight !== newsletterHeight) {
+            newsletterHeight = measuredHeight;
+            setupLinkButtons();
+        }
+
+        const x = (p.width - newsletterWidth) / 2;
+        const y = newsletterY + scrollOffset;
+
+        newsletterElement.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        newsletterElement.style.visibility =
+            y + newsletterHeight > 0 && y < p.height ? "visible" : "hidden";
+    }
+
+    function layoutEmptyCard(width) {
+        const padding = 15;
+        const height = 80;
+        const iconSize = Math.min(50, height - 20);
+        const titleX = padding + iconSize + 15;
+        const titleMaxWidth = width - titleX - padding;
+
+        p.push();
+        p.textFont('BPdotsSquareVF', { fontVariationSettings: 'wght 900' });
+        let titleSize = 18;
+        p.textSize(titleSize);
+        while (titleSize > 13 && p.textWidth("NO UPCOMING WORKSHOPS") > titleMaxWidth) {
+            titleSize -= 1;
+            p.textSize(titleSize);
+        }
+        p.pop();
+
+        return { padding, iconSize, titleX, titleSize, height };
+    }
+
+    function renderEmptyState() {
+        const { padding, iconSize, titleX, titleSize, height } = emptyCard;
+        const width = newsletterWidth;
+        const x = (p.width - width) / 2;
+        const y = TITLE_BUFFER;
+
+        p.push();
+
+        p.drawingContext.setLineDash([6, 6]);
+        p.stroke(74, 144, 230, 75);
+        p.strokeWeight(1);
+        p.fill(23, 23, 23, 40);
+        p.rect(x, y, width, height);
+        p.drawingContext.setLineDash([]);
+
+        const iconX = x + padding;
+        const iconY = y + (height - iconSize) / 2;
+        const bracketSize = 8;
+
+        p.stroke(74, 144, 230, 80);
+        p.strokeWeight(1);
+        p.fill(23, 23, 23, 30);
+        p.rect(iconX, iconY, iconSize, iconSize);
+
+        p.stroke(74, 144, 230, 96);
+        p.strokeWeight(2);
+        p.noFill();
+        p.line(iconX, iconY, iconX + bracketSize, iconY);
+        p.line(iconX, iconY, iconX, iconY + bracketSize);
+        p.line(iconX + iconSize, iconY, iconX + iconSize - bracketSize, iconY);
+        p.line(iconX + iconSize, iconY, iconX + iconSize, iconY + bracketSize);
+        p.line(iconX, iconY + iconSize, iconX + bracketSize, iconY + iconSize);
+        p.line(iconX, iconY + iconSize, iconX, iconY + iconSize - bracketSize);
+        p.line(iconX + iconSize, iconY + iconSize, iconX + iconSize - bracketSize, iconY + iconSize);
+        p.line(iconX + iconSize, iconY + iconSize, iconX + iconSize, iconY + iconSize - bracketSize);
+
+        p.fill(74, 144, 230, 120);
+        p.noStroke();
+        p.textAlign(p.CENTER, p.CENTER);
+        p.textFont('BPdotsSquareVF', { fontVariationSettings: 'wght 600' });
+        p.textSize(Math.min(12, iconSize * 0.25));
+        p.text("WKSP", iconX + iconSize / 2 + 1, iconY + iconSize / 2);
+
+        const titleY = y + height / 2 - 8;
+        p.textAlign(p.LEFT, p.CENTER);
+        p.textFont('BPdotsSquareVF', { fontVariationSettings: 'wght 900' });
+        p.fill(255, 225);
+        p.textSize(titleSize);
+        p.text("NO UPCOMING WORKSHOPS", x + titleX, titleY);
+
+        const blink = Math.floor(p.millis() / 500) % 2 === 0;
+        p.fill(74, 144, 230, 200);
+        p.textSize(13);
+        p.text("BETWEEN EXPERIMENTS" + (blink ? " _" : ""), x + titleX, titleY + 18);
 
         p.pop();
     }
@@ -276,10 +420,10 @@ export const sketch = function (p, options = {}) {
         const step = mobile ? 12 : 15;
 
         p.text("SYS: ONLINE", margin + cornerSize * 0.5, margin + step);
-        p.text("CONN: " + links.length, margin + cornerSize * 0.5, margin + step * 2);
+        p.text("CONN: " + (isEmpty ? "STANDBY" : links.length), margin + cornerSize * 0.5, margin + step * 2);
         p.text("PROTO: HTTPS", margin + cornerSize * 0.5, margin + step * 3);
         if (group) {
-            p.text("DIR: /" + group.id.toUpperCase(), margin + cornerSize * 0.5, margin + step * 4);
+            p.text("DIR: /" + groupRoute.toUpperCase(), margin + cornerSize * 0.5, margin + step * 4);
         }
     }
 };

@@ -32,7 +32,9 @@ export const config = {
   newsletterFrom:
     process.env.NEWSLETTER_FROM ||
     "Benjamin Lappalainen <newsletter@blap64.com>",
-  audienceId: process.env.AUDIENCE_ID || "",
+  replyTo: process.env.REPLY_TO || "",
+  segmentId: process.env.SEGMENT_ID || "",
+  topicId: process.env.TOPIC_ID || "",
   testEmail: process.env.TEST_EMAIL || "",
   subscribeEndpoint:
     process.env.SUBSCRIBE_ENDPOINT ||

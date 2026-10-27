@@ -40,13 +40,23 @@ function updateMetaTags(path) {
         },
         '/links': {
             title: 'Links - Benjamin Lappalainen',
-            description: 'Contact information and social links for Benjamin Lappalainen.',
+            description: 'Contact information, social links, and newsletter signup for Benjamin Lappalainen.',
             canonical: 'https://blap64.com/links'
+        },
+        '/links/learn': {
+            title: 'Learn - Benjamin Lappalainen',
+            description: 'Workshops, TouchDesigner tutorials, and project files from Benjamin Lappalainen.',
+            canonical: 'https://blap64.com/links/learn'
+        },
+        '/links/learn/workshops': {
+            title: 'Workshops - Benjamin Lappalainen',
+            description: 'Creative technology and TouchDesigner workshops led by Benjamin Lappalainen.',
+            canonical: 'https://blap64.com/links/learn/workshops'
         },
         '/links/workshops': {
             title: 'Workshops - Benjamin Lappalainen',
-            description: 'Upcoming creative technology and TouchDesigner workshops led by Benjamin Lappalainen.',
-            canonical: 'https://blap64.com/links/workshops'
+            description: 'Creative technology and TouchDesigner workshops led by Benjamin Lappalainen.',
+            canonical: 'https://blap64.com/links/learn/workshops'
         },
         '/oops': {
             title: 'Page Not Found - Benjamin Lappalainen',

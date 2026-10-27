@@ -286,7 +286,7 @@ async function run() {
     console.log(`Site deployed. Waiting 10s for GitHub Pages propagation...`);
     await new Promise((r) => setTimeout(r, 10000));
 
-    console.log(`Sending broadcast to audience ${config.audienceId}...`);
+    console.log(`Sending broadcast to segment ${config.segmentId}...`);
     const result = await sendBroadcast(emailHtml, frontmatter);
     console.log(`Broadcast sent. ID: ${result.id}`);
   }

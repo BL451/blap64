@@ -44,13 +44,19 @@
     </url>
     <url>
         <loc>https://blap64.com/links</loc>
-        <lastmod>2026-03-20</lastmod>
+        <lastmod>2026-10-26</lastmod>
         <changefreq>rarely</changefreq>
         <priority>0.5</priority>
     </url>
     <url>
-        <loc>https://blap64.com/links/workshops</loc>
-        <lastmod>2026-10-03</lastmod>
+        <loc>https://blap64.com/links/learn</loc>
+        <lastmod>2026-10-27</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>https://blap64.com/links/learn/workshops</loc>
+        <lastmod>2026-10-27</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
     </url>

@@ -8,33 +8,33 @@ export const links = [
         description: "Tell me your project"
     },
     {
-        id: "workshops",
-        title: "WORKSHOPS",
-        icon: "WKSP",
-        description: "Upcoming sessions",
+        id: "learn",
+        title: "LEARN",
+        icon: "LERN",
+        description: "Workshops and resources",
         links: [
             {
-                id: "internet-presence",
-                title: "INTERNET PRESENCE",
-                url: "https://www.tickettailor.com/events/softlaunch/2452856",
-                icon: "WEB",
-                description: "(Vibe)coding your artist portfolio"
+                id: "workshops",
+                title: "WORKSHOPS",
+                icon: "WKSP",
+                description: "Live sessions",
+                links: []
+            },
+            {
+                id: "tube",
+                title: "YOUTUBE",
+                url: "https://www.youtube.com/@blapcode",
+                icon: "YTBE", // Text icon for now
+                description: "TouchDesigner tutorials"
+            },
+            {
+                id: "patreon",
+                title: "PATREON",
+                url: "https://www.patreon.com/blapcode",
+                icon: "PTRN", // Text icon for now
+                description: "TouchDesigner files"
             },
         ]
-    },
-	{
-        id: "tube",
-        title: "YOUTUBE",
-        url: "https://www.youtube.com/@blapcode",
-        icon: "YTBE", // Text icon for now
-        description: "TouchDesigner tutorials"
-    },
-    {
-        id: "patreon",
-        title: "PATREON",
-        url: "https://www.patreon.com/blapcode",
-        icon: "PTRN", // Text icon for now
-        description: "TouchDesigner files"
     },
     {
         id: "instagram",
@@ -66,4 +66,12 @@ export const links = [
     },
 ];
 
-export const findLinkGroupBySlug = (slug) => links.find(link => link.id === slug && link.links);
+export const findLinkGroupPath = (slug, items = links) => {
+    for (const link of items) {
+        if (!link.links) continue;
+        if (link.id === slug) return [link];
+        const childPath = findLinkGroupPath(slug, link.links);
+        if (childPath) return [link, ...childPath];
+    }
+    return null;
+};

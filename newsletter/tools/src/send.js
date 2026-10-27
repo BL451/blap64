@@ -4,7 +4,7 @@ import { config } from "./config.js";
 function getClient() {
   if (!config.resendApiKey) {
     throw new Error(
-      "RESEND_API_KEY not set. Add it to .env in the project root."
+      "RESEND_API_KEY not set. Add it to newsletter/tools/.env."
     );
   }
   return new Resend(config.resendApiKey);
@@ -12,13 +12,14 @@ function getClient() {
 
 export async function sendTestEmail(emailHtml, frontmatter) {
   if (!config.testEmail) {
-    throw new Error("TEST_EMAIL not set. Add it to .env in the project root.");
+    throw new Error("TEST_EMAIL not set. Add it to newsletter/tools/.env.");
   }
 
   const resend = getClient();
 
   const { data, error } = await resend.emails.send({
     from: config.newsletterFrom,
+    replyTo: config.replyTo || undefined,
     to: [config.testEmail],
     subject: `[TEST] ${frontmatter.title}`,
     html: emailHtml,
@@ -29,26 +30,23 @@ export async function sendTestEmail(emailHtml, frontmatter) {
 }
 
 export async function sendBroadcast(emailHtml, frontmatter) {
-  if (!config.audienceId) {
-    throw new Error("AUDIENCE_ID not set. Add it to .env in the project root.");
+  if (!config.segmentId) {
+    throw new Error("SEGMENT_ID not set. Add it to newsletter/tools/.env.");
   }
 
   const resend = getClient();
 
+  // With a topic set, unsubscribing opts out of this topic only, not everything in the account
   const { data, error } = await resend.broadcasts.create({
-    audienceId: config.audienceId,
+    segmentId: config.segmentId,
+    topicId: config.topicId || undefined,
     from: config.newsletterFrom,
+    replyTo: config.replyTo || undefined,
     subject: frontmatter.title,
     html: emailHtml,
+    send: true,
   });
 
   if (error) throw new Error(`Resend error: ${JSON.stringify(error)}`);
-
-  const { data: sendData, error: sendError } = await resend.broadcasts.send(
-    data.id
-  );
-
-  if (sendError)
-    throw new Error(`Resend send error: ${JSON.stringify(sendError)}`);
-  return sendData;
+  return data;
 }
