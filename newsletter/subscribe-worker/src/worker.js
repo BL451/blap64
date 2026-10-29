@@ -77,39 +77,39 @@ async function verifyTurnstile(token, request, env) {
   return outcome.success === true && outcome.hostname === env.TURNSTILE_HOSTNAME;
 }
 
-// Adds the contact to the newsletter segment (and topic, if one is set).
-// Returns false if the email is already a contact. Throws on any Resend error.
+// Adds the contact to the newsletter segment (and topic, if one is set). The
+// Resend account is shared with other lists (AUX EYE), so someone may already
+// be a contact without being in this segment. Returns false if they were
+// already in it. Throws on any Resend error.
 async function addContact(email, env) {
   if (!env.RESEND_API_KEY || !env.RESEND_SEGMENT_ID) {
     throw new Error("RESEND_API_KEY or RESEND_SEGMENT_ID is not set");
   }
-  const headers = {
-    Authorization: `Bearer ${env.RESEND_API_KEY}`,
-    "Content-Type": "application/json",
+  const resend = async (path, init = {}) => {
+    const response = await fetch(`${RESEND_API}${path}`, {
+      ...init,
+      headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+    });
+    if (!response.ok && response.status !== 404) {
+      throw new Error(`Resend ${init.method || "GET"} ${path} failed: ${response.status} ${await response.text()}`);
+    }
+    return response;
   };
+  const topics = env.RESEND_TOPIC_ID ? [{ id: env.RESEND_TOPIC_ID, subscription: "opt_in" }] : null;
+  const contactPath = `/contacts/${encodeURIComponent(email)}`;
 
-  const existing = await fetch(`${RESEND_API}/contacts/${encodeURIComponent(email)}`, { headers });
-  if (existing.ok) return false;
-  if (existing.status !== 404) {
-    throw new Error(`Resend contact lookup failed: ${existing.status} ${await existing.text()}`);
+  const existing = await resend(contactPath);
+  if (existing.status === 404) {
+    const contact = { email, unsubscribed: false, segments: [{ id: env.RESEND_SEGMENT_ID }] };
+    if (topics) contact.topics = topics;
+    await resend("/contacts", { method: "POST", body: JSON.stringify(contact) });
+    return true;
   }
 
-  const contact = {
-    email,
-    unsubscribed: false,
-    segments: [{ id: env.RESEND_SEGMENT_ID }],
-  };
-  if (env.RESEND_TOPIC_ID) {
-    contact.topics = [{ id: env.RESEND_TOPIC_ID, subscription: "opt_in" }];
-  }
+  const { data: segments = [] } = await (await resend(`${contactPath}/segments?limit=100`)).json();
+  if (segments.some((segment) => segment.id === env.RESEND_SEGMENT_ID)) return false;
 
-  const created = await fetch(`${RESEND_API}/contacts`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(contact),
-  });
-  if (!created.ok) {
-    throw new Error(`Resend contact create failed: ${created.status} ${await created.text()}`);
-  }
+  await resend(`${contactPath}/segments/${env.RESEND_SEGMENT_ID}`, { method: "POST" });
+  if (topics) await resend(`${contactPath}/topics`, { method: "PATCH", body: JSON.stringify(topics) });
   return true;
 }
