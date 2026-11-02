@@ -1,5 +1,5 @@
 import { html, svg } from "lit-html";
-import profileImage from 'url:../../assets/about/2025-07-27_BL.webp';
+import profileImage from 'url:../../assets/about/2026-04-27_BL.webp';
 import ecaadePdf from 'url:../../../public/publications/ecaade2020_393.pdf';
 import artistCvPdf from 'url:../../../public/cv/Benjamin Lappalainen Artist CV - 2026-10.pdf';
 import technicalResumePdf from 'url:../../../public/cv/Benjamin Lappalainen Technical Resume - 2026-10.pdf';
