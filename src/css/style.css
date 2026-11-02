@@ -106,16 +106,6 @@ body {
     border-bottom: 2px solid #2c5aa0;
     padding-bottom: 0.5rem;
     position: relative;
-    padding-left: 1.2em;
-}
-
-.cv-section h2::before {
-    content: '▶';
-    color: #8b0000;
-    font-size: 0.7em;
-    position: absolute;
-    left: 0;
-    top: 0.3em;
 }
 
 
@@ -399,6 +389,140 @@ a.cv-download[target="_blank"]:hover .cv-icon {
 .cv-actions {
     display: flex;
     gap: 20px;
+}
+
+.cv-grid {
+    display: grid;
+    grid-template-columns: minmax(9em, 13em) 1fr;
+    column-gap: 1.5em;
+    row-gap: 0.9em;
+    margin-top: 1.5vmin;
+}
+
+.cv-grid--years {
+    grid-template-columns: min-content 1fr;
+    column-gap: 1.2em;
+    row-gap: 0;
+}
+
+.cv-grid--years dt {
+    position: relative;
+    justify-self: start;
+}
+
+.cv-grid--years dd {
+    padding-bottom: 0.7em;
+}
+
+.cv-grid dt.cv-year-cont {
+    color: transparent;
+}
+
+.cv-year-start::after,
+.cv-year-cont::before {
+    content: '';
+    position: absolute;
+    left: calc(50% - 0.5px);
+    bottom: 0;
+    width: 1px;
+    background: #444;
+}
+
+.cv-year-start::after {
+    top: 1.5em;
+}
+
+.cv-year-cont::before {
+    top: 0;
+}
+
+.cv-year-cont:has(+ dd + dt:not(.cv-year-cont))::before,
+.cv-year-cont:nth-last-of-type(1)::before {
+    bottom: 0.9em;
+}
+
+.cv-grid dt,
+.cv-meta {
+    font-family: "BPdotsSquareVF";
+    font-weight: 600;
+    font-size: 0.85em;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #b0b0b0;
+}
+
+.cv-grid dt {
+    padding-top: 0.15em;
+}
+
+.cv-grid dd {
+    margin: 0;
+    color: #d6d6d6;
+    line-height: 1.45;
+}
+
+.cv-entry {
+    margin-top: 1.5vmin;
+    margin-bottom: 3vmin;
+}
+
+.cv-role {
+    font-weight: 600;
+    color: #fafafa;
+}
+
+.cv-meta {
+    margin-top: 0.3em;
+}
+
+.cv-bullets {
+    list-style: none;
+    margin: 0.8em 0 0 0;
+    padding: 0;
+}
+
+.cv-bullets li {
+    position: relative;
+    padding-left: 1.2em;
+    margin-bottom: 0.55em;
+    color: #d6d6d6;
+    line-height: 1.45;
+}
+
+.cv-bullets li::before {
+    content: '';
+    position: absolute;
+    left: 0.15em;
+    top: 0.55em;
+    width: 0.35em;
+    height: 0.35em;
+    background: #4a90e2;
+}
+
+.cv-note {
+    display: block;
+    margin-top: 0.2em;
+    font-size: 0.9em;
+    color: #9a9a9a;
+}
+
+@media (max-width: 768px) {
+    .cv-grid:not(.cv-grid--years) {
+        display: block;
+    }
+
+
+    .cv-grid:not(.cv-grid--years) dt {
+        margin-top: 1.2em;
+    }
+
+    .cv-grid:not(.cv-grid--years) dt:first-child {
+        margin-top: 0;
+    }
+
+    .cv-grid:not(.cv-grid--years) dd {
+        margin-top: 0.3em;
+    }
 }
 
 a.cv-download:link,
